@@ -34,7 +34,7 @@ If you want it printed, then it will print it.  For example
 
     xi(subtype    ,2,%     ,"SMF subtype",  NOPRINT); 
     
-is for an integer, with field name subtype, it is of length 2, % says use the default formatting, NOPRINT, says do not print it.
+is for an integer, with field name subtype, it is of length 2, % says use the default formatting, the field description in the output is "SMF subtype", NOPRINT, says do not print it.
 
 The following are available.
 1.  1 byte integer
