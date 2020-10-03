@@ -6,9 +6,14 @@ This formatter uses C macros to define fields, and automatically print/noprint f
 display the total, average,maximum,minmum CPU and elapsed time for user/URI.
 It formats STCK(E) values into date and time, and gives long long value of a STCK when used as a duration or CPU used.
 
+## What to do next
+If you want to run the formatter with SMF123 or SMF120 records( from Liberty and z/OS connect).  Create a PDS with recfm FB LRECL80.  FTP XMIT in binary to the PDS.   Then use TSO receive indsn('your.pds(XMIT)') this should prompt you for a data set.  
+
+If you want to change the processing or write your own, upload the other members in ASCII.   Submit the member COMPILE, to compile, and RUN to run.
+
 ## run the program
  
-    //SMFPRINT EXEC PGM=COLIN,REGION=0M 
+    //SMFPRINT EXEC PGM=SMFPROG,REGION=0M 
     //STEPLIB  DD DISP=SHR,DSN=&LOADLIB 
     //*MFIN    DD DISP=SHR,DSN=*.SMFDUMP.DUMPOUT 
     //SMFIN    DD DISP=SHR,DSN=COLIN.SMF.OUT 
