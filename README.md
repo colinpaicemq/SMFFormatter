@@ -162,4 +162,7 @@ The print routines use fprintf(fHandle).   This is set up in each file
        fHandle =  S12302; 
 This would write the output to the //S12302 JCL statement
 
+## unescape
+Fields like the URI have escaped characters.  So %name=Server@Info is stored in the SMF record as %25name=Server%40Info.   The function unescape(char *,length) takes the string, and un-escapes the charaters, and overwrites the original string.  It returns the address of the string.
+
 
