@@ -22,3 +22,18 @@
 //
 //* Contributors:
 //*   Colin Paice - Initial Contribution
+
+// Common file open processing
+FILE * MYOPEN(char * fileName){
+  __amrc_type save_amrc;
+  FILE * output ;
+  output  = fopen(fileName   , "w   ") ;
+  if ( output  == NULL)
+  {
+     save_amrc = *__amrc;
+     fprintf(stderr," error opening %s ",fileName );
+     fprintf(stderr," %s \n", strerror(errno)); /* text of the errno*/
+  return (FILE * ) -1;
+  }
+  return output;
+  }

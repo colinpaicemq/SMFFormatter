@@ -1,0 +1,260 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+// routines to do the formatting etc
+//
+// unescape - convert %3c etc into ebcdic
+//
+char * unescape(char * in,  int length)
+{
+ int i;
+ char * pIn  = in  ;
+ char * pOut = in;    ;
+ for (i=0;i< length  ;i++)
+ {
+   if ( * pIn != '%' ) *pOut = * pIn;
+   else
+   {
+           if (memcmp(pIn,"%20",3)==0) *pOut = ' ';
+      else if (memcmp(pIn,"%23",3)==0) *pOut = '#';
+      else if (memcmp(pIn,"%24",3)==0) *pOut = '$';
+      else if (memcmp(pIn,"%25",3)==0) *pOut = '%';
+      else if (memcmp(pIn,"%26",3)==0) *pOut = '&';
+      else if (memcmp(pIn,"%2F",3)==0) *pOut = '/';
+      else if (memcmp(pIn,"%2f",3)==0) *pOut = '/';
+      else if (memcmp(pIn,"%3A",3)==0) *pOut = ':';
+      else if (memcmp(pIn,"%3a",3)==0) *pOut = ':';
+      else if (memcmp(pIn,"%3B",3)==0) *pOut = ';';
+      else if (memcmp(pIn,"%3b",3)==0) *pOut = ';';
+      else if (memcmp(pIn,"%3C",3)==0) *pOut = '<';
+      else if (memcmp(pIn,"%3c",3)==0) *pOut = '<';
+      else if (memcmp(pIn,"%3D",3)==0) *pOut = '=';
+      else if (memcmp(pIn,"%3d",3)==0) *pOut = '=';
+      else if (memcmp(pIn,"%3F",3)==0) *pOut = '?';
+      else if (memcmp(pIn,"%3f",3)==0) *pOut = '?';
+      else if (memcmp(pIn,"%3E",3)==0) *pOut = '>';
+      else if (memcmp(pIn,"%3e",3)==0) *pOut = '>';
+      else if (memcmp(pIn,"%40",3)==0) *pOut = '@';
+      else if (memcmp(pIn,"%5B",3)==0) *pOut = '[';
+      else if (memcmp(pIn,"%5b",3)==0) *pOut = '[';
+      else if (memcmp(pIn,"%5C",3)==0) *pOut = '\\';
+      else if (memcmp(pIn,"%5c",3)==0) *pOut = '\\';
+      else if (memcmp(pIn,"%5D",3)==0) *pOut = ']';
+      else if (memcmp(pIn,"%5d",3)==0) *pOut = ']';
+      else if (memcmp(pIn,"%5E",3)==0) *pOut = 'ª';
+      else if (memcmp(pIn,"%5e",3)==0) *pOut = 'ª';
+      else if (memcmp(pIn,"%60",3)==0) *pOut = '`';
+      else if (memcmp(pIn,"%7B",3)==0) *pOut = '{';
+      else if (memcmp(pIn,"%7b",3)==0) *pOut = '{';
+      else if (memcmp(pIn,"%7C",3)==0) *pOut = '|';
+      else if (memcmp(pIn,"%7c",3)==0) *pOut = '|';
+      else if (memcmp(pIn,"%7D",3)==0) *pOut = '}';
+      else if (memcmp(pIn,"%7d",3)==0) *pOut = '}';
+      else if (memcmp(pIn,"%7E",3)==0) *pOut = '~';
+      else if (memcmp(pIn,"%7e",3)==0) *pOut = '~';
+      else * pOut = * pIn;
+      pIn  +=2;
+      i    +=2;  // increment past the field
+    }
+    pOut ++;
+    pIn  ++;
+ }
+ // pad the end with blanks
+   long newLength = pOut - in;
+   for (i = newLength; i < length;i++)
+    {
+      *pOut = ' ';
+      pOut++;
+      }
+ return in;
+}
+void printfloat(char * name , float in, char * format,char * descr)
+{
+  char *  sFormat = format;
+ if (strlen(format)==3 &&strcmp( format,"%nz")== 0)
+  if  (in      == 0  ) return;
+  else sFormat = "%";
+ fprintf(fHandle,"%-*s:",wDesc,descr);
+ fprintf(fHandle,"%9.6f",in);
+ fprintf(fHandle,"\n");
+}
+//
+//  print an integer width(1)
+//
+void printfi1(char * name    ,char  in,
+             char * format,
+             long length, char * descr)
+{
+  char * sFormat = format;
+  if (strlen(format)==3 &&strcmp( format,"%nz")== 0)
+  if  (in      == 0  ) return;
+  else sFormat = "%";
+  fprintf(fHandle,"%-*s:",wDesc,descr);
+  if (strlen(format)== 1)
+    fprintf(fHandle,"%hh",in);
+  else
+    fprintf(fHandle,sFormat,in );
+ fprintf(fHandle,"\n");
+}
+//
+//  print an integer width(2)
+//
+void printfi2(char * name    ,unsigned short in,
+             char * format,
+             long length, char * descr)
+{
+  char * sFormat = format;
+  if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
+  if  (in      == 0  ) return;
+  else sFormat = "%";
+ fprintf(fHandle,"%-*s:",wDesc,descr);
+ if (strlen(format)== 1)
+   fprintf(fHandle,"%hu",in);
+ else
+   fprintf(fHandle,sFormat,in   );
+ fprintf(fHandle,"\n");
+}
+//
+//  print an integer width(4)
+//
+void printfi4(char * name    ,unsigned int in,
+             char * format,
+             long length, char * descr)
+{
+  char * sFormat = format;
+ if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
+  if  (in      == 0  ) return;
+  else sFormat = "%";
+ fprintf(fHandle,"%-*s:",wDesc,descr);
+ if (strlen(format)== 1)
+   fprintf(fHandle,"%u",in);
+ else
+   fprintf(fHandle,sFormat,in   );
+ fprintf(fHandle,"\n");
+}
+//
+//  print an integer width(8)
+//
+void printfi8(char * name    ,unsigned long long in,
+             char * format,
+             long length, char * descr)
+{
+  char * sFormat = format;
+ if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
+  if  (in      == 0  ) return;
+  else sFormat = "%";
+ fprintf(fHandle,"%-*s:",wDesc,descr);
+ if (strlen(format)== 1)
+   fprintf(fHandle,"%llu",in);
+ else
+   fprintf(fHandle,sFormat,in     );
+ fprintf(fHandle,"\n");
+}
+//
+//  print a hex string
+//
+void printfx(char * name    ,char * data,
+             char * format,
+             long length, char * descr)
+{
+ long i,j;
+ // fprintf(fHandle,"%-*s:",wDesc,descr);
+ fprintf(fHandle,"%-*s:",wDesc,descr);
+ for (    i = 0, j = 0; j < length; i++, j++) {
+      if (j != 0 && j % 4 == 0) {
+          fprintf(fHandle," ");
+      }
+      fprintf(fHandle,"%2.2X", *(data + j));
+  }
+ fprintf(fHandle,"\n");
+}
+//
+//  print an EBCDIC string
+//
+void printfs(char * name    ,char * data,
+             char * format,
+             long length, char * descr)
+{
+   char * sFormat = format;
+   if (strlen(format)==3 &&strcmp( format,"%nb")== 0)
+     if  (data[0] == ' ') return;
+     else sFormat = "%";
+   if (strlen(format)==2 &&strcmp( format,"%%")== 0)
+   {
+      unescape(data,length);
+      sFormat = "%";
+   }
+   fprintf(fHandle,"%-*s:",wDesc,descr);
+   if ( strlen(sFormat)== 1)
+     fprintf(fHandle,"%-*.*s",length,length,data    );
+   else
+     fprintf(fHandle,sFormat,data     );
+   fprintf(fHandle,"\n");
+}
+//
+//  convert a STCK(E) into a printable string
+//
+void STCKTIME(char * pData,long length, char * timeBuffer)
+{
+  struct tm *tm2;
+  unsigned long long stck  = *(ull)               pData;
+  if (length == 16)
+      stck = stck/16  ; // to get microseconds in bottom bit
+                        // STCK is already shifted by 8 bits.
+      else stck = stck/4096;
+  unsigned long long month = 31 * 24 *60 * 60 * 1000000;
+  long  microseconds = stck%1000000;
+  stck = stck/1000000;  // seconds from microseconds
+  if (  stck < 2208988800 ) // 1970
+  {
+    long seconds =  stck%60;
+    stck = stck/60;
+    long minutes =  stck%60;
+    stck = stck/60;
+    long hours =    stck%24;
+    stck = stck/24;
+    long days = stck;
+  sprintf(timeBuffer,"%4.4i/%2.2i/%2.2i %2.2i:%2.2i:%2.2i.%6.6i\0",
+    0,  //yy
+    0,  //mm
+    days,
+    hours,
+    minutes,
+    seconds,
+    microseconds);
+    return;
+  }
+  long seconds = stck - 2208988800;
+  tm2= gmtime(&seconds  );
+  sprintf(timeBuffer,"%4.4i/%2.2i/%2.2i %2.2i:%2.2i:%2.2i.%6.6i\0",
+   1900+ tm2->tm_year,
+   1+(tm2->tm_mon),
+   tm2->tm_mday,
+   tm2->tm_hour,
+   tm2->tm_min,
+   tm2->tm_sec,
+   microseconds);
+}
