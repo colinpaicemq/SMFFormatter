@@ -1,0 +1,201 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * SMF12011 = 0;
+// roots for saving the summarised information
+void * S120Root =  NULL;
+void * S120TotCPU  =  NULL;
+//
+// function  to convert WLM classification field  to string
+ int  WLMClass(char *  in, char * buffer)
+ {
+   int i = * (int  *) in;  // get the int from the buffer
+   int l = 0;
+   switch(i )
+   {
+      case 6:
+           l=sprintf(buffer,"URI\0");
+           break;
+      case 7:
+           l=sprintf(buffer,"Target Host\0");
+           break;
+      case 8:
+           l=sprintf(buffer,"Target Port\0");
+           break;
+      default:
+           l=sprintf(buffer,"Unknown classification %d\0",i );
+   }
+   return l;
+ }
+//
+// start processing here
+//
+void dosmf120_11( char  * pSMF,long count){
+  // open the output file.
+  // If problems then just return
+  if  (SMF12011 == 0 ) SMF12011 = MYOPEN("dd:S12011  ");
+  if  (SMF12011 == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = SMF12011;
+
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  fprintf(fHandle,"====SMF120-11=============== record %u\n",count);
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  xx(flag        ,1 ,%    ,"flag              ",NOPRINT);
+  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xx(time        ,4 ,%    ,"SMF time          ",NOPRINT);
+  xx(date        ,4 ,%    ,"SMF date          ",NOPRINT);
+  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
+  xi(subtype     ,2 ,%    ,"SMF subtype       ",NOPRINT);
+  xi(subversion  ,4 ,%    ,"Subtype version   ",NOPRINT);
+  xi(Triplets_n  ,4 ,%    ,"Triplet count     ",NOPRINT);
+  xi(Triplets_o  ,4 ,%    ,"Index?Offset      ",NOPRINT);
+  xi(TotalNumber ,4 ,%    ,"Total Number      ",NOPRINT);
+  xx(SMF120BAE   ,8 ,%    ,"Record continue   ",NOPRINT);
+  xi(server_o    ,4 ,%    ,"Server offset     ",NOPRINT);
+  xi(server_l    ,4 ,%    ,"Server length     ",NOPRINT);
+  xi(server_c    ,4 ,%    ,"Server count      ",NOPRINT);
+  xi(user____o   ,4 ,%    ,"user    offset    ",NOPRINT);
+  xi(user____l   ,4 ,%    ,"user    length    ",NOPRINT);
+  xi(user____c   ,4 ,%    ,"user    count     ",NOPRINT);
+  xi(request_o   ,4 ,%    ,"Request offset    ",NOPRINT);
+  xi(request_l   ,4 ,%    ,"Request length    ",NOPRINT);
+  xi(request_c   ,4 ,%    ,"Request count     ",NOPRINT);
+  xi(classifi_o  ,4 ,%    ,"classify  offset  ",NOPRINT);
+  xi(classifi_l  ,4 ,%    ,"classify  length  ",NOPRINT);
+  xi(classifi_c  ,4 ,%    ,"classify  count   ",NOPRINT);
+  xi(network__o  ,4 ,%    ,"network   offset  ",NOPRINT);
+  xi(network__l  ,4 ,%    ,"network   length  ",NOPRINT);
+  xi(network__c  ,4 ,%    ,"network   count   ",NOPRINT);
+
+  TRIPLET(SERVER,pSMFZ+*server_o       - 4,
+     *server_c ,*server_l,NOPRINT);
+     xi(server_vers,4  ,%   ,"Server version    ",NOPRINT);
+     xs(System     ,8  ,%   ,"System            ",NOPRINT);
+     xs(Sysplex    ,8  ,%   ,"Syplex            ",NOPRINT);
+     xs(jobid      ,8  ,%   ,"Server job id     ",NOPRINT);
+     xs(jobname    ,8  ,%   ,"Server job name   ",NOPRINT);
+     xx(Stoken     ,8  ,%   ,"Stoken            ",NOPRINT);
+     xi(Asid       ,4  ,%   ,"Asid              ",NOPRINT);
+     xs(configdir  ,128,%   ,"config dir        ",  PRINT);
+     xs(codelevel  ,16 ,%   ,"codelevel         ",NOPRINT);
+     xi(usspid     , 4 ,%   ,"Uss Process id    ",NOPRINT);
+     xx(flag2      , 4 ,%   ,"Flag2             ",NOPRINT);
+  ETRIPLET(server)  ;
+
+  TRIPLET(Request,pSMFZ+*request_o- 4,
+       *request_c ,*request_l,NOPRINT);
+     xi(server_vers      ,4  ,%     ,"Server version    ",NOPRINT);
+     xx(TCB              ,4  ,%     ,"TCB               ",NOPRINT);
+     xx(ttoken           ,16 ,%     ,"TToken            ",NOPRINT);
+     xx(pthread          ,8  ,%     ,"pthread           ",NOPRINT);
+     xx(GMTOffset        ,8  ,%     ,"GMTOffset         ",NOPRINT);
+     xx(javaid           ,8  ,%     ,"Java getid        ",NOPRINT);
+     xx(unique           ,23 ,%     ,"unique            ",NOPRINT);
+     xx(reserver1        ,1  ,%     ,"reserved          ",NOPRINT);
+     xSTCKDT(Startdisp   ,8  ,%     ,"Start             ",  PRINT);
+     xSTCKDT(Stopdisp    ,8  ,%     ,"Stop              ",  PRINT);
+     xs(WLTran           ,8  ,%nb   ,"WLMTRan        ",PRINT);
+     xSTCKll(CPUTotalS   ,8  ,%     ,"CPU Start      ",NOPRINT);
+     xSTCKll(CPUTotalS2  ,8  ,%     ,"CPU Start 2    ",NOPRINT);
+     xSTCKll(CPUTotalP   ,8  ,%     ,"CPU Stop       ",NOPRINT);
+     xSTCKll(CPUTotalP2  ,8  ,%     ,"CPU STop 2     ",NOPRINT);
+     xSTCKll(EncDelCPUT  ,8  ,%nz   ,"Enclave CPU time  ",  PRINT);
+     xSTCKll(EncDelCPUS  ,8  ,%nz   ,"Enclave CPU serv  ",  PRINT);
+     xSTCKll(EncDelCZAAT ,8  ,%nz   ,"Enclave ZAAP time ",  PRINT);
+     xSTCKll(EncDelCZAAS ,8  ,%nz   ,"Enclave ZAAP Ser  ",  PRINT);
+     xSTCKll(EncDelCZIIT ,8  ,%nz   ,"Enclave ZIIP tim  ",  PRINT);
+     xSTCKll(EncDelCZIIS ,8  ,%nz   ,"Enclave ZIIP Ser  ",  PRINT);
+     xi(EncDelCZAAPN     ,4  ,%nz   ,"Enclave ZAAP Nor  ",  PRINT);
+     xi(EncDelCRtRa      ,4  ,%nz   ,"Encl resp time ratio",PRINT);
+     xx(EncToken         ,8  ,%     ,"Enclave token     ",NOPRINT);
+     xs(Userid           ,64 ,%nb   ,"userid long       ",  PRINT);
+     xs(Useridm          ,8  ,%nb   ,"userid SAf        ",  PRINT);
+     xi(lURI             ,4  ,%     ,"Length URI        ",NOPRINT);
+     xs(URI              ,128,%%    ,"URI               ",  PRINT);
+
+ //  Special processing
+  //  Transaction duration
+     unsigned long long lduration =  Stopdispll - Startdispll;
+     float fDuration =  ((float) lduration )/1000000;
+     printfloat("duration",fDuration,"%","Tran dur in secs");
+     // Enclave CPU
+     fDuration =  ((float)EncDelCPUT )/1000000;
+     printfloat("Enclave CPU",fDuration,"%nz","Encl CPUFloat");
+
+     unsigned long long CPUUsedll =
+        (CPUTotalP- CPUTotalS)+ (CPUTotalP2- CPUTotalS2)
+       + EncDelCPUT  ;
+     float   CPUUsed;
+     CPUUsed = ((float) (CPUTotalP- CPUTotalS))/1000000;
+     printfloat("CPUUsed ",CPUUsed  ,"%","CPUUsed  in secs");
+
+     CPUUsed = ((float) (CPUTotalP2- CPUTotalS2))/1000000;
+     printfloat("CPUUsed ",CPUUsed  ,"%nz","CPUUsed2  in secs");
+
+     unescape(URI,*lURI) ;
+     char vsbuffer[200];
+     int len = *lURI;
+     if (len  > 128) len  = 128;
+     sprintf(vsbuffer,"%4.4s0 %8.8s  %-*.*s\0",
+        Startdispdt+11,      //hh:m  part of date time
+        Userid,
+        len,len,
+        URI);
+     addTree(vsbuffer,lduration,CPUUsedll,&S120Root);
+     sprintf(vsbuffer,"%-*.*s\0",len,len,
+        URI);
+      addTree(vsbuffer,lduration,CPUUsedll,&S120TotCPU);
+ ETRIPLET(Request  );
+
+ TRIPLET(Classification,pSMFZ+*classifi_o      - 4,
+     *classifi_c,*classifi_l,NOPRINT);
+     xi(WLMClassVer   ,  4,%        ,"Classification  ",NOPRINT);
+     xfn(WLMClassType ,  4,WLMClass ,"WLM Classify type  ",  PRINT);
+     xi(WLMClassLen   ,  4,%        ,"Classify len    ",NOPRINT);
+     xs(WLMClassify   ,128,%        ,"Classify        ",PRINT);
+ ETRIPLET(Classification );
+ TRIPLET(Network,pSMFZ+*network__o      - 4,
+     *network__c,*network__l,NOPRINT);
+     xi(server_vers , 4,%        ,"Server version    ",NOPRINT);
+     xi(reseverd2   , 8,%        ,"reserved          ",NOPRINT);
+     xi(responsbytes, 8,%        ,"Response bytes    ",  PRINT);
+     xi(targetPort  , 4,%        ,"Target Port       ",NOPRINT);
+     xi(OriginPort  , 4,%        ,"Origin port       ",NOPRINT);
+     xi(lOrigin     , 4,%        ,"Len Origin        ",NOPRINT);
+     xs(Origin      ,40,%        ,"Origin            ",NOPRINT);
+ ETRIPLET(Network);
+}
