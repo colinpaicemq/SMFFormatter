@@ -28,7 +28,7 @@ Where the SMF 123 subtype 11 data comes out in //S12311, the summary information
 
 Data summaries by key fields comes out in //S120SUM and //S123IP etc. 
 
-## Defintion fields
+## Definition fields
 You define fields within records with C macros.  You can choose to print the value or not( many fields are not interesting).
 If you want it printed, then it will print it.  For example 
 
