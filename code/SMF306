@@ -1,0 +1,353 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * SMF30_6  = 0;
+FILE * SUM30    = 0;
+//
+// start processing here
+//
+void dosmf30_6( char  * pSMF,long count){
+  if  (SMF30_6  == 0 ) SMF30_6  = MYOPEN("dd:S306    ");
+  if  (SMF30_6  == (FILE *)   -1)return;
+  if  (SUM30    == 0 ) SUM30    = MYOPEN("dd:SUM30   ");
+  if  (SUM30    == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = SMF30_6 ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  fprintf(fHandle,"====SMF30 -6 =============== record %u\n",count);
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  //  printHexS(pSMF,80);
+  xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
+  xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
+  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xfn(time       ,4 ,SMFTime ,"SMFTime        ",  PRINT);
+  xfn(date       ,4 ,SMFDate ,"SMFDate        ",  PRINT);
+  xs(sid         ,4 ,%    ,"SMF system id     ",  PRINT);
+  xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",  PRINT);
+  xfn(subtype    ,2 ,SMF30Subtype,"SMFSubtype   ",  PRINT);
+  xi(subsyso     ,4 ,%    ,"Subsys offset     ",NOPRINT);
+  xi(subsysl     ,2 ,%    ,"Subsys len        ",NOPRINT);
+  xi(subsysn     ,2 ,%    ,"Subsys number     ",NOPRINT);
+  xi(id____o     ,4 ,%    ,"id     offset     ",NOPRINT);
+  xi(id____l     ,2 ,%    ,"id     len        ",NOPRINT);
+  xi(id____n     ,2 ,%    ,"id     number     ",NOPRINT);
+  xi(io____o     ,4 ,%    ,"io     offset     ",NOPRINT);
+  xi(io____l     ,2 ,%    ,"io     len        ",NOPRINT);
+  xi(io____n     ,2 ,%    ,"io     number     ",NOPRINT);
+  xi(comp__o     ,4 ,%    ,"comp   offset     ",NOPRINT);
+  xi(comp__l     ,2 ,%    ,"comp   len        ",NOPRINT);
+  xi(comp__n     ,2 ,%    ,"comp   number     ",NOPRINT);
+  xi(proc__o     ,4 ,%    ,"proc   offset     ",NOPRINT);
+  xi(proc__l     ,2 ,%    ,"proc   len        ",NOPRINT);
+  xi(proc__n     ,2 ,%    ,"proc   number     ",NOPRINT);
+  xi(acct__o     ,4 ,%    ,"acct   offset     ",NOPRINT);
+  xi(acct__l     ,2 ,%    ,"acct   len        ",NOPRINT);
+  xi(acct__n     ,2 ,%    ,"acct   number     ",NOPRINT);
+  xi(stor__o     ,4 ,%    ,"stor   offset     ",NOPRINT);
+  xi(stor__l     ,2 ,%    ,"stor   len        ",NOPRINT);
+  xi(stor__n     ,2 ,%    ,"stor   number     ",NOPRINT);
+  xi(perf__o     ,4 ,%    ,"perf   offset     ",NOPRINT);
+  xi(perf__l     ,2 ,%    ,"perf   len        ",NOPRINT);
+  xi(perf__n     ,2 ,%    ,"perf   number     ",NOPRINT);
+  xi(oper__o     ,4 ,%    ,"oper   offset     ",NOPRINT);
+  xi(oper__l     ,2 ,%    ,"oper   len        ",NOPRINT);
+  xi(oper__n     ,2 ,%    ,"oper   number     ",NOPRINT);
+  xi(excp__o     ,4 ,%    ,"excp   offset     ",NOPRINT);
+  xi(excp__l     ,2 ,%    ,"excp   len        ",NOPRINT);
+  xi(excp__n     ,2 ,%    ,"excp   number     ",NOPRINT);
+  xi(excp__overfl,2 ,%    ,"excp   overflow   ",NOPRINT);
+  xi(reseved1    ,2 ,%    ,"reserverd         ",NOPRINT);
+  xi(excp__subs  ,4 ,%    ,"excp   overflow   ",NOPRINT);
+  xi(APPC__o     ,4 ,%    ,"APPC   offset     ",NOPRINT);
+  xi(APPC__l     ,2 ,%    ,"APPC   len        ",NOPRINT);
+  xi(APPC__n     ,2 ,%    ,"APPC   number     ",NOPRINT);
+  xi(APPCCuo     ,4 ,%    ,"APPCCU offset     ",NOPRINT);
+  xi(APPCCul     ,2 ,%    ,"APPCCU len        ",NOPRINT);
+  xi(APPCCun     ,2 ,%    ,"APPCCU number     ",NOPRINT);
+  xi(OMVS__o     ,4 ,%    ,"OMVS   offset     ",NOPRINT);
+  xi(OMVS__l     ,2 ,%    ,"OMVS   len        ",NOPRINT);
+  xi(OMVS__N     ,2 ,%    ,"OMVS   number     ",NOPRINT);
+  xi(OMVS__subs  ,4 ,%    ,"OMVS   number sbsq",NOPRINT);
+  xi(usage_o     ,4 ,%    ,"Usage  offset     ",NOPRINT);
+  xi(usage_l     ,2 ,%    ,"Usage  len        ",NOPRINT);
+  xi(usage_n     ,2 ,%    ,"Usage  number     ",NOPRINT);
+  xi(ARM___o     ,4 ,%    ,"ARM    offset     ",NOPRINT);
+  xi(ARM___l     ,2 ,%    ,"ARM    len        ",NOPRINT);
+  xi(ARM___n     ,2 ,%    ,"ARM    number     ",NOPRINT);
+  xi(ENC___o     ,4 ,%    ,"ENC    offset     ",NOPRINT);
+  xi(ENC___l     ,2 ,%    ,"ENC    len        ",NOPRINT);
+  xi(ENC___n     ,2 ,%    ,"ENC    number     ",NOPRINT);
+  xi(Counter_o   ,4 ,%    ,"Offset to Counter ",NOPRINT);
+  xx(CPUPROG     ,8 ,%    ,"Highest use Prog  ",NOPRINT);
+  xi(Counter_l   ,2 ,%    ,"Counter_l         ",NOPRINT);
+  xi(CAS         ,1 ,%    ,"CAS               ",NOPRINT);
+  xi(Reserver2   ,1 ,%    ,"reserved2         ",NOPRINT);
+  xi(Counter_n   ,2 ,%    ,"Counter_n         ",NOPRINT);
+  xi(ZEDC__o     ,4 ,%    ,"ZEDC offset       ",NOPRINT);
+  xi(SMF_FLAG    ,1 ,%    ,"SMF_FLAG          ",NOPRINT);
+  xi(Reserver3   ,1 ,%    ,"reserved2         ",NOPRINT);
+  xi(ZEDC__l     ,2 ,%    ,"ZEDC   len        ",NOPRINT);
+  xi(ZEDC__n     ,2 ,%    ,"ZEDC   number     ",NOPRINT);
+  TRIPLET(JobInfo,pSMFZ+ id____o     ,
+        id____n   , id____l  ,NOPRINT);
+//   printHexS(p,40);
+     xs(JBN              ,8  ,%     ,"Job Name          ",  PRINT);
+     xs(Program          ,8  ,%nb   ,"Program           ",  PRINT);
+     xs(Stepname         ,8  ,%nb   ,"StepName          ",  PRINT);
+     xs(UIF              ,8  ,%nb   ,"User defined field",  PRINT);
+     xs(JesJob           ,8  ,%     ,"JesJob            ",  PRINT);
+     xi(STN              ,2  ,%     ,"Step number       ",NOPRINT);
+     xi(CLS              ,1  ,%     ,"Job class         ",NOPRINT);
+     xi(JF1              ,1  ,%     ,"Flag              ",NOPRINT);
+     xi(reservedID       ,2  ,%     ,"Always zero       ",NOPRINT);
+     xi(JPT              ,2  ,%     ,"Jes Priority      ",NOPRINT);
+     xi(AST              ,4  ,%     ,"Device alloc time ",NOPRINT);
+     xi(PPS              ,4  ,%     ,"Prog start time   ",NOPRINT);
+     xi(SIT              ,4  ,%     ,"INIT start time   ",NOPRINT);
+     xi(STD              ,4  ,%     ,"INIT start date   ",NOPRINT);
+     xi(RST              ,4  ,%     ,"reader start time ",NOPRINT);
+     xi(RSD              ,4  ,%     ,"reader start date ",NOPRINT);
+     xi(RET              ,4  ,%     ,"reader end time   ",NOPRINT);
+     xi(RED              ,4  ,%     ,"reader end date   ",NOPRINT);
+     xs(USR              ,20 ,%nb   ,"Programmers name  ",  PRINT);
+     xs(GRP              ,8  ,%nb   ,"Programmers group ",  PRINT);
+     xs(RUD              ,8  ,%nb   ,"RACF userid       ",  PRINT);
+     xs(TID              ,8  ,%nb   ,"Terminal ID       ",  PRINT);
+     xs(TSN              ,8  ,%nb   ,"Terminal name     ",  PRINT);
+     xs(PSN              ,8  ,%nb   ,"Procedure step    ",  PRINT);
+     xs(CL8              ,8  ,%nb   ,"Job class         ",  PRINT);
+     xSTCKDT(ISS         ,8  ,%     ,"Start date time   ",  PRINT);
+     xSTCKDT(IET         ,8  ,%     ,"End   date time   ",  PRINT);
+     unsigned long long lduration =  IETll - ISSll;
+     float fDuration =  ((float) lduration )/1000000;
+     printfloat("duration",fDuration,"%","Interval in secs");
+     xs(SSN              ,4  ,%nb   ,"Substep number    ",NOPRINT);
+     xs(EXN              ,16 ,%nb   ,"Program name      ",  PRINT);
+     xi(ASI              ,2  ,%nz   ,"ASID              ",NOPRINT);
+     // the jes correlotor is a length fw followed by string
+     xs(COR              ,64 ,%nb   ,"Jes Correlator    ",NOPRINT);
+  if(subtype[0] == '4' ) // step total
+  {
+    fprintf(SUM30  ,"\n");  /* blank line before */
+    fprintf(SUM30  ,"==%4.4s Job:%8.8s Step:%8.8s Program:%8.8s "
+      "SMF Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
+       ssid,JBN, Stepname,Program,date,time,sid);
+    fprintf(SUM30  ," Interval Start:%25.25s Interval end%25.25s"
+      " Interval Duration %8.3f seconds\n",
+       ISSdt,IETdt,fDuration);
+  }
+ ETRIPLET(Request  );
+  TRIPLET(ZOS    ,pSMFZ+ subsyso     ,
+        subsysn   , subsysl  ,NOPRINT);
+     xi(reserved4        ,4  ,%     ,"Server version    ",NOPRINT);
+     xi(reserved5        ,2  ,%     ,"resv5             ",NOPRINT);
+     xs(PNM              ,8  ,%     ,"Product name      ",  PRINT);
+     xs(OPSYS            ,8  ,%     ,"OPSYS   name      ",  PRINT);
+     xs(SYSNAME          ,8  ,%     ,"SYSNAME name      ",  PRINT);
+     xs(PLEXNAME         ,8  ,%     ,"PLEX    name      ",  PRINT);
+     xx(ttoken           ,16 ,%     ,"TToken            ",NOPRINT);
+ ETRIPLET(Request  );
+  TRIPLET(Proc  t,pSMFZ+ proc__o     ,
+        proc__n   , proc__l  ,NOPRINT);
+     xi(reservedp1       ,2  ,%     ,"reserved          ",NOPRINT);
+     xi(invalidtimer     ,2  ,%     ,"invalidtime       ",NOPRINT);
+     xh(CPT              ,4  ,%     ,"All TCB on CP     ",  PRINT);
+     xh(CPS              ,4  ,%nz   ,"All SRB on CP     ",  PRINT);
+     xh(ICU              ,4  ,%nz   ,"Init CPU          ",NOPRINT);
+     xh(ISB              ,4  ,%nz   ,"Init SRB          ",NOPRINT);
+     xh(JVU              ,4  ,%nz   ,"Step vector CPU   ",NOPRINT);
+     xh(IVU              ,4  ,%nz   ,"Init vector CPU   ",NOPRINT);
+     xh(JVA              ,4  ,%nz   ,"Step Aff    CPU   ",NOPRINT);
+     xh(IVA              ,4  ,%nz   ,"Init Aff    CPU   ",NOPRINT);
+     // dont do the next two, as ISS is a better time value
+     //  IET is also the end time ... so more information
+     xfn(IST             ,4  ,SMFTime ,"Interval S time",NOPRINT);
+     xfn(ISD             ,4  ,SMFDate ,"Interval S date",NOPRINT);
+     xh(IIP              ,4  ,%nz   ,"IO CPU            ",  PRINT);
+     xh(RCT              ,4  ,%nz   ,"RCT CPU           ",  PRINT);
+     xh(HPT              ,4  ,%nz   ,"Hiperspace CPU    ",  PRINT);
+     xh(CSC              ,4  ,%nz   ,"Crypto            ",  PRINT);
+     xh(DMI              ,4  ,%nz   ,"ADMF pages write  ",  PRINT);
+     xh(DMO              ,4  ,%nz   ,"ADMF pages read   ",  PRINT);
+     xh(ASR              ,4  ,%nz   ,"Extra CPU         ",  PRINT);
+     xh(ENC              ,4  ,%nz   ,"Ind enclave CPU   ",  PRINT);
+     xh(DET              ,4  ,%nz   ,"Dep enclave CPU   ",  PRINT);
+     xh(CEP              ,4  ,%nz   ,"Queueing cost     ",NOPRINT);
+     xh(TF2              ,1  ,%nz   ,"TF2               ",NOPRINT);
+     xh(T32              ,1  ,%nz   ,"TF32              ",NOPRINT);
+     xh(T33              ,1  ,%nz   ,"TF33              ",NOPRINT);
+     xh(PASrev3          ,1  ,%nz   ,"Reserved          ",NOPRINT);
+     xh(CPUonIFA         ,4  ,%nz   ,"Tot on ZAAP       ",  PRINT);
+     xh(ENCONIFA         ,4  ,%nz   ,"Ind ENC on ZAAP   ",  PRINT);
+     xh(DepENFonIFA      ,4  ,%nz   ,"Dep  Enc on ZAAP  ",  PRINT);
+     xh(IFAonCP          ,4  ,%nz   ,"ZAAP on CP        ",  PRINT);
+     xh(ENCIFAonCP       ,4  ,%nz   ,"I Enc ZAAP on CP  ",  PRINT);
+     xh(DepENCIFAonCP    ,4  ,%nz   ,"D Enc ZAAP on CP  " ,  PRINT);
+     xk(CEPI             ,4  ,%nz   ,"ENQ promoted      " ,NOPRINT);
+     xh(CPUonZIIP        ,4  ,%nz   ,"Tot on ZIIP       " ,  PRINT);
+     xh(ENConZIIP        ,4  ,%nz   ,"I Enc CPU on ZIIP " ,  PRINT);
+     xh(DEPCPUonZIIP     ,4  ,%nz   ,"D Enc CPU on ZIIP " ,  PRINT);
+
+     xh(ZIIPonCP         ,4  ,%nz   ,"ZIIP on CP       " ,  PRINT);
+     xh(EZIIPonCP        ,4  ,%nz   ,"I Enc ZIIP on CP " ,  PRINT);
+     xh(DEZIIPonCP       ,4  ,%nz   ,"D Enc ZIIP on CP " ,  PRINT);
+
+     xh(EZIIPonCPN       ,4  ,%nz   ,"I Enc ZIIP on CP N" ,  PRINT);
+     xh(DEZIIPonCPN      ,4  ,%nz   ,"D Enc ZIIP on CP N" ,  PRINT);
+
+     xk(CRP              ,4  ,%nz   ,"Promoted          " ,NOPRINT);
+     xh(TCBStepTerm      ,4  ,%nz   ,"TCBStepterm       " ,  PRINT);
+     xh(TCBStepInit      ,4  ,%nz   ,"TCBStepInit       " ,  PRINT);
+     xh(SRBStepTerm      ,4  ,%nz   ,"SRBStepterm       " ,  PRINT);
+     xh(SRBStepInit      ,4  ,%nz   ,"SRBStepInit       " ,  PRINT);
+     xh(MissedBlk        ,4  ,%nz   ,"MissedBlk         " ,  PRINT);
+     xh(MissedDCT        ,4  ,%nz   ,"MissedDCT         " ,  PRINT);
+     xi(TaskCPU          ,2  ,%nz   ,"Task CPU percent  " ,  PRINT);
+     xs(HighestProg      ,8  ,%nb   ,"Highest Program   " ,  PRINT);
+     float totalCPU = CPT  + CPS + CPUonIFA +IFAonCP
+                                 + CPUonZIIP + ZIIPonCP;
+  if(subtype[0] == '4' ) // step total
+  {
+    fprintf(SUM30  ,
+     " Total CPU:%6.3f     TCB on CP        :%6.3f "
+     "SRB on CP       :%6.3f\n",
+      totalCPU,CPT,CPS);
+    if ( ENC      > 0 || DET     > 0)
+    fprintf(SUM30  ,
+      "                      Ind Enc CPU      :%6.3f "
+      "Dep Enc CPU     :%6.3f\n",
+      ENC     ,DET    );
+    if ( CPUonIFA > 0 || IFAonCP > 0)
+    fprintf(SUM30  ,
+      "                      ZAAP on ZAAP     :%6.3f "
+      "ZAAP on CP      :%6.3f\n",
+      CPUonIFA,IFAonCP);
+    if ( ENCONIFA > 0 || DepENFonIFA    > 0)
+    fprintf(SUM30  ,
+      "                      I Enc   ZAAP:%6.3f "
+      "D Enc ZAAP       :6.3f\n",
+      ENCONIFA, DepENFonIFA   );
+    if ( CPUonZIIP > 0 || ZIIPonCP > 0)
+    fprintf(SUM30  ,
+      "                      ZIIP on ZIIP     :%6.3f "
+      "ZIIP on CP      :%6.3f \n",
+      CPUonZIIP,ZIIPonCP);
+    if (ENConZIIP > 0 ||  DEPCPUonZIIP > 0 )
+    fprintf(SUM30  ,
+      "                        I Enc   ZIIP   :%6.3f "
+      "  D Enc ZIIP    :%6.3f \n",
+      ENConZIIP,  DEPCPUonZIIP );
+ }
+ ETRIPLET(Request  );
+  TRIPLET(EXCP       ,pSMFZ+ io____o     ,
+        io____n   , io____l  ,NOPRINT);
+     xi(INP              ,4  ,%nz   ,"IO Cards read      ",  PRINT);
+     xi(TEP              ,4  ,%nz   ,"IO Blocks xfered   ",  PRINT);
+     xi(TPT              ,4  ,%nz   ,"TSO TPUTs         ",  PRINT);
+     xi(TGT              ,4  ,%nz   ,"TSO TGETs         ",NOPRINT);
+     xi(RDR              ,1  ,%nz   ,"Reader device clas",NOPRINT);
+     xi(RDT              ,1  ,%nz   ,"Reader device type",NOPRINT);
+     xj(TCN              ,4  ,%nz   ,"IO Total conn time",  PRINT);
+     xi(DCF              ,4  ,%nz   ,"Data incorrect    ",NOPRINT);
+     xi(RSB              ,2  ,%nz   ,"Reserved          ",NOPRINT);
+     xi(TRR              ,4  ,%nz   ,"ReRead count      ",NOPRINT);
+     xj(AIC              ,4  ,%nz   ,"IO D enc conn time",  PRINT);
+     xj(AID              ,4  ,%nz   ,"IO D enc disc time",  PRINT);
+     xj(AIW              ,4  ,%nz   ,"IO D enc pend time",  PRINT);
+     xi(AIS              ,4  ,%nz   ,"IO D enc ssch num ",  PRINT);
+     xj(EIC              ,4  ,%nz   ,"IO I enc conn time",  PRINT);
+     xj(EID              ,4  ,%nz   ,"IO I enc disc time",  PRINT);
+     xj(EIW              ,4  ,%nz   ,"IO I enc pend time",  PRINT);
+     xi(EIS              ,4  ,%nz   ,"IO I enc ssch num ",  PRINT);
+     xi(TEX              ,8  ,%nz   ,"Total blocks      ",  PRINT);
+     xi(DAS              ,4  ,%nz   ,"IO DDs acct suppre",  PRINT);
+ ETRIPLET(Request  );
+  TRIPLET(Performance,pSMFZ+ perf__o     ,
+        perf__n   , perf__l  ,NOPRINT);
+     xi(SRV              ,4  ,%     ,"Total SU          ",NOPRINT);
+     xi(CSU              ,4  ,%     ,"CPU   SU          ",NOPRINT);
+     xi(SRB              ,4  ,%     ,"SRB   SU          ",NOPRINT);
+     xi(IO               ,4  ,%     ,"IO    SU          ",NOPRINT);
+     xi(MSO              ,4  ,%     ,"MSO   SU          ",NOPRINT);
+     xk(TAT              ,4  ,%     ,"Active time       ",  PRINT);
+     xi(SUS              ,4  ,%     ,"RmctAdjC          ",NOPRINT);
+     xk(RES              ,4  ,%     ,"resident time     ",NOPRINT);
+     xi(TRS              ,4  ,%     ,"Number SRM trans  ",  PRINT);
+     xs(WLM              ,8  ,%     ,"Workload          ",  PRINT);
+     xs(SCN              ,8  ,%nb   ,"Service class     ",  PRINT);
+     xs(RGN              ,8  ,%nb   ,"Resource Group    ",  PRINT);
+     xs(RCN              ,8  ,%nb   ,"Report class      ",  PRINT);
+     xk(ETA              ,4  ,%nz   ,"I Enclave Act time",  PRINT);
+     xi(ESU              ,4  ,%     ,"I Enc CPU SU      ",NOPRINT);
+     xi(ETC              ,4  ,%nz   ,"I Enc count       ",  PRINT);
+     xs(PFL              ,16 ,%nb   ,"Sched Env         ",NOPRINT);
+     xk(JQT              ,4  ,%nb   ,"Job Prep time     ",NOPRINT);
+     xk(RQT              ,4  ,%nb   ,"Waitng to execute ",NOPRINT);
+     xk(HQT              ,4  ,%nb   ,"Waitng to execute2",NOPRINT);
+     xk(SQT              ,4  ,%nb   ,"Waitng to execute3",NOPRINT);
+     xx(PF1              ,1  ,%nb   ,"Flags             ",NOPRINT);
+     xx(PF2              ,1  ,%nb   ,"Flags             ",NOPRINT);
+     xx(INV              ,1  ,%nb   ,"Flags             ",NOPRINT);
+     xx(ZAP              ,1  ,%nb   ,"Flags             ",NOPRINT);
+     xs(JPN              ,8  ,%nb   ,"Collection name   ",  PRINT);
+     xi(MSC              ,4  ,%nz   ,"MSO * 1000        ",  PRINT);
+     xi(CPC              ,2  ,%nz   ,"CPU SDC * 10      ",  PRINT);
+     xi(IOC              ,2  ,%nz   ,"IOC SDC * 10      ",  PRINT);
+     xi(SRC              ,2  ,%nz   ,"SRC SDC * 10      ",  PRINT);
+     xi(ZNF              ,2  ,%nz   ,"Norm factor IFA   ",  PRINT);
+     xi(SNF              ,2  ,%nz   ,"Norm factor ZIIP  ",  PRINT);
+     xx(RS6              ,6  ,%nz   ,"Reserved          ",NOPRINT);
+     xi(SRV_L            ,8  ,%nz   ,"Total SU          ",  PRINT);
+     xi(CSU_L            ,8  ,%nz   ,"CPU SU            ",  PRINT);
+     xi(SRB_L            ,8  ,%nz   ,"SRB SU            ",  PRINT);
+     xi(IO_L             ,8  ,%nz   ,"IO  SU            ",  PRINT);
+     xi(MSO_L            ,8  ,%nz   ,"MSO SU            ",  PRINT);
+     xi(ESU_L            ,8  ,%nz   ,"ESU SU ?Enclave   ",  PRINT);
+     xx(ACB              ,1  ,%nz   ,"reserved          ",NOPRINT);
+     xx(OCR              ,1  ,%nz   ,"reserved          ",NOPRINT);
+ ETRIPLET(Request  );
+  TRIPLET(Usage      ,pSMFZ+ usage_o     ,
+        usage_n   , usage_l  ,NOPRINT);
+     xs(UPO              ,16 ,%nb   ,"Vendor            ",  PRINT);
+     xs(UPN              ,16 ,%nb   ,"Product name      ",  PRINT);
+     xs(UPV              ,8  ,%     ,"Product version   ",  PRINT);
+     xs(UPQ              ,8  ,%     ,"Product Qual      ",  PRINT);
+     xs(UPI              ,8  ,%     ,"Product ID        ",  PRINT);
+     xh(UCT              ,4  ,%     ,"Product TCB       ",  PRINT);
+     xh(UCS              ,4  ,%     ,"Product SRB       ",  PRINT);
+ ETRIPLET(usage    );
+
+}
