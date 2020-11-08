@@ -1,5 +1,8 @@
 # SMF Formatter
-C formatter for z/OS SMF records, including SMF120 from WebSpere Liberty and SMF123 from z/OS Connect.
+C formatter for z/OS SMF records, including 
+1.  SMF120 from WebSpere Liberty 
+1.  SMF123 from z/OS Connect.
+1.  SMF30 jobs and step resource usage 
 
 ## Overview
 This formatter uses C macros to define fields, and automatically print/noprint fields.  It has basic support to summarise fields, for example 
@@ -24,6 +27,8 @@ If you want to change the processing or write your own, upload the other members
     //S12302   DD SYSOUT=*,DCB=(LRECL=200) 
     //S12311   DD SYSOUT=*,DCB=(LRECL=200) 
     //S123IP   DD SYSOUT=* 
+    //S306     DD SYSOUT=*,DCB=(LRECL=200) 
+    //SUM30    DD SYSOUT=*,DCB=(LRECL=200) 
     //SYSUDUMP DD SYSOUT=*,DCB=(LRECL=200) 
     //SYSOUT   DD SYSOUT=* 
     //SYSERR   DD SYSOUT=* 
@@ -53,6 +58,8 @@ The following are available.
 1.  STCK/STCKE as a STCK value of an interval, for example CPU, or duration.  It calculates STCK/4096, or STCKE/16 as appropriate
 1.  User specified function for decoding a field.
 1.  TRIPLET(..)  ETRIPLET will generate the code to loop round for each section
+1.  Hundredth's of a second - used in SMF 30
+1.  Units of 128 microseconds - used in SMF 30 IO times
 
 ## Accumulate fields
 From my work with MQ performance, I know that it is very useful to be able to summarise CPU and response times.
@@ -112,7 +119,24 @@ For z/OS connect I have accumulated it on userid, IP address, HTTP code, URL whi
  If PRINT was specified, it creates in the output file
  
     SMF subsystem_id    :WAS                       
-           
+ 
+xj(TCN              ,4  ,%nz   ,"IO Total conn time",  PRINT); 
+1.  xj this is the number in 128 microsecond units.   The macro converts the field to float and multiplies it by 128E-06 to convert it to seconds
+1.  TCN is from SMF30TCN, variable name
+1.  4 a four byte field 
+1.   %nz only print this if the value is non zero
+1.  "IO Total conn time" the description of the field.  
+1.  PRINT when to print. This is statement that goes in an if (,,,) statement for example NOPRINT comes out as if(0) {} PRINT comes out as if(1) {}
+creates in the output file
+
+xh(CPT              ,4  ,%     ,"All TCB on CP     ",  PRINT); 
+1.  xh this is the number in hundredths of a second.   The macro converts the field to float and multiplies it by 0.010 to convert it to seconds
+1.  CPT is from SMF30CPT, variable name
+1.  4 a four byte field 
+1.  % or %nz.  If this is %nz then only print if the value is non zero.  % print as default, any other value is used in the printf statement format field. 
+1.  "All TCB on CP     "  the description of the field.  
+1.  PRINT when to print. This is statement that goes in an if (,,,) statement for example NOPRINT comes out as if(0) {} PRINT comes out as if(1) {}
+creates in the output file
  
 xi(subtype    ,2,%     ,"SMF subtype", PRINT); 
  1. xi format this as an integer
