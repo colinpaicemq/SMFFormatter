@@ -23,6 +23,8 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 
+// wDesc is a constant for the width of the description.
+// see main.h
 
 // routines to do the formatting etc
 //
@@ -95,8 +97,8 @@ void printfloat(char * name , float in, char * format,char * descr)
 {
   char *  sFormat = format;
  if (strlen(format)==3 &&strcmp( format,"%nz")== 0)
-  if  (in      == 0  ) return;
-  else sFormat = "%";
+  if  (in      == 0.0) return;
+  else sFormat = "%9.6f";
  fprintf(fHandle,"%-*s:",wDesc,descr);
  fprintf(fHandle,"%9.6f",in);
  fprintf(fHandle,"\n");
@@ -113,7 +115,7 @@ void printfi1(char * name    ,char  in,
   if  (in      == 0  ) return;
   else sFormat = "%";
   fprintf(fHandle,"%-*s:",wDesc,descr);
-  if (strlen(format)== 1)
+  if (strlen(sFormat)== 1)
     fprintf(fHandle,"%hh",in);
   else
     fprintf(fHandle,sFormat,in );
@@ -131,7 +133,7 @@ void printfi2(char * name    ,unsigned short in,
   if  (in      == 0  ) return;
   else sFormat = "%";
  fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(format)== 1)
+ if (strlen(sFormat)== 1)
    fprintf(fHandle,"%hu",in);
  else
    fprintf(fHandle,sFormat,in   );
@@ -149,7 +151,7 @@ void printfi4(char * name    ,unsigned int in,
   if  (in      == 0  ) return;
   else sFormat = "%";
  fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(format)== 1)
+ if (strlen(sFormat)== 1)
    fprintf(fHandle,"%u",in);
  else
    fprintf(fHandle,sFormat,in   );
@@ -164,10 +166,10 @@ void printfi8(char * name    ,unsigned long long in,
 {
   char * sFormat = format;
  if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
-  if  (in      == 0  ) return;
+  if  (in  == 0  ) return;
   else sFormat = "%";
  fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(format)== 1)
+ if (strlen(sFormat)== 1)
    fprintf(fHandle,"%llu",in);
  else
    fprintf(fHandle,sFormat,in     );
@@ -201,6 +203,7 @@ void printfs(char * name    ,char * data,
    char * sFormat = format;
    if (strlen(format)==3 &&strcmp( format,"%nb")== 0)
      if  (data[0] == ' ') return;
+     else if  (data[0] == 0) return;
      else sFormat = "%";
    if (strlen(format)==2 &&strcmp( format,"%%")== 0)
    {
@@ -220,7 +223,7 @@ void printfs(char * name    ,char * data,
 void STCKTIME(char * pData,long length, char * timeBuffer)
 {
   struct tm *tm2;
-  unsigned long long stck  = *(ull)               pData;
+  unsigned long long stck  = *(ull *)             pData;
   if (length == 16)
       stck = stck/16  ; // to get microseconds in bottom bit
                         // STCK is already shifted by 8 bits.

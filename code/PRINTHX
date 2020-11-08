@@ -47,7 +47,7 @@
      * Next print the characters themselves (if they're
      * printable).
      ***********************************************************/
-     printf(" %c", " "        );
+     printf(" !");  // character deliminter
      for( j=0; j<bytesleft; j++ ) {
        printchar = isprint(*(pbuff+j)) ? *(pbuff+j) : '.';
        printf("%c",printchar);
@@ -56,7 +56,8 @@
      * ..and pad the last row with blanks if necessary.
      **********************************************************/
      for( j=bytesleft; j<16; j++ ) printf(" ");
-     printf("%c"," "        );
+  // printf("%c","?"        );
+     printf("|");  // middle deliminter
        for( j=0; j<bytesleft; j++ ) {
          printf("%c", ascii_tab[*(pbuff+j)]);
        }
@@ -64,7 +65,8 @@
         * ..and pad the last row with blanks if necessary.
         **********************************************************/
         for( j=bytesleft; j<16; j++ ) printf(" ");
-       printf("%c\n"," "        );
+//     printf("%c\n"," "        );
+       printf("!\n");  // end delimiter
     }
     return;
   }

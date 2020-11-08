@@ -136,7 +136,7 @@ void printLeaf(const void *ptr, VISIT order, int level)
 long printTree(char * fileName, void * treeRoot,char * heading)
 {
   __amrc_type save_amrc;
-  #define FOPENOPT "w   "
+  #define FOPENOPT "a   "
   output  = fopen(fileName   ,FOPENOPT);
   if ( output  == NULL)
   {
@@ -145,9 +145,12 @@ long printTree(char * fileName, void * treeRoot,char * heading)
      fprintf(stderr," %s \n", strerror(errno)); /* text of the errno*/
      return;
   }
+  // dont print header if no records
+  if ( treeRoot  ==  NULL) return;
   fprintf(output,"count et:avg    max    min"
   " !CPU:tot    avg    max    min %s\n"
       ,heading);
   twalk(treeRoot , printLeaf);
+  fclose(output );
         return 0;
 }

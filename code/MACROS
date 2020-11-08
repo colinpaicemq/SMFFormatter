@@ -30,8 +30,8 @@
 // field printOffset > 0
 //
 #define OFFSET(a,b,c,d) \
-      if (printOffset > 0           ) \
-      fprintf(fHandle,"Offset %12.12s %3.i %3.i/%3.i."d,a, b,b+4,c);
+  if (printOffset > 0           ) \
+  fprintf(fHandle,"     %12.12s offset %3.1i  len %3.1i.\n"d,a, b,c);
 //
 // call a function to process a field.  Data is returned in a
 // char field[132] which can then be output.
@@ -39,19 +39,33 @@
 //
 #define xfn(name,length,fn,comment,clause) \
     OFFSET(#name,p-pOffsetBase,length,""); \
-    char name[132]; \
+    char name[133]; \
     { \
       int l =fn(p,&name[0]); \
+      name[l]=0; /* make it null terminated */\
       if ( clause) \
       printfs(#name,name,"%",l, comment); \
     } \
+    p += length;
+//
+//
+//  Take a STCK value eg CPU time and convert to microseconds
+// in unsigned long long.  Take STCK and divide by 4096
+// convert it to float
+#define xSTCKf(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    float name =  ((float)(* (int##length *) p)/4096) /1000000; \
+   {\
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    }\
     p += length;
 //
 //  Take a STCK value eg CPU time and convert to microseconds
 // in unsigned long long.  Take STCK and divide by 4096
 #define xSTCKll(name,length,format,comment,clause)\
     OFFSET(#name,p-pOffsetBase,length,""); \
-    ll##length  name   = (* (int##length  ) p)/4096; \
+    ll##length  name   = (* (int##length *) p)/4096; \
    {\
     if ( clause) \
       printfi8(#name, name , #format,length, comment); \
@@ -113,11 +127,49 @@
 // Display an integer
 // it relies on a typedef int1, int2, int4, int8 etc
 // it then calls printfi1, printfi2, printfi4, printfi8
+#define xf(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    float  name        =*(int##length *) p; \
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    p += length;
+
+// Display an integer
+// it relies on a typedef int1, int2, int4, int8 etc
+// it then calls printfi1, printfi2, printfi4, printfi8
 #define xi(name,length,format,comment,clause)\
     OFFSET(#name,p-pOffsetBase,length,""); \
-    int##length  name        = (int##length  ) p; \
+    int##length  name        =*(int##length *) p; \
     if ( clause) \
-      printfi##length(#name,*name,#format,length,comment); \
+      printfi##length(#name, name,#format,length,comment); \
+    p += length;
+//  hundredths of a second - smf 30
+#define xh(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    float name =   (float)(* (int##length *) p)*0.01; \
+   {\
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    }\
+    p += length;
+// for units of 1024 microsecond
+#define xk(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    float name =   (float)(* (int##length *) p)* 0.001024 ;\
+   {\
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    }\
+    p += length;
+
+// for units of 128  microsecond  ( eg SMF 30 IO)
+#define xj(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    float name =   (float)(* (int##length *) p)* 0.000128 ;\
+   {\
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    }\
     p += length;
 
 // display in hex
@@ -134,6 +186,16 @@
     OFFSET(#name,p-pOffsetBase,length,""); \
     if (clause) \
       printfs(#name, p,#format,length, comment); \
+    char  name[length+1];        \
+    memcpy(&name,p,length); /* copy it*/  \
+    name[length]=0;   /* set a trailing null */  \
+    p += length;
+#ifdef no
+#define xsold(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,""); \
+    if (clause) \
+      printfs(#name, p,#format,length, comment); \
     char * name ;                 \
     name  =  p; \
     p += length;
+#endif

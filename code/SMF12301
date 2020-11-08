@@ -25,8 +25,49 @@
 char * pSMFZ;
 void * serverRoot =  NULL;
 void * IPRoot =  NULL;
+void * RootS123URI =  NULL;
 // ILP32 and LP64 data models and data type sizes
 FILE * S12302 = 0;
+FILE * S123SUM = 0;
+FILE * S123ERR = 0;
+FILE * S123ADM = 0;
+//  take the first part of the API or service as a key
+//  take the input string and replace " " with the a null "end of string"
+//  change the second '/' to a null
+char * key(char * pIn, int length)
+{
+  int slash = 0;
+  int i;
+  for (i= 0;i<length ;i++)
+   {
+     if (*(pIn + i) == ' ')
+     {
+        *(pIn + i) =   0 ; // replace with end of string
+       break;
+     }
+     if (*(pIn + i) == '/')
+     {
+       slash += 1;
+       if (slash == 2) // the second /
+       {
+         *(pIn + i) =  0  ; // replace with end of string
+         break;
+       }
+     }
+   }
+   // force last char to be null just in case
+  *(pIn + length -1 ) =  0;
+  return pIn;
+}
+char * strip(char * pIn, int length)
+{
+  int i;
+  for ( i = length;i >=0;i--)
+  {
+    if (*(pIn+i) == ' ') *(pIn+i) =  0;
+  }
+  return pIn;
+}
 
  int   API(char *  in, char * buffer)
  {
@@ -52,17 +93,27 @@ void  doSMF123_1_1(char * pSMF,long count){
   if  (S12302 == 0 ) S12302 = MYOPEN("dd:S12302");
   if  (S12302 == (FILE *)     -1)return;
   if (S12302 ==0 ) return;
+  if  (S123SUM == 0 ) S123SUM= MYOPEN("dd:S123SH ");
+  if  (S123SUM == (FILE *)     -1)return;
+  if  (S123ERR == 0 ) S123ERR= MYOPEN("dd:S123ERR");
+  if  (S123ERR == (FILE *)     -1)return;
+  if  (S123ADM == 0 ) S123ADM= MYOPEN("dd:S123ADM");
+  if  (S123ADM == (FILE *)     -1)return;
+  if (S12302 ==0 ) return;
   fHandle =  S12302;
   fprintf(fHandle,"==123-02 ================= record %lu\n",count);
   pSMFZ = pSMF;
   char * pOffsetBase = pSMFZ;
   int offset;
+  char * pJobname;
   char * system;
   char * p = pSMF;
+  xi(len123      ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(seg123      ,2 ,%    ,"Segment descr     ",NOPRINT);
   xx(flag         ,1 ,%   ,"flag              ",NOPRINT);
   xx(rec_type     ,1 ,%   ,"Record type       ",NOPRINT);
   xx(time         ,4 ,%   ,"time              " ,NOPRINT);
-  xx(date         ,4 ,%   ,"date              ",NOPRINT);
+  xx(date         ,4 ,%   ,"date              ",  PRINT);
   xs(sid          ,4 ,%   ,"system id         ",NOPRINT);
   xs(ssid         ,4 ,%   ,"subsystem_id      ",NOPRINT);
   xi(subtype      ,2 ,%   ,"smf record subtype",NOPRINT);
@@ -71,38 +122,40 @@ void  doSMF123_1_1(char * pSMF,long count){
   xi(Triplets_o   ,1 ,%   ,"Triplet offset    ",NOPRINT);
   xi(Reserverd1   ,2 ,%   ,"Reserved 1        ",NOPRINT);
   xx(CVTLDTO      ,8 ,%   ,"Local date time offset ",NOPRINT);
-  TRIPLET(TRIPLETS,pSMF +*Triplets_o - 4, 1 ,16,NOPRINT);
+  TRIPLET(TRIPLETS,pSMF + Triplets_o    , 1 ,16,NOPRINT);
     xi(server_o   ,4,%    ,"Server offset     ",NOPRINT);
     xi(server_l   ,2,%    ,"Server length     ",NOPRINT);
     xi(server_c   ,2,%    ,"Server count      ",NOPRINT);
     xi(request_o  ,4,%    ,"req_data_o        ",NOPRINT);
     xi(request_l  ,2,%    ,"req_data_l        ",NOPRINT);
     xi(request_c  ,2,%    ,"req_data_c        ",NOPRINT);
-    TRIPLET(SERVER,pSMFZ+*server_o - 4, *server_c ,*server_l, NOPRINT);
+    TRIPLET(SERVER,pSMFZ+ server_o    ,  server_c , server_l, NOPRINT);
        xi(server_vers,1,%     ,"Server version    ",NOPRINT);
        xx(server_re2 ,3,%     ,"Reserved2         ",NOPRINT);
        xs(System     ,8,%    ,"System             ",NOPRINT);
        system = System;
        xs(Sysplex    ,8,%    ,"Syplex             ",NOPRINT);
        xs(jobid      ,8,%    ,"Server job id      ",NOPRINT);
-       xs(jobname    ,8,%    ,"Server job name    ",NOPRINT);
+       xs(jobname    ,8,%    ,"Server job name    ",  PRINT);
+       pJobname = jobname;
        xx(Stoken     ,8,%     ,"Stoken            ",NOPRINT);
        xs(configdir  ,128,%     ,"dir             ",NOPRINT);
-       xs(serververss,16 ,%16.16s ,"server version",NOPRINT);
+       xs(serververss,16 ,%16.16s ,"server version", PRINT);
    ETRIPLET(server);
 
-   TRIPLET(Request,pSMFZ+*request_o - 4,
-        *request_c ,*request_l, NOPRINT);
+   TRIPLET(Request,pSMFZ+ request_o    ,
+         request_c , request_l, NOPRINT);
  // char * zz = p;
     xi(Request_ver,1  ,%     ,"Request version    ",NOPRINT);
     xfn(Req_type  ,1,  API   ,"Request type      ",  PRINT);
-    xi(Http_code  ,2  ,%     ,"Http code         ",  PRINT);
+    xfn(Http_code  ,2  ,HTTPCode,"Http code         ",  PRINT);
+ // xi(Http_code  ,2  ,%     ,"Http code         ",  PRINT);
     xx(Resp_flag  ,1  ,%     ,"Resp flag         ",  PRINT);
     xx(Reserved   ,3  ,%     ,"reserved          ",NOPRINT);
     xs(UserName   ,64 ,%nb   ,"user name          ",  PRINT);
     xs(Userid     ,8  ,%nb   ,"userid            ",  PRINT);
     xs(clientip   ,48 ,%nb   ,"client ip         ",  PRINT);
-    xs(APINAme    ,64 ,%nb   ,"API name          ",  PRINT);
+    xs(APIName    ,64 ,%nb   ,"API name          ",  PRINT);
     xs(APIVersion ,8 , %nb   ,"API Version       ",  PRINT);
     xs(serviceName,64 ,%nb   ,"Service Name      ",  PRINT);
     xs(serverver  ,8  ,%nb   ,"Service Version   ",  PRINT);
@@ -110,23 +163,27 @@ void  doSMF123_1_1(char * pSMF,long count){
     xs(querystr   ,128,%nb   ,"query String      ",  PRINT);
     xs(targeturi1 ,128,%     ,"targeturi1        ",  PRINT);
     xs(targeturi2 ,128,%nb   ,"targeturi2        ",  PRINT);
-    xi(req_payl_l ,4  ,%     ,"req payload len   ",   PRINT);
-    xi(resp_payl_l ,4 ,%     ,"resp payload len  ",NOPRINT);
+    xi(req_payl_l ,4  ,%     ,"req payload len   ",  PRINT);
+    xi(resp_payl_l ,4 ,%     ,"resp payload len  ",  PRINT);
     xSTCKEDT(timeZCentry ,16,%,"time entry       ",  PRINT);
     xSTCKEDT(timeZCexit ,16,% ,"time exit        ",  PRINT);
-    xSTCKEDT(timeSRentry ,16 ,%    ,"time entry sor  ",NOPRINT);
-    xSTCKEDT(timeSRexit  ,16 ,%    ,"time exit sor   ",NOPRINT);
+    xSTCKEDT(timeSRentry ,16 ,%    ,"time entry sor  ",  PRINT);
+    xSTCKEDT(timeSRexit  ,16 ,%    ,"time exit sor   ",  PRINT);
     // special processing
     unsigned long long lduration =  timeZCexitll - timeZCentryll;
     float duration =  ((float) lduration )/1000000;
     printfloat("duration",duration,"%","Tran dur in secs");
 
-    xs(ServicePro        ,16 ,%    ,"Service provider",  PRINT);
+    unsigned long long lSORduration =  timeSRexitll - timeSRentryll;
+    float SORduration =  ((float) lSORduration )/1000000;
+    printfloat("SORduration",SORduration,"%nz","SOR duration");
+
+    xs(ServicePro        ,16 ,%nb  ,"Service provider",  PRINT);
     xs(SORRef            ,32 ,%nb  ,"SOR reference   ",  PRINT);
     xs(SORID             ,64 ,%nb  ,"SOR ID          ",  PRINT);
     xs(SORResource       ,128,%nb  ,"SOR resource    ",  PRINT);
-    xx(req_id            ,8  ,%    ,"Request id      ",  PRINT);
-    xs(Trackingtok       ,64 ,%    ,"Tracking token  ",NOPRINT);
+    xx(req_id            ,8  ,%    ,"Request id      ",NOPRINT);
+    xx(Trackingtok       ,64 ,%    ,"Tracking token  ",NOPRINT);
     xs(reqHdr1           ,64 ,%nb  ,"Requesthdr1     ",NOPRINT);
     xs(reqHdr2           ,64 ,%nb  ,"Requesthdr2     ",NOPRINT);
     xs(reqHdr3           ,64 ,%nb  ,"Requesthdr3     ",NOPRINT);
@@ -135,20 +192,66 @@ void  doSMF123_1_1(char * pSMF,long count){
     xs(respHdr2          ,64 ,%nb  ,"Responsehdr2    ",NOPRINT);
     xs(respHdr3          ,64 ,%nb  ,"Responsehdr3    ",NOPRINT);
     xs(respHdr4          ,64 ,%nb  ,"Responsehdr4    ",NOPRINT);
+    FILE * fSMF;
+    if (memcmp(&Req_type[0],"Admin",5) == 0)
+      fSMF = S123ADM;
+    else if (memcmp(&Http_code[0],"200",3)== 0)
+      fSMF= S123SUM;
+    else
+      fSMF= S123ERR;
 
+    fprintf(fSMF,"LPAR:%4.4s, Server:%8.8s"
+                "userid:%8.8s Dur %6.3f "
+                "code:%8.8s "
+                "%26.26s-%15.15s\n",sid,pJobname,
+                UserName,duration,
+                Http_code,
+                timeZCentrydt, timeZCexitdt+11);
+    if (  APIName[0] != ' ')
+       fprintf(fSMF,"  API    : %-16.64s version:%8.8s\n",
+                strip(APIName,64), APIVersion);
+    if (  serviceName[0] != ' ')
+       fprintf(fSMF,"  Service: %-16.64s version:%8.8s\n",
+                strip(serviceName,64), APIVersion);
+    fprintf(fSMF,"  URI    : %-.128s. \n",
+                targeturi1);
+
+    if (  ServicePro[0] != ' ')
+    {
+       fprintf(fSMF,"  SerPro : %-.16s\n",
+                ServicePro);
+    }
+    if (   SORResource[0]   != ' ')
+    {
+       fprintf(fSMF,"  SOR    :  Dur: %6.3f "
+                    " ID:%-16.64s  Reference:%32.32s\n",
+                     SORduration,strip(SORID,64), SORRef    );
+       fprintf(fSMF,"  SOR res: %-.128s\n",
+                SORResource);
+    }
     // add tree for useri name, http code and service name
      char vsbuffer[200];
-     sprintf(vsbuffer,"%8.8s %3.3i %16.16s\0", system,
-     UserName,*Http_code,
+     sprintf(vsbuffer,"%8.8s %8.8s  %3.3s %-16.16s\0", system,
+     UserName,Http_code,
      serviceName);
-     addTree(vsbuffer,duration,0,&serverRoot);
+     addTree(vsbuffer,lduration,0,&serverRoot);
 
     // add tree for  IP address userid, http code and service name
-     sprintf(vsbuffer,"%8.8s %8.8s %3.3i %16.16s\0",
+     sprintf(vsbuffer,"%8.8s %8.8s %3.3s %-16.16s\0",
        clientip,
-       UserName,*Http_code,
+       UserName,Http_code,
        serviceName);
-     addTree(vsbuffer,duration,0,&IPRoot);
+     addTree(vsbuffer,lduration,0,&IPRoot);
+     // record the URI info  so it can merge with the CPU
+      sprintf(vsbuffer,"123:%-128.128ss\0",
+         targeturi1);
+     addTree(vsbuffer,lduration,0,&RootS123URI);
+  if (lSORduration >  0)
+  {
+      sprintf(vsbuffer,"SOR:%-128.128ss\0",
+         targeturi1);
+     addTree(vsbuffer,lSORduration  ,0,&RootS123URI);
+  }
    fprintf(fHandle," \n");
    ETRIPLET(request);
    ETRIPLET(pTriplets);
