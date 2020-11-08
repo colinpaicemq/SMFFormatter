@@ -47,11 +47,19 @@ FILE * fHandle= 0;
 #define PRINT  1
 #define NOPRINT  0
 #define DEF !!!
+#ifdef delete
 typedef unsigned char * int1;
 typedef unsigned short* int2;
 typedef unsigned int  * int4;
 typedef unsigned long long  * int8;
 typedef unsigned long long  * ull;
+typedef unsigned long long     ll8;
+#endif
+typedef unsigned char   int1;
+typedef unsigned short  int2;
+typedef unsigned int    int4;
+typedef unsigned long long    int8;
+typedef unsigned long long    ull;
 typedef unsigned long long     ll8;
 int size;
 #include <printfs.h>
@@ -64,15 +72,20 @@ char dateTime[30];
 /* Start the program                                               */
 /*******************************************************************/
 #include <MYOPEN.h>
+#include <HTTPCODE.h>
 #include <printhx.h>
 #include <tree.h>
 int printOffset=0;
 #include <smf12301.h>
+#include <smf.h>
 // #include <smf1209.h>
 #include <smf12011.h>
 // #include <smf120_9>
+#include <smf306.h>
 int main(void) {
    char *      pSMF = 0;
+   char *      pRAW = 0; // this is the record including len and seg
+                         // at the front
    short  * short2;
    long count = 0;
    long inum;              /* Number of bytes read from input     */
@@ -102,6 +115,7 @@ int main(void) {
         printf(" Failed to allocate memory \n");
         return 8;
     }
+    pRAW = pSMF - 4;   // point back past the Record len + segment
     char recordType;
     /****************************************************************/
     /* Loop through records until there is no more data to process  */
@@ -120,10 +134,28 @@ int main(void) {
         short subType = * (short * ) (pSMF-4 + 22);
         long smf123V1version = * (long *) (pSMF -4 +24);
       if (recordType  ==  123 && subType == 1)
-         doSMF123_1_1(pSMF,count               );
+         doSMF123_1_1(pRAW,count               );
       else
       if (recordType  ==   120  && (subType == 11) )
-          dosmf120_11(pSMF,count);
+          dosmf120_11(pRAW,count);
+      else
+#ifdef borin
+      if (recordType  ==   30   && (subType == 1 ) )
+          dosmf30_6(pRAW,count);
+      else
+#endif
+      if (recordType  ==   30   && (subType == 2 ) )
+          dosmf30_6(pRAW,count);
+      if (recordType  ==   30   && (subType == 3 ) )
+          dosmf30_6(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 4 ) )
+          dosmf30_6(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 5 ) )
+          dosmf30_6(pRAW,count);
+#ifdef del
+#endif
       else printf("++Record type  %hhu - %hd not processed \n",
        recordType,subType);
     }
@@ -131,6 +163,7 @@ int main(void) {
     printTree("dd:S123SUM",serverRoot,"system   Userid  resp key\n");
     printTree("dd:S123IP ",IPRoot    ,"IP       Userid  resp key\n");
     printTree("dd:S120SUM",S120Root   ,"HH:MM Userid  URI     \n");
-    printTree("dd:S120TOT",S120TotCPU ,"URI     \n");
+    printTree("dd:S120TOT",S120TotCPU   ,"URI     \n");
+    printTree("dd:S120TOT", RootS123URI, "URI     \n");
     return 0;
 }
