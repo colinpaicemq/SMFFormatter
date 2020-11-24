@@ -3,6 +3,12 @@ C formatter for z/OS SMF records, including
 1.  SMF120 from WebSpere Liberty 
 1.  SMF123 from z/OS Connect.
 1.  SMF30 jobs and step resource usage 
+1.  SMF 42.6 Data set statistics
+1.  SMF 42.5 VTOC statistics
+1.  SMF 42.1 SMS buffer manager (PDSE)
+
+Also support for the SMS/VSAM DCOLLECT data - as the DCOLLECT records have a similar structure.
+
 
 ## Overview
 This formatter uses C macros to define fields, and automatically print/noprint fields.  It has basic support to summarise fields, for example 
@@ -29,7 +35,16 @@ If you want to change the processing or write your own, upload the other members
     //S123IP   DD SYSOUT=* 
     //S306     DD SYSOUT=*,DCB=(LRECL=200) 
     //SUM30    DD SYSOUT=*,DCB=(LRECL=200) 
-    //SYSUDUMP DD SYSOUT=*,DCB=(LRECL=200) 
+    //SYSUDUMP DD SYSOUT=*,DCB=(LRECL=200)
+    //S426     DD SYSOUT=*,DCB=(LRECL=200) 
+    //SUM42    DD SYSOUT=*,DCB=(LRECL=200) 
+    //S421     DD SYSOUT=*,DCB=(LRECL=200) 
+    //SUM425   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S425     DD SYSOUT=*,DCB=(LRECL=200) 
+    //S425V    DD SYSOUT=*,DCB=(LRECL=200) 
+    //S425VM   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S425VR   DD SYSOUT=*,DCB=(LRECL=200) 
+    //SUM421   DD SYSOUT=*,DCB=(LRECL=200) 
     //SYSOUT   DD SYSOUT=* 
     //SYSERR   DD SYSOUT=* 
     //SUMMARY  DD SYSOUT=* 
@@ -60,6 +75,7 @@ The following are available.
 1.  TRIPLET(..)  ETRIPLET will generate the code to loop round for each section
 1.  Hundredth's of a second - used in SMF 30
 1.  Units of 128 microseconds - used in SMF 30 IO times
+1.  Lookup fields to map bit masks to descriptions
 
 ## Accumulate fields
 From my work with MQ performance, I know that it is very useful to be able to summarise CPU and response times.
@@ -112,7 +128,7 @@ For z/OS connect I have accumulated it on userid, IP address, HTTP code, URL whi
  1. xs format this as a string
  1. ssid variable name
  1. 4 four bytes
- 1. % default formatting %nb says print if non blank.  YOu can specify your own formatting.
+ 1. % default formatting %nb says print if non blank.  You can specify your own formatting.  
  1. "SMF subsystem_id" the description of the field.   This goes in the report
  1. NOPRINT  when to print. This is statement that goes in an if (...) statement for example NOPRINT comes out as if(0) {...} PRINT comes out as if(1) {...}
  
@@ -129,6 +145,8 @@ xj(TCN              ,4  ,%nz   ,"IO Total conn time",  PRINT);
 1.  PRINT when to print. This is statement that goes in an if (,,,) statement for example NOPRINT comes out as if(0) {} PRINT comes out as if(1) {}
 creates in the output file
 
+    IO Total conn time  : 0.002176   
+
 xh(CPT              ,4  ,%     ,"All TCB on CP     ",  PRINT); 
 1.  xh this is the number in hundredths of a second.   The macro converts the field to float and multiplies it by 0.010 to convert it to seconds
 1.  CPT is from SMF30CPT, variable name
@@ -137,12 +155,13 @@ xh(CPT              ,4  ,%     ,"All TCB on CP     ",  PRINT);
 1.  "All TCB on CP     "  the description of the field.  
 1.  PRINT when to print. This is statement that goes in an if (,,,) statement for example NOPRINT comes out as if(0) {} PRINT comes out as if(1) {}
 creates in the output file
+      All TCB on CP       : 0.770000        
  
 xi(subtype    ,2,%     ,"SMF subtype", PRINT); 
  1. xi format this as an integer
  1. subtype variable name
- 1. 2  two bytes
- 1. % default formatting ( you can specify a printf style formatting instead
+ 1. 2  two bytes.   This field can be 1,2,4,8 
+ 1. % default formatting ( you can specify a printf style formatting instead) %nz says only print if it is non zero
  1. "SMF subtype" the description of the field.   This goes in the report
  1. NOPRINT  when to print. This is statement that goes in an if (,,,) statement for example NOPRINT comes out as if(0) {} PRINT comes out as if(1) {}
 creates in the output file
@@ -172,7 +191,39 @@ In the output file you get
  1. %nz print it if non zero.
  1. "Enclave ZAAP time " the description of the field
  1. PRINT this field is printed (unless overridden by %nz);
-
+ 
+ 
+ 
+  xflag(DMCSPEC1 ,1  ,SPEC1 ,"spec 1             ",  PRINT); 
+  1. xflag takes a 1 byte fiels and prints out the values depending on the values.
+  1.DMCSPEC1 is the filed name
+  1. 1 is the length of the field
+  1. SPEC1 is the name of a structure, see below
+  1. "spec 1             " is the field description
+  1. PRINT say print it. (NOPRINT says do not print it
+  
+  The structure is define as follows
+  
+    struct flagTable SPEC1[] = 
+       { 
+         {0x80,  0x80,"BWO    specified    " }, 
+         {0x80,  0x00,"BWO not pecified    " }, 
+         {0x40,  0x40,"Sphere recover given" }, 
+       }; 
+  
+The logic works as follows.
+1.  Logically AND the field from the record with the first data field.  
+1.  If it equals the second field then print the third field.
+    
+  Another example is
+  
+     struct flagTable CYTP[] = 
+     { 
+       {0xFF,   0   ,"Standard copy       " }, 
+       {0xFF,   1   ,"Concurrent preferred" }, 
+       {0xFF,   2   ,"Concurrent required " }, 
+     }; 
+This field has a list of values
 
 ## Output data in its own file.
 I have a source file for each record type.  In the file I have
