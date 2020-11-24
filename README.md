@@ -7,7 +7,7 @@ C formatter for z/OS SMF records, including
 1.  SMF 42.5 VTOC statistics
 1.  SMF 42.1 SMS buffer manager (PDSE)
 
-Also provide a [formatter for SMS /VSAM DCOLLECT records](dcollcect.md),  as the DCOLLECT records have a similar structure.
+Also provide a [formatter for SMS /VSAM DCOLLECT records](DCOLLECT.md),  as the DCOLLECT records have a similar structure.
 
 
 ## Overview
