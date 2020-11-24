@@ -22,7 +22,7 @@ I have not been able to find a formatter for these records, so I extended the SM
 
 ## Format the records
 
-     //BAQCOLL JOB (0),CLASS=A,NOTIFY=&SYSUID,REGION=0M,COND=(4,LE), 
+     //IBMCOLL JOB (0),CLASS=A,NOTIFY=&SYSUID,REGION=0M,COND=(4,LE), 
      //       RESTART=S1 
      // SET LOADLIB=IBMUSER.LOAD
      //RUN      EXEC PGM=DCOLLECT,REGION=0M 
@@ -46,23 +46,6 @@ The fields are taken from  [IBM'sDCOLLECT Output Record Structure](https://www.i
 Ive just done a cut and paste type job, I have not tried to add value to what the fields mean.  The fields match pretty well with what comes out of 
 [ISMF](https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.1.0/com.ibm.zos.v2r1.idai500/erick3.htm).
 
-     
-
-
-formatter for z/OS SMF records, including 
-1.  SMF120 from WebSpere Liberty 
-1.  SMF123 from z/OS Connect.
-1.  SMF30 jobs and step resource usage 
-1.  SMF 42.6 Data set statistics
-1.  SMF 42.5 VTOC statistics
-1.  SMF 42.1 SMS buffer manager (PDSE)
-
-Also support for the SMS/VSAM DCOLLECT data - as the DCOLLECT records have a similar structure.
-
-
-## Overview
-This formatter uses C macros to define fields, and automatically print/noprint fields.  It has basic support to summarise fields, for example 
-display the total, average,maximum,minmum CPU and elapsed time for user/URI.
 
 ## Example output for data set 
 
