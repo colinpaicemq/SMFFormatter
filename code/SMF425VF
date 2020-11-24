@@ -1,0 +1,83 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+int printedVTOCHeader = 0;
+void VTOCTriplet(char * volser,char * what, char * pSMF , int offset,
+                int count, int len) {
+  char * pOffsetBase;
+  if (offset == 0) return;
+  TRIPLET(VTOCD  ,(pSMF +offset)   ,
+        count    , len      ,NOPRINT);
+     xj(VDIOR            ,4  ,%nz   ,"Response time      ",NOPRINT);
+     xj(VDIOC            ,4  ,%nz   ,"Connect time       ",NOPRINT);
+     xj(VDIOP            ,4  ,%nz   ,"Pending time       ",NOPRINT);
+     xj(VDIOD            ,4  ,%nz   ,"Disconnect time    ",NOPRINT);
+     xj(VDIOQ            ,4  ,%nz   ,"CU queue time      ",NOPRINT);
+     xi(VDION            ,4  ,%nz   ,"Number of IO       ",NOPRINT);
+     xi(VDCND            ,4  ,%nz   ,"Cach cand          ",NOPRINT);
+     xi(VDHIT            ,4  ,%nz   ,"Cach hits          ",NOPRINT);
+     xi(VDWCN            ,4  ,%nz   ,"Write cand         ",NOPRINT);
+     xi(VDWHI            ,4  ,%nz   ,"Write hits         ",NOPRINT);
+     xi(VDSEQ            ,4  ,%nz   ,"Seq I/O            ",NOPRINT);
+     xi(VDRLC            ,4  ,%nz   ,"1Track I/O         ",NOPRINT);
+     xi(VDILC            ,4  ,%nz   ,"Inhinit I/O       ",NOPRINT);
+     xj(VDDAO            ,4  ,%nz   ,"DAO time          ",NOPRINT);
+     xj(VDRDD            ,4  ,%nz   ,"Read disconnect   ",NOPRINT);
+     xi(VDRDT            ,4  ,%nz   ,"Number reads      ",NOPRINT);
+     xi(VDHRD            ,4  ,%nz   ,"Number zHPF reads ",NOPRINT);
+     xi(VDHWD            ,4  ,%nz   ,"Number zHPF writes",NOPRINT);
+     xi(VDR1U            ,4  ,%nz   ,"Response time     ",NOPRINT);
+     xi(VDC1U            ,4  ,%nz   ,"Connect  time     ",NOPRINT);
+     xi(VDP1U            ,4  ,%nz   ,"Pending  time     ",NOPRINT);
+     xi(VDD1U            ,4  ,%nz   ,"Disconnec time    ",NOPRINT);
+     xi(VDQ1U            ,4  ,%nz   ,"CU queue  time    ",NOPRINT);
+     xi(VDA1U            ,4  ,%nz   ,"DAO       time    ",NOPRINT);
+     xi(VDT1U            ,4  ,%nz   ,"Read Disc time    ",NOPRINT);
+     xi(VDB1U            ,4  ,%nz   ,"Busy time         ",NOPRINT);
+     xi(VDM1U            ,4  ,%nz   ,"Init CMD time     ",NOPRINT);
+     xx(Reserved108      ,4  ,%nz   ,"Reserved          ",NOPRINT);
+     fprintf(fHandle,"%6.6s %-8.8s %6u %6u %4u %4u %4u "
+                      "%4u %4u %4u "
+                      "%4u %4u %4u %4u %4u "
+                      "| %4u %4u %4u %4u   %4u "
+                      "%4u %4u      "
+                      "\n",
+   volser,what, VDRDT,VDION -VDRDT, VDHRD, VDHWD, VDR1U,VDC1U,VDP1U,
+   VDD1U,VDT1U,VDM1U,VDB1U,VDQ1U,VDA1U,
+   VDCND-VDWCN,VDHIT-VDWHI,VDWCN,VDWHI,VDSEQ,VDRLC,VDILC
+            );
+ ETRIPLET(VTOCD    );
+ }
+ void printVTOCSystem(char * volser,
+                      char * what,
+                      int ssch,
+  int rt,int ct,int pt,int dt,int cuqt, int daot, int bt,int icmr)
+  {
+      fprintf(fHandle,"%6.6s %-8.8s %6u                  %4u "
+                      "%4u %4u %4u "
+                      "     %4u %4u %4u %4u "
+                      "\n",
+   volser,what, ssch ,                            rt,ct,pt,
+   dt, cuqt,daot,bt,icmr);
+}

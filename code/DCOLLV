@@ -1,0 +1,104 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * VOLUME   = 0;
+//
+// start processing here
+//
+void dcollectv( char  * pSMF,long count, int inum){
+  if  (VOLUME   == 0 ) VOLUME   = MYOPEN("dd:VOLUME ");
+  if  (VOLUME   == (FILE *)   -1)return;
+ struct flagTable FLAG1[] =
+ {
+   {0x80, 0x80,"Indexed VTOC exists" },
+   {0x40, 0x40,"Indexed VTOC enabled"},
+   {0x20, 0x20,"Private use        " },
+   {0x10, 0x10,"Public use         " },
+   {0x08, 0x08,"Storage            " },
+   {0x04, 0x04,"Shareable          " },
+   {0x02, 0x02,"SMS managed        " },
+ };
+ struct flagTable CYLMG[] =
+ {
+   { 0x80,0x80,"Space in MB   " },
+ };
+  // the printf* routines use this global variable
+  fHandle = VOLUME  ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===================\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"Time           ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"Date           ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+
+  xs(DCVVOLSR    ,6 ,%    ,"Vol ser            ",  PRINT);
+  xflag(DCVFLAG1,1 ,FLAG1,"Flag1               ",  PRINT);
+  xx(DVDERROR    ,1 ,%    ,"error flags        ",  PRINT);
+  xx(reserved31  ,3 ,%    ,"reserved           ",NOPRINT);
+  xi(DCVPERCT    ,1 ,%nz  ,"percent free space ",  PRINT);
+  xi(DCVFRESP    ,4 ,%nz  ,"Free space         ",  PRINT);
+  xi(DCVALLOC    ,4 ,%nz  ,"Alloc on vol       ",  PRINT);
+  xi(DCVVLCAP    ,4 ,%nz  ,"Capacity of vol    ",  PRINT);
+  xi(DCVFRAGI    ,4 ,%nz  ,"Fragmentation indx ",  PRINT);
+  xi(DCVLGEXT    ,4 ,%nz  ,"Largest extent     ",  PRINT);
+  xi(DCVFREXT    ,4 ,%nz  ,"Numberof free xt   ",  PRINT);
+  xi(DCVFDSCB    ,4 ,%nz  ,"Free DSCBs in VTOC ",  PRINT);
+  xi(DCVFVIRS    ,4 ,%nz  ,"Free VTOC Index    ",  PRINT);
+  xs(DCVDVTYP    ,8 ,%    ,"Device type        ",  PRINT);
+  xx(DCVDVNUM    ,2 ,%    ,"Device number      ",  PRINT);
+  xx(Reserved78  ,2 ,%    ,"Reserved           ",NOPRINT);
+  xi(DCVSGLNG    ,2 ,%    ,"Storage group len  ",NOPRINT);
+  xs(DCVSGTCL    ,30,%nb  ,"Storage group name ",  PRINT);
+  xs(DCVDPTYP    ,8 ,%    ,"Physical dev type  ",  PRINT);
+  xi(DCVTRPCT    ,1 ,%    ,"Percent free trk   ",  PRINT);
+  xflag(DCVCYLMG,1 ,CYLMG,"Space units         ",  PRINT);
+  xx(Reserved122 ,2 ,%    ,"Reserved122        ",NOPRINT);
+  xi(DCVTRFSP    ,4 ,%    ,"Free space Track M",  PRINT);
+  xi(DCVTRALC    ,4 ,%    ,"Allc space Track M",  PRINT);
+  xi(DCVTRVLC    ,4 ,%    ,"total space Track M",  PRINT);
+  xi(DCVTRFRG    ,4 ,%    ,"Frag index  Track M",  PRINT);
+  xi(DCVTRLGE    ,4 ,%    ,"Lgst extent Track M",  PRINT);
+  xi(DCVTRFPX    ,4 ,%    ,"Num free traTrack M",  PRINT);
+  xi(DCVFCYLS    ,4 ,%    ,"Free cyliners      ",  PRINT);
+  xi(DCVFTRKS    ,4 ,%    ,"Free track ^cyl    ",  PRINT);
+  xi(Reserved156 ,4 ,%    ,"Reserved           ",NOPRINT);
+}

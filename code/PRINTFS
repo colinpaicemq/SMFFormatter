@@ -111,15 +111,18 @@ void printfi1(char * name    ,char  in,
              long length, char * descr)
 {
   char * sFormat = format;
-  if (strlen(format)==3 &&strcmp( format,"%nz")== 0)
-  if  (in      == 0  ) return;
-  else sFormat = "%";
+  if (strlen(format)==3 &&( strcmp( format,"%nz")== 0
+                        ||  strcmp( format,"%nb") == 0)
+     )
+    if  (in      == 0  ) return;
+    else sFormat = "%";
+
   fprintf(fHandle,"%-*s:",wDesc,descr);
   if (strlen(sFormat)== 1)
-    fprintf(fHandle,"%hh",in);
+    fprintf(fHandle,"%hhu",in);
   else
     fprintf(fHandle,sFormat,in );
- fprintf(fHandle,"\n");
+  fprintf(fHandle,"\n");
 }
 //
 //  print an integer width(2)
@@ -129,15 +132,17 @@ void printfi2(char * name    ,unsigned short in,
              long length, char * descr)
 {
   char * sFormat = format;
-  if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
-  if  (in      == 0  ) return;
-  else sFormat = "%";
- fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(sFormat)== 1)
-   fprintf(fHandle,"%hu",in);
- else
-   fprintf(fHandle,sFormat,in   );
- fprintf(fHandle,"\n");
+  if (strlen(format)==3 &&( strcmp( format,"%nz")== 0
+                        ||  strcmp( format,"%nb") == 0)
+     )
+    if  (in      == 0  ) return;
+    else sFormat = "%";
+  fprintf(fHandle,"%-*s:",wDesc,descr);
+  if (strlen(sFormat)== 1)
+    fprintf(fHandle,"%hu",in);
+  else
+    fprintf(fHandle,sFormat,in   );
+  fprintf(fHandle,"\n");
 }
 //
 //  print an integer width(4)
@@ -147,15 +152,17 @@ void printfi4(char * name    ,unsigned int in,
              long length, char * descr)
 {
   char * sFormat = format;
- if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
-  if  (in      == 0  ) return;
-  else sFormat = "%";
- fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(sFormat)== 1)
-   fprintf(fHandle,"%u",in);
- else
-   fprintf(fHandle,sFormat,in   );
- fprintf(fHandle,"\n");
+  if (strlen(format)==3 &&( strcmp( format,"%nz")== 0
+                        ||  strcmp( format,"%nb") == 0)
+     )
+    if  (in      == 0  ) return;
+    else sFormat = "%";
+  fprintf(fHandle,"%-*s:",wDesc,descr);
+  if (strlen(sFormat)== 1)
+    fprintf(fHandle,"%u",in);
+  else
+    fprintf(fHandle,sFormat,in   );
+  fprintf(fHandle,"\n");
 }
 //
 //  print an integer width(8)
@@ -165,15 +172,18 @@ void printfi8(char * name    ,unsigned long long in,
              long length, char * descr)
 {
   char * sFormat = format;
- if (strlen(format)==3 &&strcmp( format,"%nz") == 0)
-  if  (in  == 0  ) return;
-  else sFormat = "%";
- fprintf(fHandle,"%-*s:",wDesc,descr);
- if (strlen(sFormat)== 1)
-   fprintf(fHandle,"%llu",in);
- else
-   fprintf(fHandle,sFormat,in     );
- fprintf(fHandle,"\n");
+  if (strlen(format)==3 &&( strcmp( format,"%nz")== 0
+                        ||  strcmp( format,"%nb") == 0)
+     )
+     if  (in  == 0  ) return;
+     else sFormat = "%";
+
+  fprintf(fHandle,"%-*s:",wDesc,descr);
+  if (strlen(sFormat)== 1)
+     fprintf(fHandle,"%llu",in);
+  else
+     fprintf(fHandle,sFormat,in     );
+  fprintf(fHandle,"\n");
 }
 //
 //  print a hex string
@@ -184,6 +194,16 @@ void printfx(char * name    ,char * data,
 {
  long i,j;
  // fprintf(fHandle,"%-*s:",wDesc,descr);
+ /// if we want to skip if zeros .. or blank
+ if (  (strlen(format)==3 &&strcmp( format,"%nz")== 0)
+    || (strlen(format)==3 &&strcmp( format,"%nb")== 0)
+     && length <= 8)
+ {
+   // value is 0s
+   long long ll = 0;
+   if (memcmp(data,&ll  ,length) == 0 )
+      return;
+ }
  fprintf(fHandle,"%-*s:",wDesc,descr);
  for (    i = 0, j = 0; j < length; i++, j++) {
       if (j != 0 && j % 4 == 0) {
@@ -201,7 +221,9 @@ void printfs(char * name    ,char * data,
              long length, char * descr)
 {
    char * sFormat = format;
-   if (strlen(format)==3 &&strcmp( format,"%nb")== 0)
+   if (strlen(format)==3 &&(  strcmp( format,"%nz")== 0
+                           || strcmp( format,"%nb") == 0)
+      )
      if  (data[0] == ' ') return;
      else if  (data[0] == 0) return;
      else sFormat = "%";

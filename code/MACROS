@@ -199,3 +199,33 @@
     name  =  p; \
     p += length;
 #endif
+// look up a 1 char field in structure
+#define xflag(name,length,dStruct,comment,clause) \
+     OFFSET(#name,p-pOffsetBase,length,""); \
+     int##length  name        =*(int##length *) p; \
+     if ( clause) \
+     { \
+    doFlags(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
+     } \
+     p += length;
+#define xlist(name,length,dStruct,comment,clause) \
+     OFFSET(#name,p-pOffsetBase,length,""); \
+     int##length  name        =*(int##length *) p; \
+     if ( clause) \
+     { \
+    doFlags(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
+     } \
+     p += length;
+//       printfx(#name, p ,"%"    ,length, comment); \
+
+// look up an integer in a  list
+#define xlist2(name,length,dStruct,comment,clause) \
+     OFFSET(#name,p-pOffsetBase,length,""); \
+     int##length  name        =*(int##length *) p; \
+     if ( clause) \
+     { \
+      doList(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
+     } \
+     p += length;
+//    printfx(#name, p ,"%"    ,length, comment); \
+

@@ -1,0 +1,118 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * SC       = 0;
+ struct flagTable FLAG1[] =
+ {
+   {0x80, 0x80,"Guaranteed space yes" },
+   {0x40, 0x40,"Availability   "},
+   {0x20, 0x20,"Use Direct response time" },
+   {0x10, 0x10,"Use Direct Bias    " },
+   {0x08, 0x08,"Use Seq response time " },
+   {0x04, 0x04,"Use Seq Bias       " },
+   {0x02, 0x02,"SyncDev yes        " },
+   {0x01, 0x01,"Initial response   " },
+ };
+ struct flagTable FLAG2[] =
+ {
+   {0x80, 0x80,"Accessibility  " },
+   {0x40, 0x40,"Striping sustained "},
+   {0x20, 0x20,"Use Direct CF weight " },
+   {0x10, 0x10,"Use Seq Weight     " },
+   {0x08, 0x08,"ACC version specified " },
+   {0x04, 0x04,"ACC backup specified " },
+   {0x02, 0x02,"Dataset sep - bypass " },
+   {0x01, 0x01,"Multi tier SG specified " },
+ };
+//
+// start processing here
+//
+void dcollectsc( char  * pSMF,long count, int inum){
+  if  (SC        == 0 ) SC       = MYOPEN("dd:SC      ");
+  if  (SC        == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = SC      ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===================\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"Time           ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"Date           ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+
+  xi(DSCNMLEN    ,2 ,%    ,"length of name     ",NOPRINT);
+  xs(DSCNAME     ,30,%    ,"Storage class      ",  PRINT);
+  xs(DSCUSER     ,8 ,%    ,"Last updater       ",  PRINT);
+  xs(DSCDATE     ,10,%    ,"Date last updated  ",  PRINT);
+  xs(DSC74       ,2 ,%    ,"reserved           ",NOPRINT);
+  xs(DSCTIME     ,8 ,%    ,"Time last updated  ",  PRINT);
+  xs(DSCDESC     ,120,%    ,"Description        ",  PRINT);
+  xflag(DSCFLAGS ,1  ,FLAG1 ,"flag1              ",  PRINT);
+  xflag(DSCFLAG2 ,1  ,FLAG1 ,"flag1              ",  PRINT);
+  xi(DSCVERSN    ,1  ,%nz  ,"ACC version        ",  PRINT);
+  xi(DSCBACUP    ,1  ,%nz  ,"ACC Backup         ",  PRINT);
+
+  xi(DSCAVAIL    ,1  ,%nz  ,"AVAIL options      ",  PRINT);
+  xi(DSCDIRB     ,1  ,%nz  ,"Direct bias        ",  PRINT);
+  xi(DSCSEQB     ,1  ,%nz  ,"SEQ    bias        ",  PRINT);
+  xi(DSCACCES    ,1  ,%nz  ,"Accesibility       ",  PRINT);
+  xi(DSCIACDL    ,4  ,%nz  ,"Initial access r   ",  PRINT);
+  xi(DSCDIRR     ,4  ,%nz  ,"Dir ms rate (MSR)  ",  PRINT);
+  if (DSCDIRR < 9 )
+      fprintf(fHandle ,"Direct MSR %i means Must CACHE\n",DSCDIRR);
+  else if (DSCDIRR < 999)
+      fprintf(fHandle ,"Direct MSR %i means May  CACHE\n",DSCDIRR);
+  else // 999
+      fprintf(fHandle ,"Direct MSR %i means No   CACHE\n",DSCDIRR);
+
+  xi(DSCSEQR     ,4  ,%nz  ,"Seq ms rate (MSR)  ",  PRINT);
+  xi(DSCSDR      ,4  ,%nz  ,"SDR sustained      ",  PRINT);
+  xi(DSCCLEN     ,2  ,%nz  ,"Cache set name len ",NOPRINT);
+  xs(DSCCVAL     ,30 ,%nb  ,"Cache set value    ",  PRINT);
+  xi(DSCDIRCW    ,2  ,%nz  ,"Direct CF weight   ",  PRINT);
+  xi(DSCSEQCW    ,2  ,%nz  ,"SEQ    CF weight   ",  PRINT);
+  xi(DSCFLAG3    ,1  ,%nz  ,"FLAG   CF weight   ",  PRINT);
+  xi(DSCPAV      ,1  ,%nz  ,"PAV                ",  PRINT);
+  xi(DSCSTOSL    ,1  ,%nz  ,"OAM  sub level     ",  PRINT);
+  xi(DSCVFLG2    ,1  ,%nz  ,"VSAM2              ",  PRINT);
+  xx(DSC268      ,12 ,%    ,"reserved           ",NOPRINT);
+}

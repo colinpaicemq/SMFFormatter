@@ -1,0 +1,174 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * SMF14_1  = 0;
+FILE * SUM14_1  = 0;
+//
+// start processing here
+//
+void dosmf14_1( char  * pSMF,long count,long inum){
+  if  (SMF14_1  == 0 ) SMF14_1  = MYOPEN("dd:S141    ");
+  if  (SMF14_1  == (FILE *)   -1)return;
+  if  (SUM14_1  == 0 ) SUM14_1  = MYOPEN("dd:SUM141  ");
+  if  (SUM14_1  == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = SMF14_1 ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
+  xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
+  xi(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  int smftype = rec_type;
+  fprintf(fHandle,"===SMF %i\n",smftype);
+  xfn(TME        ,4 ,SMFTime ,"SMFTime        ",NOPRINT);
+  xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",NOPRINT);
+  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(JOBNAME     ,8 ,%    ,"JOBNAME           ",  PRINT);
+  xx(RST         ,4 ,%    ,"time              ",NOPRINT);
+  xx(RSD         ,4 ,%    ,"Date              ",NOPRINT);
+  xx(UID         ,8 ,%    ,"userid            ",NOPRINT);
+  xi(RIN         ,2 ,%    ,"data set indicator",NOPRINT);
+  int extended =  RIN &  0x0004;
+  int hiperbatch =  RIN &  0x0008 ;
+
+  xi(SDC         ,1 ,%    ,"size of DCB       ",NOPRINT);
+  xi(NUC         ,1 ,%    ,"Number of UCB     ",NOPRINT);
+  int numUCBs = NUC;
+  xi(SUC         ,1 ,%    ,"Size UCB          ",NOPRINT);
+  xi(SET         ,1 ,%    ,"isam              ",NOPRINT);
+  xi(OPE         ,4 ,%    ,"time              ",NOPRINT);
+  // TIOT
+  xx(TIOE1       ,4 ,%    ,"TIOE              ",NOPRINT);
+  xs(TIOE5       ,8 ,%    ,"DDName            ",  PRINT);
+  xx(TIOE6       ,4 ,%    ,"TIOE6             ",NOPRINT);
+  xx(JFCB        ,176,%   ,"TIOE6             ",NOPRINT);
+  xx(DCB         ,12 ,%   ,"DCB               ",NOPRINT);
+  xx(DCBBL       ,16 ,%   ,"DCBBL             ",NOPRINT);
+  // UCB
+  for (int UCB = 0; UCB< NUC;UCB++)
+  {
+  xx(UCBDV       ,2  ,%   ,"Device number     ",  PRINT);
+  xs(SRTEV       ,6  ,%   ,"Vol ser           ",  PRINT);
+  xx(UCBTY       ,8  ,%   ,"Unit type  etc    ",NOPRINT);
+  xi(EXCP        ,4  ,%   ,"EXCP              ",  PRINT);
+  xx(NTA         ,4  ,%   ,"Number of tracks  ",NOPRINT);
+  }
+  if (hiperbatch > 1)
+  {
+  xi(IOREQ       ,4  ,%   ,"HS REQ            ",  PRINT);
+  xi(CHITS       ,4  ,%   ,"HSCache hits      ",  PRINT);
+  xi(CHNMWTS     ,4  ,%   ,"HS NMWTS          ",  PRINT);
+  xi(PHIOS       ,4  ,%   ,"HSC PHIOS  s      ",  PRINT);
+  xi(CIOS        ,4  ,%   ,"HS CIOS           ",  PRINT);
+  }
+
+  if ( extended > 0)
+  {
+  char * pEnd = p;
+  char * pNext = 0;
+  xi(SXS         ,2  ,%   ,"size of extension ",NOPRINT);
+  pNext = p;
+  pEnd += SXS;
+  while(p < pEnd)
+  {
+     xi(ESL              ,2  ,%     ,"Length Extended    ",NOPRINT);
+     xi(ESLres2          ,1  ,%     ,"reserved           ",NOPRINT);
+     xi(STY              ,1  ,%     ,"Subtype            ",NOPRINT);
+     switch(STY)
+     {
+       case 2:
+         xs(MCN            ,8  ,%nb   ,"Management class   ",  PRINT);
+         xs(DCN            ,8  ,%nb   ,"Data       class   ",  PRINT);
+         xs(SCN            ,8  ,%nb   ,"Storage    class   ",  PRINT);
+         break;
+        case 3:
+         xs(PSN            ,8  ,%     ,"Job step           ",NOPRINT);
+         xs(PGN            ,8  ,%     ,"Job step program   ",NOPRINT);
+         xs(JOBID          ,8  ,%     ,"Job ID             ",NOPRINT);
+         xs(PLXID          ,8  ,%     ,"Sysplex            ",NOPRINT);
+     fprintf(fHandle,"Job ID:%8.8s %Job Step:%8.8s Program %8.8s\n",
+                      JOBID,PSN,PGN);
+         break;
+        case 5:
+         xx(BFG            ,1  ,%     ,"Flag 1             ",NOPRINT);
+         xx(BFG1           ,1  ,%     ,"Flag 1a            ",NOPRINT);
+         xi(LBS            ,8  ,%     ,"Block size         ",NOPRINT);
+         xx(FLGS           ,1  ,%     ,"Flags              ",NOPRINT);
+         xx(FLGS2          ,1  ,%     ,"Flags              ",NOPRINT);
+         xx(DSVER          ,1  ,%     ,"Version            ",NOPRINT);
+         xs(ALI            ,44 ,%     ,"Alias              ",NOPRINT);
+         xx(Reserved57     ,9  ,%     ,"Reserved           ",NOPRINT);
+         break;
+        case 6:
+         xi(DRD            ,4  ,%     ," Dir read req       ",  PRINT);
+         xi(DRDH           ,4  ,%     ," Dir read hit       ",  PRINT);
+         xi(MRD            ,4  ,%     ," Mem read req       ",  PRINT);
+         xi(MRDH           ,4  ,%     ," Mem read req       ",  PRINT);
+         xi(MCE            ,4  ,%     ," Mem cache elig     ",  PRINT);
+         xi(MST            ,4  ,%     ," Mem cach stolen    ",  PRINT);
+         xi(MNC            ,4  ,%     ," Mem elig not cached",  PRINT);
+         xi(MCF            ,4  ,%     ," Mem cach elig. Full",  PRINT);
+         break;
+        case 8:
+//   fprintf(fHandle,"RAS\n")
+         xx(RFG0           ,28 ,%     ," flag               ",NOPRINT);
+         break;
+     default:
+     printHexS(p,ESL);
+     p +=ESL;
+  }  // switch
+  } // while
+  } // if extended
+ #ifdef no
+ TRIPLET(SC     ,pSMFZ+ SCO         ,
+        SCN      , SCL      ,NOPRINT);
+     xi(PNL              ,2  ,%     ,"Length SC          ",NOPRINT);
+     xs(PNN              ,30 ,%     ,"Storage class name ",NOPRINT);
+     xi(SRT              ,4  ,%     ,"mem Data page reads",NOPRINT);
+     xi(SRH              ,4  ,%     ,"MDP by BMF         ",NOPRINT);
+     xi(SDT              ,4  ,%     ,"dir page reads     ",NOPRINT);
+     xi(SDH              ,4  ,%     ,"dir page reads BMF ",NOPRINT);
+     fprintf(fHandle,"SC:%-30.30s Data Pages read:%10.1u "
+                     "by BMF %10.1u  "
+                     "Dir pages read %10.1u by BMF %10.1u\n",
+                      PNN,SRT,SRH,SDT,SDH);
+ ETRIPLET(BMF      );
+ #endif
+  fprintf(fHandle,"\n");
+}

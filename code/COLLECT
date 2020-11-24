@@ -23,8 +23,8 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 
-#pragma csect(code,  "SMFFORM")
-#pragma csect(static,"SMFFORM$S")
+#pragma csect(code,  "DCOLLECT")
+#pragma csect(static,"DCOLLECTS")
 // the width of the description at the start of the output line
 #define wDesc 20
 #include <ctype.h>
@@ -47,14 +47,6 @@ FILE * fHandle= 0;
 #define PRINT  1
 #define NOPRINT  0
 #define DEF !!!
-#ifdef delete
-typedef unsigned char * int1;
-typedef unsigned short* int2;
-typedef unsigned int  * int4;
-typedef unsigned long long  * int8;
-typedef unsigned long long  * ull;
-typedef unsigned long long     ll8;
-#endif
 typedef unsigned char   int1;
 typedef unsigned short  int2;
 typedef unsigned int    int4;
@@ -72,23 +64,19 @@ char dateTime[30];
 /* Start the program                                               */
 /*******************************************************************/
 #include <MYOPEN.h>
+#include <smf.h>
 #include <HTTPCODE.h>
 #include <printhx.h>
 #include <tree.h>
+#include <flags.h>
+#include <list.h>
 int printOffset=0;
-#include <smf12301.h>
-#include <smf.h>
-#include <prcache.h>
-// #include <smf1209.h>
-#include <smf12011.h>
-// #include <smf120_9>
-#include <smf306.h>
-#include <smf426.h>
-#include <smf425.h>
-#include <smf421.h>
-#include <smf14.h >
-#ifdef no
-#endif
+#include <dcolld.h>
+#include <dcollsc.h>
+#include <dcollmc.h>
+#include <dcolldc.h>
+#include <dcollv.h>
+#include <dcolla.h>
 int main(void) {
    char *      pSMF = 0;
    char *      pRAW = 0; // this is the record including len and seg
@@ -137,50 +125,27 @@ int main(void) {
         if (inum == 0) break;
         // pSMF is 4 bytes into the SMF structure so need
         // to bias the pointer
-        recordType  = * (pSMF-4 +5 );
-        short subType = * (short * ) (pSMF-4 + 22);
-        long smf123V1version = * (long *) (pSMF -4 +24);
-      if (recordType  ==  123 && subType == 1)
-         doSMF123_1_1(pRAW,count               );
-      else
-      if (recordType  ==   120  && (subType == 11) )
-          dosmf120_11(pRAW,count);
-      else
-      if (recordType  ==   30   && (subType == 1 ) )
-          dosmf30_6(pRAW,count);
-      else
-#ifdef borin
-#endif
-      if (recordType  ==   30   && (subType == 2 ) )
-          dosmf30_6(pRAW,count);
-      if (recordType  ==   30   && (subType == 3 ) )
-          dosmf30_6(pRAW,count);
-      else
-      if (recordType  ==   30   && (subType == 4 ) )
-          dosmf30_6(pRAW,count);
-      else
-      if (recordType  ==   30   && (subType == 5 ) )
-          dosmf30_6(pRAW,count);
-      if (recordType  ==   42   && (subType == 6 ) )
-          dosmf42_6(pRAW,count);
-      else if (recordType  ==   42   && (subType == 1 ) )
-          dosmf42_1(pRAW,count);
-      else if (recordType  ==   42   && (subType == 5 ) )
-          dosmf42_5(pRAW,count);
-      else if (recordType  ==   14                      )
-          dosmf14_1(pRAW,count,inum);
-      else if (recordType  ==   15                      )
-          dosmf14_1(pRAW,count,inum);
-#ifdef del
-#endif
-      else printf("++Record type  %hhu - %hd not processed \n",
-       recordType,subType);
+//   printf("++Record type %2.2s.\n",
+//     pSMF+4);
+    if (memcmp(pSMF+4,"D ",2)== 0)
+          dcollectd(pSMF,count,inum);
+    else
+    if (memcmp(pSMF+4,"SC",2)== 0)
+          dcollectsc(pSMF,count,inum);
+    else
+    if (memcmp(pSMF+4,"DC",2)== 0)
+          dcollectdc(pSMF,count,inum);
+    else
+    if (memcmp(pSMF+4,"MC",2)== 0)
+          dcollectmc(pSMF,count,inum);
+    else
+    if (memcmp(pSMF+4,"V ",2)== 0)
+          dcollectv(pSMF,count,inum);
+    else
+    if (memcmp(pSMF+4,"A ",2)== 0)
+          dcollecta(pSMF,count,inum);
+ //   else printf("++Record type %2.2s.\n",
     }
     fclose(SMFIN);
-    printTree("dd:S123SUM",serverRoot,"system   Userid  resp key\n");
-    printTree("dd:S123IP ",IPRoot    ,"IP       Userid  resp key\n");
-    printTree("dd:S120SUM",S120Root   ,"HH:MM Userid  URI     \n");
-    printTree("dd:S120TOT",S120TotCPU   ,"URI     \n");
-    printTree("dd:S120TOT", RootS123URI, "URI     \n");
     return 0;
 }

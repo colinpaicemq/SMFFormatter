@@ -1,0 +1,271 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * DC       = 0;
+// start processing here
+//
+void dcollectdc( char  * pSMF,long count, int inum){
+  if  (DC        == 0 ) DC       = MYOPEN("dd:DC      ");
+  if  (DC        == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = DC      ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+ struct flagTable RCORG[] =
+ {
+   { 0xff, 0 ,"Non VSAM PO or PS " },
+   { 0xff, 1 ,"VSAM KSDS       " },
+   { 0xff, 2 ,"VSAM ESDS       " },
+   { 0xff, 3 ,"VSAM RRDS       " },
+   { 0xff,  4, "VSAM Linear    " },
+ };
+ struct flagTable DSNTY[] =
+ {
+   { 0xff,  0 ,"DSN type Null   " },
+   { 0xff,  1 ,"DSN type PDS    " },
+   { 0xff,  2 ,"DSN type Library(PDSE)"},
+   { 0xff,  3 ,"DSN type HFS    " },
+   { 0xff,  4 ,"DSN type Extended(R)" },
+   { 0xff,  5 ,"DSN type Extended(C)" },
+ };
+ struct flagTable EATTR[] =
+ {
+   {0xff, 0 ,"EATRR not specified " },
+   {0xff, 1 ,"EATRR EAS not eligible"},
+   {0xff, 2 ,"EATRR EAS eligible "},
+ };
+ struct flagTable CCNTL[] =
+ {
+   {0xff, 1 ,"Carriage control ANSI " },
+   {0xff, 2 ,"Carriage control Mach " },
+   {0xff, 3  ,"Carriage control Null " },
+ };
+ struct flagTable AVREC[] =
+ {
+   {0xff, 1  ,"Avg rec size Bytes    " },
+   {0xff, 2  ,"Avg rec size Kb       " },
+   {0xff, 3  ,"Avg rec size MB       " },
+ };
+ struct flagTable SPEC1[] =
+ {
+   { 0xff,0x80,"Recorg specified  " },
+   { 0xff, 0x40,"Lrecl specified   " },
+   { 0xff, 0x20,"Recfm specified   " },
+   { 0xff, 0x10,"Keylen specified  " },
+   { 0xff, 0x08,"Keyoff specified  " },
+   { 0xff, 0x04,"Expire specified  " },
+   { 0xff, 0x02,"Retent specified  " },
+   { 0xff, 0x01,"Primaryspecified  " },
+ };
+ struct flagTable SFLG[] =
+ {
+   { 0xff, 0x80,"BWO specified " },
+   { 0xff, 0x40,"Sphere recover s'd " },
+ };
+ struct flagTable SPEC2[] =
+ {
+   { 0xff, 0x80,"Secndy specified " },
+   { 0xff, 0x40,"Dirblocks specified " },
+   { 0xff, 0x20,"Alloc Units spec'd " },
+   { 0xff, 0x10,"Avgrec specified " },
+   { 0xff, 0x08,"Vol cnt specified " },
+   { 0xff, 0x04,"Data CI size spec'd " },
+   { 0xff, 0x02,"Free CI% specified " },
+   { 0xff, 0x01,"Free CA% specified " },
+ };
+ struct flagTable SPEC3[] =
+ {
+   { 0xff, 0x80,"Shareopt Xreg sp'd " },
+   { 0xff, 0x40,"Shareopt xsystem " },
+   { 0xff, 0x20,"VSAM imbed    " },
+   { 0xff, 0x10,"VSAM replication s'd" },
+   { 0xff, 0x08,"Compact s'd   " },
+   { 0xff, 0x04,"Media type s'd " },
+   { 0xff, 0x02,"Recording tech s'd " },
+   { 0xff, 0x01,"VSAM ext address s'd" },
+ };
+ struct flagTable SPEC4[] =
+ {
+   { 0xff, 0x80,"Space const rel s'd " },
+   { 0xff, 0x40,"Reduce space by s'd " },
+   { 0xff, 0x20,"Rec Acc Bias s'd " },
+   { 0xff, 0x10,"Compression type s'd" },
+   { 0xff, 0x08,"Block size limit s'd" },
+   { 0xff, 0x04,"RLS CF cache s'd " },
+   { 0xff, 0x02,"Dynamic Vol cnt s'd " },
+   { 0xff, 0x01,"Perf scaling s'd " },
+ };
+ struct flagTable SPECX[] =
+ {
+   { 0xff, 0x80,"BWO specified " },
+   { 0xff, 0x40,"Sphere recovery s'd " },
+   { 0xff, 0x20,"CI Span s'd   " },
+   { 0xff, 0x10,"Log stream s'd" },
+   { 0xff, 0x08,"CICSVR FRLOG s'd" },
+   { 0xff, 0x04,"Extent constr s'd" },
+   { 0xff, 0x02,"RLS > 2GB  s'd" },
+   { 0xff, 0x01,"Perf Segment s'd" },
+ };
+ struct flagTable SPECY[] =
+ {
+   { 0xff, 0x80,"KEY label1 s'd " },
+   { 0xff, 0x40,"Key code 1 s'd " },
+   { 0xff, 0x20,"key label2 s'd " },
+   { 0xff, 0x10,"ley code 2 s'd" },
+   { 0xff, 0x08,"SMBVSP     s'd" },
+   { 0xff, 0x04,"SDB        s'd" },
+   { 0xff, 0x02,"Override JCK s'd" },
+   { 0xff, 0x01,"CA reclaim s'd" },
+ };
+ struct flagTable SPECZ[] =
+ {
+   { 0xff, 0x80,"EATTR     s'd " },
+   { 0xff, 0x40,"Log replication s'd " },
+   { 0xff, 0x20,"VSAM SMB RMode31 s'd" },
+   { 0xff, 0x10,"Guar space reduc s'd" },
+   { 0xff, 0x08,"DASD data set labs'd" },
+ };
+ struct flagTable VSP[] =
+ {
+   { 0xff, 0x80,"KB            " },
+   { 0xff, 0x40,"MB            " },
+ };
+ struct flagTable FLAG1[] =
+ {
+   { 0xff, 0x80,"Blocked       " },
+   { 0xff, 0x40,"Standard      " },
+ };
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===================\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"Time collected ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"Date collected ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+
+  xi(DDCNMLEN    ,2 ,%    ,"length of name     ",NOPRINT);
+  xs(DDCNAME     ,30,%    ,"Data class name    ",  PRINT);
+  xs(DDCUSER     ,8 ,%    ,"Last updater       ",  PRINT);
+  xs(DDCDATE     ,10,%    ,"Date last updated  ",  PRINT);
+  xs(DDC74       ,2 ,%    ,"reserved           ",NOPRINT);
+  xs(DDCTIME     ,8 ,%    ,"Time last updated  ",  PRINT);
+  xs(DDCDESC     ,120,%    ,"Description        ",  PRINT);
+  xflag(DSCSPEC1 ,1  ,SPEC1 ,"spec 1             ",  PRINT);
+  xflag(DSCSPEC2 ,1  ,SPEC2 ,"spec 2             ",  PRINT);
+  xflag(DSCSPEC3 ,1  ,SPEC3 ,"spec 3             ",  PRINT);
+  xflag(DSCSPEC4 ,1  ,SPEC4 ,"spec 4             ",  PRINT);
+
+////   data set attribtues
+  xlist(DDCRCORG ,1  ,RCORG,"Data set rec org   ",  PRINT);
+  xx(DDCRECFM    ,1  ,%nz  ,"Data set recfm     ",  PRINT);
+  xflag(DDCDSFLG ,1  ,FLAG1 ,"flag 1             ",  PRINT);
+  xlist(DDCCNTL  ,1  ,CCNTL ,"Carriage control   ",  PRINT);
+  xi(DDCEXPYR    ,2  ,%nz  ,"Expiry year        ",  PRINT);
+  xi(DDCEXPDY    ,2  ,%nz  ,"Expiry day in year ",  PRINT);
+  xi(DDCVOLCT    ,2  ,%nz  ,"Max vol count      ",  PRINT);
+  xlist(DDCDSNTY ,2  ,DSNTY,"DSN type           ",  PRINT);
+////   data set space attributes
+  xi(DDCSPPRI    ,4  ,%nz  ,"Primary space      ",  PRINT);
+  xi(DDCSPSEC    ,4  ,%nz  ,"Secondary space    ",  PRINT);
+  xi(DDCDIBLK    ,4  ,%nz  ,"Directory blocks   ",  PRINT);
+  xlist(DDCAVREC ,1  ,AVREC,"Avg rec M,K,U      ",  PRINT);
+  xx(DDCREDUC    ,1  ,%nz  ,"Reduce space %     ",  PRINT);
+  xx(DDCRBIAS    ,1  ,%nz  ,"VSAM Access BIAS   ",  PRINT);
+  xi(DDCDCVC     ,1  ,%nz  ,"Dyna Alloc count   ",  PRINT);
+  xi(DDCAUNIT    ,4  ,%nz  ,"Alloc unit amount  ",  PRINT);
+  xi(DDCBSZLM    ,4  ,%nz  ,"DS blocksize limit",  PRINT);
+  xi(DDCLRECL    ,4  ,%nz  ,"record length     ",  PRINT);
+// VSAM attributes
+  xi(DDCCISZ     ,4  ,%nz  ,"CI size            ", PRINT);
+//xi(DDCFRSP     ,4  ,%nz  ,"Free space         ", PRINT);
+  xi(DDCIPCT     ,2  ,%nz  ,"CI free space %    ", PRINT);
+  xi(DDCAPCT     ,2  ,%nz  ,"CA free space %    ", PRINT);
+  xx(DDCXREG     ,1  ,%nz  ,"VSAM XREG share opt", PRINT);
+  xx(DDCXSYS     ,1  ,%nz  ,"VSAM XSYS share opt", PRINT);
+  xx(DDCVINDX    ,1  ,%nz  ,"VSAM Sahre opts    ", PRINT);
+  xi(DDCKLEN     ,1  ,%nz  ,"VSAM Key length    ", PRINT);
+  xi(DDCKOFF     ,2  ,%nz  ,"VSAM Key offset    ", PRINT);
+  xi(DDCCAMT     ,1  ,%nz  ,"VSAM cand amount   ", PRINT);
+  xx(Reserved263 ,1  ,%nz  ,"Missing            ",NOPRINT);
+// mmountable
+  xx(DDCCOMP     ,1  ,%nz  ,"Compaction         ", PRINT);
+  xx(DDCMEDIA    ,1  ,%nz  ,"Media              ", PRINT);
+  xx(DDCRECCTE   ,1  ,%nz  ,"recording tech     ", PRINT);
+  xx(Reserved267 ,1  ,%nz  ,"reserved           ",NOPRINT);
+// mmountable
+  xx(DDCBWOTP    ,1  ,%nz  ,"RWO type           ",  PRINT);
+  xx(DDCLOGRC    ,1  ,%nz  ,"Sphere recoverbilty",  PRINT);
+  xx(DDCSPAND    ,1  ,%nz  ,"Record can span CI ",  PRINT);
+  xi(DDCFRLOG    ,1  ,%nz  ,"CICSVR FRLOG type  ",  PRINT);
+  xi(DDCLOGLN    ,2  ,%nz  ,"Id length          ",NOPRINT);
+  xs(DDCLOGID    ,26 ,%nb  ,"Log ID             ",  PRINT);
+  xflag(DDCSPECA ,1  ,SPECX ,"Additional flagsA  ",  PRINT);
+  xflag(DDCSPECB ,1  ,SPECY ,"Additional flagsB  ",  PRINT);
+  xflag(DDCSPECC ,1  ,SPECZ ,"Additional flagsC  ",  PRINT);
+  xx(DDCSPECD    ,1  ,%nz   ,"Additional flagsD  ",NOPRINT);
+  xflag(DDCSFLG  ,1  ,SFLG  ,"SFLG               ",  PRINT);
+  xx(DDCvbyt1    ,1  ,%nz   ,"VSAM byte1         ",  PRINT);
+  xx(Reserved306 ,3  ,%nz   ,"Reserver           ",NOPRINT);
+  xlist(DDCEATTR ,1  ,EATTR  ,"Extended attr      ",  PRINT);
+  xx(DDCEDCT     ,1  ,%nz   ,"Compression type   ",  PRINT);
+  xx(DDCEDSCF    ,1  ,%nz   ,"RLS CF Cache value ",  PRINT);
+  xx(DDCRBYTE    ,1  ,%nz   ,"RLS Byte           ",  PRINT);
+  xx(Reserved313 ,4  ,%nz   ,"reserved           ",NOPRINT);
+  xi(DDCBSZLM2   ,4  ,%nz   ,"Block size limit   ",  PRINT);
+  xi(DDCPSCA     ,1  ,%nz   ,"Performance scaling",  PRINT);
+  xi(DDCPSEG     ,1  ,%nz   ,"Performance Segment",  PRINT);
+  xx(Reserved323 ,2  ,%     ,"reserved           ",NOPRINT);
+  xx(Reserved325 ,3  ,%     ,"reserved           ",NOPRINT);
+  xflag(DDVSP    ,1  ,VSP   ,"Unit for  SMVSP    ",  PRINT);
+  xx(DDCVSPV     ,3  ,%nz   ,"SMBVSP value       ",  PRINT);
+  xi(DDCKLBL1    ,2  ,%nz   ,"Length Keylabel1   ",  PRINT);
+  xs(DDCKLBN1    ,64 ,%nb   ,"Name   Keylabel1   ",  PRINT);
+  xx(DDCKYCD1    ,1  ,%nz   ,"Key code 1         ",  PRINT);
+  xx(Reserved399 ,1  ,%nz   ,"reserved           ",NOPRINT);
+  xi(DDCKLBL2    ,2  ,%nz   ,"Length Keylabel2   ",  PRINT);
+  xs(DDCKLBN2    ,64 ,%nb   ,"Name   Keylabel2   ",  PRINT);
+  xx(DDCKYCD2    ,1  ,%nz   ,"Key code 2         ",  PRINT);
+  xx(Reserved467 ,1  ,%     ,"reserved           ",NOPRINT);
+  xx(Reserved468 ,1  ,%     ,"reserved           ",NOPRINT);
+  xx(DDCRMODE    ,1  ,%nz   ,"VSAM SMB RMODE31   ",  PRINT);
+  xi(DDCDKLNL    ,2  ,%nz   ,"Len DASD key lab   ",  PRINT);
+  xs(DDCDKLBN    ,64 ,%nb   ,"DASD DS KeyLab Name",  PRINT);
+  xx(Reserved536 ,28 ,%nz   ,"Reserved           ",NOPRINT);
+}

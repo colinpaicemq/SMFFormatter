@@ -1,0 +1,233 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * MC       = 0;
+// start processing here
+//
+void dcollectmc( char  * pSMF,long count, int inum){
+  if  (MC        == 0 ) MC       = MYOPEN("dd:MC      ");
+  if  (MC        == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = MC      ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+ struct flagTable SFLG[] =
+ {
+   {0x80,  0x80,"BWO    specified    " },
+   {0x40,  0x40,"Sphere recover  s'd " },
+ };
+ struct flagTable SPEC1[] =
+ {
+   { 0x80, 0x80,"MCBKVS specified    " },
+   { 0x40, 0x40,"DMCBVRD   specified " },
+   { 0x20, 0x20,"DMCBKDY     spec'd  " },
+   { 0x10, 0x10,"DMCBKNP specified   " },
+   { 0x08, 0x08,"DMCEXDAT specified  " },
+   { 0x04, 0x04,"DMCEXDYT specified  " },
+   { 0x02, 0x02,"DMCFRDY  specified  " },
+ };
+ struct flagTable SPEC2[] =
+ {
+   {0x80,   0x80,"DMCFL1DY ecified    " },
+   {0x40,   0x40,"DMCFRLMG  specified " },
+   {0x20,   0x20,"DMCFPELE    spec'd  " },
+   {0x10,   0x10,"DMCFBKFQ pecified   " },
+ };
+ struct flagTable CRLF[] =
+ {
+   {0x80,   0x80,"Partial release Yes " },
+   {0x80,   0x00,"Partial release No  " },
+   {0x40,   0x40,"Cond partn relea yes" },
+   {0x40,   0x00,"Cond partn relea no " },
+   {0x20,   0x20,"Immediate releas yes" },
+   {0x20,   0x00,"Immediate releas no " },
+ };
+ struct flagTable CMAU[] =
+ {
+   {0xFF,   0   ,"No migration allowed" },
+   {0xFF,   1   ,"Migration on cmd    " },
+   {0xFF,   2   ,"Auto migr or cmd    " },
+ };
+ struct flagTable CYTP[] =
+ {
+   {0xFF,   0   ,"Standard copy       " },
+   {0xFF,   1   ,"Concurrent preferred" },
+   {0xFF,   2   ,"Concurrent required " },
+ };
+ struct flagTable GDGFL[] =
+ {
+   {0x80,  0x80,"Migrate rolled off  " },
+ };
+ struct flagTable RETF[] =
+ {
+   {  0x80,0x80,"Expire after days   " },
+   {  0x40,0x40,"Expire after date   " },
+ };
+ struct flagTable BKFLG[]=
+ {
+   {0x80,  0x80,"Retain days only    " },
+   {0x40,  0x40,"Retain extra backup " },
+   {0x10,  0x10,"Auto backup allowed " },
+   {0x08,  0x08,"Copy technique      " },
+ };
+ struct flagTable BADUG[]=
+ {
+   {0xff,   0  ,"No user of admin backup" },
+   {0xff,   1  ,"Allow Admin backup     " },
+   {0xff,   2  ,"Auto migrateon command " },
+ };
+ struct flagTable ACTLE[] =
+ {
+   { 0xff, 0   ,"None                " },
+   { 0xff, 1   ,"Cloud               " },
+   { 0xff, 2   ,"ML1                 " },
+   { 0xff, 3   ,"ML2                 " },
+   { 0xff, 4   ,"Mig                 " },
+   { 0xff, 5   ,"Transition          " },
+ };
+ struct flagTable PERD[] =
+ {
+   { 0x80, 0x80,"Monthly             " },
+   { 0x40, 0x40,"Quarterly on day    " },
+   { 0x20, 0x20,"Quarterly on Month  " },
+   { 0x10, 0x10,"Yearly on day       " },
+   { 0x08, 0x08,"Yearly on month     " },
+   { 0x04, 0x04,"First day of period " },
+   { 0x02, 0x02,"Last  day of period " },
+ };
+ struct flagTable TSLU[] =
+ {
+   { 0x80, 0x80,"Years specified     " },
+   { 0x40, 0x40,"Months specified    " },
+   { 0x20, 0x20,"Days specified      " },
+ };
+ struct flagTable TSCR[] =
+ {
+   { 0x80, 0x80,"Years specified     " },
+   { 0x40, 0x40,"Months specified    " },
+   { 0x20, 0x20,"Days specified      " },
+ };
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===================\n");
+  xi(DMULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DMURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DMURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DMUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DMUTIME    ,4 ,SMFTime ,"Time collected ",  PRINT);
+  xfn(DMUDATE    ,4 ,SMFDate ,"Date collected ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+  //   MC data
+  xi(DDCNMLEN    ,2 ,%    ,"length of name     ",NOPRINT);
+  xs(DDCNAME     ,30,%    ,"Data class name    ",  PRINT);
+  xs(DDCUSER     ,8 ,%    ,"Last updater       ",  PRINT);
+  xs(DDCDATE     ,10,%    ,"Date last updated  ",  PRINT);
+  xs(DDC74       ,2 ,%    ,"reserved           ",NOPRINT);
+  xs(DDCTIME     ,8 ,%    ,"Time last updated  ",  PRINT);
+  xs(DDCDESC     ,120,%    ,"Description        ",  PRINT);
+  xflag(DMCSPEC1 ,1  ,SPEC1 ,"spec 1             ",  PRINT);
+  xflag(DMCSPEC2 ,1  ,SPEC2 ,"spec 2             ",  PRINT);
+  xflag(DMCRLF   ,1  ,CRLF  ,"Partial release flg",  PRINT);
+  xx(Reserved207 ,1  ,%nz  ,"reserved           ",NOPRINT);
+  xflag(DMCGDGFL ,1  ,GDGFL ,"GDG flags          ",  PRINT);
+  xx(Reserved209 ,1  ,%nz  ,"reserved           ",NOPRINT);
+  xi(DMCPELEM    ,2  ,%nz  ,"Number of GDG on pri",  PRINT);
+  xx(Reserved212 ,4  ,%nz   ,"Reserved           ",  PRINT);
+  xflag(DMCRETF  ,1  ,RETF  ,"Data set retention ",  PRINT);
+  xx(DMCRFMT     ,1  ,%nz   ,"?                  ",  PRINT);
+  xx(Reserved218 ,2  ,%nz   ,"Reserved           ",  PRINT);
+  xi(DMCEXPDY    ,4  ,%nz  ,"Expire no use- days",  PRINT);
+//xi(DMCEXDAT    ,4  ,%nz  ,"Expire since create",  PRINT);
+  xi(DMCEYEAR    ,2  ,%nz  ,"Expire year        ",  PRINT);
+  xi(DMCEDAY     ,2  ,%nz  ,"Day of year        ",  PRINT);
+  xx(DMCMIGF     ,1  ,%nz  ,"Migration flags    ",  PRINT);
+  xx(Reserved229 ,1  ,%nz   ,"Reserved           ",  PRINT);
+  xi(DMCPRDY     ,2  ,%nz  ,"Min days on Prim   ",  PRINT);
+  xi(DMCL1DY     ,2  ,%nz  ,"Min days on L1     ",  PRINT);
+  xflag(DMCCMAU  ,1  ,CMAU ,"Command or auto mig",  PRINT);
+  xx(Reserved235 ,1  ,%nz   ,"Reserved           ",  PRINT);
+  //  data set backup criteria
+  xflag(DMCBKFLG ,1  ,BKFLG ,"flag 1             ",  PRINT);
+  xx(Reserved237 ,3  ,%nz   ,"Reserved           ",  PRINT);
+  xi(DMCBKFR     ,2  ,%nz  ,"Backup frequency   ",  PRINT);
+  xi(DMCBKVS     ,2  ,%nz  ,"Number backup versi",  PRINT);
+  xi(DMCBVRD     ,2  ,%nz  ,"Number backup deltd",  PRINT);
+  xi(DMCBKDY     ,2  ,%nz  ,"Days to keep bu ves",  PRINT);
+  xi(DMCBKNP     ,2  ,%nz  ,"Days to keep onlybu",  PRINT);
+  xi(DMCBADU     ,1  ,%nz  ,"Allow admin/user   ",  PRINT);
+  xflag(DMCCYTP  ,1  ,CYTP ,"Command or auto mig",  PRINT);
+  xs(DMBKUDC     ,8  ,%nz  ,"Backup dest class  ",  PRINT);
+  // max retrntion
+  xi(DMCMRETF    ,1  ,%nz  ,"Max retention      ",  PRINT);
+  xx(DMCMRTDY    ,3  ,%nz  ,"Max days to retain ",  PRINT);
+  // Class transition criterua
+  xflag(DMCCTSCR ,1  ,TSCR ,"Time simce created ",  PRINT);
+  xflag(DMCCTSLU ,1  ,TSLU ,"Time since last used",  PRINT);
+  xflag(DMCPERD  ,1  ,PERD ,"Perioudic flags     ",  PRINT);
+  xx(Reserved267 ,1  ,%nb  ,"Reserved            ",NOPRINT);
+
+  xi(DMCVSCY  ,2  ,%    ,"Time since crea  yy ",  PRINT);
+  xi(DMCVSCM  ,2  ,%    ,"Time since crea  mm ",  PRINT);
+  xi(DMCVSCD  ,2  ,%    ,"Time since crea  dd ",  PRINT);
+
+  xi(DMCVSUY  ,2  ,%    ,"Time since las us yy",  PRINT);
+  xi(DMCVSUM  ,2  ,%    ,"Time since las us mm",  PRINT);
+  xi(DMCVSUD  ,2  ,%    ,"Time since las us dd",  PRINT);
+
+  xi(DMCVPRD  ,2  ,%    ,"Periodic value      ",  PRINT);
+  xi(DMCVPMD  ,2  ,%    ,"Periodic month on day",  PRINT);
+  //
+  xi(DMCVPQD  ,2  ,%    ,"Periodic month in day",  PRINT);
+  xi(DMCVPQM  ,2  ,%    ,"Periodic month in mon",  PRINT);
+  //
+  xi(DMCVPYD  ,2  ,%    ,"Periodic yearly onday",  PRINT);
+  xi(DMCVPYM  ,2  ,%    ,"Periodic yearly onday",  PRINT);
+  xx(Reserved292,16,%   ,"Reserved             ",NOPRINT);
+  xi(DMCTSRL  ,2  ,%    ,"HSM Class transistion",  PRINT);
+  xi(DMCTSPY  ,2  ,%    ,"HSM Cl trans techniq ",  PRINT);
+  xi(MCDL2DL  ,2  ,%    ,"Move to cloud        ",  PRINT);
+
+  xi(DMCCLEN  ,2  ,%    ,"Length of cloud name ",NOPRINT);
+  xs(DMCLNAM  ,30 ,%    ,"Cloud name for migr  ",  PRINT);
+  xx(Reserved346,2,%    ,"Reserved             ",NOPRINT);
+  xi(DMCSZLTE ,4  ,%    ,"<= Data size thresh  ",  PRINT);
+  xi(DMCSZGT  ,4  ,%    ,">  Data size thresh  ",  PRINT);
+  xflag(DMCACTLE,1   ,ACTLE," Action for <=       ",  PRINT);
+  xflag(DMCACTGT,1   ,ACTLE," Action for >        ",  PRINT);
+  xx(Reserved362,4,%    ,"Reserved             ",NOPRINT);
+
+}

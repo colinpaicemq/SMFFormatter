@@ -1,0 +1,104 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+//
+// function  to convert SMF record time           to string
+#include <time.h>
+ int  SMF30Subtype(char *  in, char * buffer)
+ {
+   // input is the number of halfword subtype
+   // and the buffer
+   char * subtype[]= {"0 NMot used",
+                      "1 Job Start",
+                      "2 Since previous interval",
+                      "3 Last interval",
+                      "4 Step total",
+                      "5 Job Termination",
+                      "6 Bad job"
+                      };
+   int len;
+   int i = * (int  *) in;  // get the int from the buffer
+       i = i>>16        ;  // get top half word
+   len=sprintf(buffer,"%s\0",subtype[i] );
+   return len;
+ }
+ int  SMFTime(char *  in, char * buffer)
+ {
+   // input is the number of hundreds of seconds since midnight
+   // and the buffer
+   int i = * (int  *) in;  // get the int from the buffer
+   int HH,MM,SS,hh;
+   hh = i%100;  //hundreds of a second
+   i  = i/100;
+   SS = i%60;  //seconds
+   i  = i/60;
+   MM = i%60;  //seconds
+   HH = i/60;  //seconds
+   sprintf(buffer,"%2.2d:%2.2d:%2.2d.%2.2d\0",HH,MM,SS,hh);
+   return 11;
+ }
+// function  to convert SMF record date           to string
+ int  SMFDate(char *  in, char * buffer)
+ {
+   /*************************************************************/
+   /* extract the date from the SMF header                      */
+   /* This is in 0cyydddF format, so extract and convert to     */
+   /* a printable value                                         */
+   /*************************************************************/
+   /* Extract the 3 digits of the date into d1,d2 and d3        */
+   /* and combine into a binary value                           */
+   /*************************************************************/
+   int d1,d2,d3;
+   int day,year;
+   memcpy(&d1,in,4);
+   d2=d1;
+   d3=d1;
+   d1 = (d1 & 0x0000F000)>>12;
+   d2 = (d2 & 0x00000F00)>> 8;
+   d3 = (d3 & 0x000000F0)>> 4;
+   day =  d1* 100 + d2 * 10 + d3;
+   /*************************************************************/
+   /* extract the date from the SMF header                      */
+   /* This is in 0cyydddF format, so extract and convert to     */
+   /* a printable value                                         */
+   /*************************************************************/
+   /* Extract the 3 digits of the date into d1,d2 and d3        */
+   /* and combine into a binary value                           */
+   /*************************************************************/
+   memcpy(&d1,in,4);
+   d2=d1;
+   d3=d1;
+   d1 = (d1 & 0x0F000000)>>24;  // century
+   d2 = (d2 & 0x00F00000)>>20;
+   d3 = (d3 & 0x000F0000)>>16;
+   year = 1900 + (d1*100)+ 10*d2 + d3; /* d1 is 1 if > 2000      */
+   char temp[9];
+   sprintf(temp,"%4.4d %3.3d ",year,day);
+   struct tm tm  ;
+   strptime(temp,"%Y %j",&tm);  // convert yyyy ddd to tm
+   // and format it as a yy/mm/dd
+   sprintf(buffer,"%d/%d/%d\0",tm.tm_year+1900,
+     tm.tm_mon +1 ,tm.tm_mday);
+   return 10;
+ }

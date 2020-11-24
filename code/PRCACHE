@@ -1,0 +1,64 @@
+void printCache(// FILE * fHandle,
+           int  DSION,   //      ,4  ,%     , Number of IOs
+           int  DSRDT,   //      ,4  ,%     , Number of Reads
+           int  DSCND,   //      ,4  ,%     , Number Cache Cand
+           int  DSHTS,   //      ,4  ,%     , Number Cache hits
+           int  DSWCN,   //      ,4  ,%     , Number Write candi
+           int  DSWHI,   //      ,4  ,%     , Number Write Hits
+           int  DSSEQ,   //       4  ,%     , Number SEQ
+           int  DSRLC,   //       4  ,%     , Number Rec lvl Cac
+           int  DSICL,   //      ,4  ,%     , Number Inh lvl Cac
+               )
+{
+     char * missedHits;
+     if (DSCND-DSHTS > 0) missedHits="!!Missed" ;
+     else missedHits=" ";
+     int   rHitpc,wHitpc;
+     int readCache,readHits;
+     readCache = DSCND - DSWCN;
+     readHits  = DSHTS - DSWHI;
+     if ( readCache > 0)
+     {
+        rHitpc = (100 *  readHits       )/readCache;
+        fprintf( fHandle,"Normal read cache :%6.6u "
+                      "hits:%6.6u "
+                      "not hit:%6.6u %%hit:%3.1u%% %s\n",
+                       readCache,readHits,
+                       readCache-readHits, // number of missed hits
+                       rHitpc,missedHits); //  pcent missed and flag
+     }
+     if (DSWCN         > 0) // number of write cache
+     {
+       wHitpc = (100 *  DSWHI)  / (DSWCN );
+       if (DSWCN-DSWHI > 0) missedHits="!!Missed" ;
+       else missedHits=" ";
+       fprintf( fHandle,"Normal write cache:%6.6u "
+                        "hits:%6.6u "
+                        "not hit:%6.6u %%hit:%3.1u%% %s\n",
+
+                         DSWCN,DSWHI,DSWCN-DSWHI,wHitpc,missedHits);
+     }
+     if ( DSSEQ+DSRLC+DSICL > 0)
+       fprintf( fHandle,
+              "Seq_cache_RW:%2u 1Track_RW:%2u "
+              "Bypass_cache_RW:%2u\n",
+                       DSSEQ,DSRLC,DSICL);
+ //  if ( DSION -DSSEQ > 0)
+ //    printf("%44.48s %i .%i - %i = %i\n",DSN,count,
+ //  DSION, DSSEQ, DSION-DSSEQ);
+ //  if ( DSION != DSCND + DSSEQ + DSRLC + DSICL )
+ //  fprintf( fHandle,"!! IOS count do not match\n");
+  return;
+}
+void printAvgRT(int DSR1U, int DSC1U,int DSP1U,  int DSD1U,
+int DSQ1U,int DSA1U,int DST1U,int DSB1U,int DSM1U)
+{
+     if ( DST1U > 0) // if this is > 0 then data was not cached
+     fprintf( fHandle,"!!Read only disconnect time %i > 0\n",DST1U);
+     int other = DSR1U-(DSC1U+DSP1U+DSQ1U+DSA1U+DST1U+DSB1U+DSM1U);
+     fprintf( fHandle,"Avg resp time uS: %4.1u Pend:%4.1u Conn:%3.1u "
+                      "Disc:%3.1u Queue:%3.1u "
+                      "DAU:%3.1u Busy:%3.1u ICR:%4.1u Other:%3.1i\n",
+            DSR1U,DSP1U,DSC1U,DSD1U,DSQ1U,DST1U,DSB1U,DSM1U,
+            other                                            );
+}

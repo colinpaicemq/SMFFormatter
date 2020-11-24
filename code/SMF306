@@ -170,7 +170,7 @@ void dosmf30_6( char  * pSMF,long count){
        ISSdt,IETdt,fDuration);
   }
  ETRIPLET(Request  );
-  TRIPLET(ZOS    ,pSMFZ+ subsyso     ,
+ TRIPLET(ZOS    ,pSMFZ+ subsyso     ,
         subsysn   , subsysl  ,NOPRINT);
      xi(reserved4        ,4  ,%     ,"Server version    ",NOPRINT);
      xi(reserved5        ,2  ,%     ,"resv5             ",NOPRINT);
@@ -180,7 +180,7 @@ void dosmf30_6( char  * pSMF,long count){
      xs(PLEXNAME         ,8  ,%     ,"PLEX    name      ",  PRINT);
      xx(ttoken           ,16 ,%     ,"TToken            ",NOPRINT);
  ETRIPLET(Request  );
-  TRIPLET(Proc  t,pSMFZ+ proc__o     ,
+ TRIPLET(Proc  t,pSMFZ+ proc__o     ,
         proc__n   , proc__l  ,NOPRINT);
      xi(reservedp1       ,2  ,%     ,"reserved          ",NOPRINT);
      xi(invalidtimer     ,2  ,%     ,"invalidtime       ",NOPRINT);
@@ -272,6 +272,8 @@ void dosmf30_6( char  * pSMF,long count){
       ENConZIIP,  DEPCPUonZIIP );
  }
  ETRIPLET(Request  );
+ float totalIOTime =0;
+ long long  IOCount= 0;
   TRIPLET(EXCP       ,pSMFZ+ io____o     ,
         io____n   , io____l  ,NOPRINT);
      xi(INP              ,4  ,%nz   ,"IO Cards read      ",  PRINT);
@@ -293,9 +295,16 @@ void dosmf30_6( char  * pSMF,long count){
      xj(EIW              ,4  ,%nz   ,"IO I enc pend time",  PRINT);
      xi(EIS              ,4  ,%nz   ,"IO I enc ssch num ",  PRINT);
      xi(TEX              ,8  ,%nz   ,"Total blocks      ",  PRINT);
+     IOCount += TEX;
+     totalIOTime += AIC + AID + AIW       ;
      xi(DAS              ,4  ,%nz   ,"IO DDs acct suppre",  PRINT);
  ETRIPLET(Request  );
-  TRIPLET(Performance,pSMFZ+ perf__o     ,
+  if(subtype[0] == '4' ) // step total
+  {
+    fprintf(SUM30  ," Total IO count  %llu total IO time  %f",
+     IOCount, totalIOTime);
+  }
+ TRIPLET(Performance,pSMFZ+ perf__o     ,
         perf__n   , perf__l  ,NOPRINT);
      xi(SRV              ,4  ,%     ,"Total SU          ",NOPRINT);
      xi(CSU              ,4  ,%     ,"CPU   SU          ",NOPRINT);

@@ -1,0 +1,153 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining
+//of this software and associated documentation files (the "Software"),
+//in the Software without restriction, including without limitation the
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or s
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be include
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRES
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILIT
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHAL
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISIN
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+ if (VHO > 0  && VHN > 0)
+ {
+  fHandle = SMF42_5V;
+  fprintf(fHandle ,"\n"); /* blank line before */
+  fprintf(fHandle ,"== "
+        "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
+                DTE ,TME ,sid);
+  fprintf(fHandle ,"Interval Start:%26.26s End:%26.26s"
+        " Duration %8.3f seconds\n",
+         startDT,endDT,fDuration);
+         fprintf(fHandle,"                 rd    wr zHPFR zHPFW "
+                         "rt  conn pend "
+                         "disc RdDi CMD Busy CUQ  DAO  "
+                         "| RdCa RdHi WrCa WrHi   Seq  1Tr  ICL"
+                         "\n");
+
+  TRIPLET(VTOCH  ,pSMFZ+ VHO         ,
+        9999     , 0        ,NOPRINT);
+     fHandle = SMF42_5V;
+     xi(VTNXT            ,4  ,%     ,"Offset to next     ",NOPRINT);
+     xs(VTSER            ,6  ,%     ,"Vol Ser            ",NOPRINT);
+     xx(VTSADR           ,2  ,%     ,"Vol Addr           ",NOPRINT);
+     xx(VTSFL1           ,1  ,%     ,"Flag 1             ",NOPRINT);
+     xx(Reserved13       ,7  ,%     ,"Reserved           ",NOPRINT);
+     xi(VTUNC            ,4  ,%nz   ,"IO count not in 5,6",NOPRINT);
+     xi(VTVDO            ,4  ,%     ,"Offset to vtoc     ",NOPRINT);
+     xi(VTVDL            ,2  ,%     ,"Length    vtoc     ",NOPRINT);
+     xx(Reserved30       ,2  ,%     ,"reserved           ",NOPRINT);
+     xi(VTVXO            ,4  ,%     ,"Offset to vtoc inx ",NOPRINT);
+     xi(VTVXL            ,2  ,%     ,"Length    vtoc inx ",NOPRINT);
+     xx(Reserved38       ,2  ,%     ,"reserved           ",NOPRINT);
+     xi(VTVVO            ,4  ,%     ,"Offset to vvds     ",NOPRINT);
+     xi(VTVVL            ,2  ,%     ,"Length    vvds     ",NOPRINT);
+     xx(Reserved46       ,2  ,%     ,"reserved           ",NOPRINT);
+     xi(VTMCO            ,4  ,%     ,"Offset to vol  met ",NOPRINT);
+     xi(VTMCL            ,2  ,%     ,"count     vtol met ",NOPRINT);
+     xi(VTMCN            ,2  ,%     ,"Number             ",NOPRINT);
+     xi(VTSYO            ,4  ,%     ,"Offset to systems  ",NOPRINT);
+     xi(VTSYL            ,2  ,%     ,"Length    systems  ",NOPRINT);
+     xi(VTSYN            ,2  ,%     ,"number systems     ",NOPRINT);
+     xi(VTBGO            ,4  ,%     ,"Offset to backgr   ",NOPRINT);
+     xi(VTBGL            ,2  ,%     ,"Length    backgr   ",NOPRINT);
+     xi(VTBGN            ,2  ,%     ,"number   backgr    ",NOPRINT);
+     fprintf(fHandle ,"\n");
+     VTOCTriplet(VTSER,"VTOC   ", pSMFZ,VTVDO,1,VTVDL);
+     VTOCTriplet(VTSER,"VTOCINX", pSMFZ,VTVXO,1,VTVXL);
+     VTOCTriplet(VTSER,"VVDS   ", pSMFZ,VTVVO,1,VTVVL);
+     if (VTMCO > 0 )
+     {
+       fHandle = SMF42_5VM;
+       if (doneIDTHeader ==0)
+       {
+         fprintf(fHandle ,"== "
+             "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
+                     DTE ,TME ,sid);
+         fprintf(SMF42_5VR ,"== "
+             "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
+                     DTE ,TME ,sid);
+        doneIDTHeader = 1;
+       }
+      TRIPLET(VOLMET ,pSMFZ+ VTMCO       ,
+       VTMCN     , VTMCL    ,NOPRINT);
+        xi(VRID1            ,4  ,%     ,"count idt  1-10    ",NOPRINT);
+        xi(VRID2            ,4  ,%     ,"count idt 10-100   ",NOPRINT);
+        xi(VRID3            ,4  ,%     ,"count idt 100-1000 ",NOPRINT);
+        xi(VRID4            ,4  ,%     ,"count idt 1ms -10ms",NOPRINT);
+        xi(VRID5            ,4  ,%     ,"count idt 10ms-100ms",NOPRINT);
+        xi(VRID6            ,4  ,%     ,"count idt > 100ms  ",NOPRINT);
+        xi(Reserved24       ,4  ,%     ,"                   ",NOPRINT);
+        xi(VRIDM            ,4  ,%     ,"Max idt            ",NOPRINT);
+        xSTCKDT(VRIDT         ,8  ,%     ,"Date of longest    ",NOPRINT);
+        xi(VRIDA            ,4  ,%     ,"Average IDT        ",NOPRINT);
+        fprintf(fHandle ,"%6.6s IDT Avg:%u SSCH:%u Max:%u at%27.27s "
+           "0-10:%u, 10-100:%u, 100-1000:%u, 1ms-10ms:%u, 10ms-100m:%u "
+           ">100ms%u\n",
+           VTSER,VRIDA,VRID1+VRID2+VRID3+VRID4+VRID5+VRID6,
+                 VRIDM,VRIDTdt,
+           VRID1,VRID2,VRID3,VRID4,VRID5,VRID6);
+         xi(VRBSY            ,4  ,%     ,"Total in long busy ",  PRINT);
+         xx(Reserved46       ,4  ,%     ,"                   ",NOPRINT);
+         xi(VRRSP            ,4  ,%     ,"Count x reserved   ",  PRINT);
+         xi(VRRSN            ,4  ,%     ,"Count with reserve ",  PRINT);
+       xi(VRRES            ,4  ,%     ,"sum reserved       ",  PRINT);
+       xi(VRREX            ,4  ,%     ,"Max reserved time  ",  PRINT);
+       xi(VRRSR            ,4  ,%     ,"Average RT with res",  PRINT);
+       xx(Reserved68       ,4  ,%     ,"reserved           ",NOPRINT);
+       fprintf(SMF42_5VR    ,"%6.6s reserved:%4u SSCH with reserve:%6u "
+        "avg reserved uS:%4u total reserved uS:%6u max reserved uS:%6u "
+           "long busy dur uS:%4u"
+           "\n",
+           VTSER,
+         VRRSP, VRRSN,VRRSR,VRRES,VRREX,VRBSY);
+    ETRIPLET(VOLMET   );
+  }
+  if (VTSYO > 0 )
+  {
+  fHandle = SMF42_5V ;
+  TRIPLET(VOLMET ,pSMFZ+ VTSYO       ,
+       VTSYN     , VTSYL    ,NOPRINT);
+     xi(VSYO1            ,4  ,%     ,"offset to system   ",NOPRINT);
+     xi(VSYL1            ,2  ,%     ,"len                ",NOPRINT);
+     xi(VSYN1            ,2  ,%     ,"count              ",NOPRINT);
+     xi(VSYO2            ,4  ,%     ,"offset to high     ",NOPRINT);
+     xi(VSYL2            ,2  ,%     ,"len                ",NOPRINT);
+     xi(VSYN2            ,2  ,%     ,"count              ",NOPRINT);
+  TRIPLET(SYSSTAT,pSMFZ+VSYO1        ,
+       VSYN1     , VSYL1    ,NOPRINT);
+     xi(VSION            ,4  ,%     ,"SSCH count         ",NOPRINT);
+     xi(VSIOR            ,4  ,%     ,"Avg response time  ",NOPRINT);
+     xi(VSIOC            ,4  ,%     ,"Avg connect  time  ",NOPRINT);
+     xi(VSIOP            ,4  ,%     ,"Avg pend     time  ",NOPRINT);
+     xi(VSIOD            ,4  ,%     ,"Avg disc     time  ",NOPRINT);
+     xi(VSIOQ            ,4  ,%     ,"Avg CU queue time  ",NOPRINT);
+     xi(VSIAO            ,4  ,%     ,"Avg DAO      time  ",NOPRINT);
+     xi(VSIBT            ,4  ,%     ,"Avg Busy     time  ",NOPRINT);
+     xi(VSIRC            ,4  ,%     ,"Avg ICm      time  ",NOPRINT);
+     xx(Reserved36       ,4  ,%     ,"Avg response time  ",NOPRINT);
+     printVTOCSystem(VTSER,
+                          "SYSTEM"   ,
+                          VSION,
+      VSIOR,VSIOC,VSIOP,VSIOD,VSIOQ,VSIAO,VSIBT,VSIRC);
+  ETRIPLET(SYSSTAT  );
+  ETRIPLET(VOLMET   );
+  }
+   if (VTNXT == 0)  break ;
+    q  = pSMF  + VTNXT ; // locate the next one
+    p = q;
+  ETRIPLET(VTOCH    );
+}
