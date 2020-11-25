@@ -191,8 +191,10 @@ void dosmf42_6( char  * pSMF,long count){
        " Duration %8.3f seconds\n",
         startDT,endDT,fDuration);
  int dscount = 9999;
+  // length needs to be zero because we calculate the offset of next
+  // header from the field in the header
   TRIPLET(DSHeader   ,pSMFZ+ JDDSO,
-        dscount   , 0        ,NOPRINT);
+        dscount   , 0/*   JDDSL */    ,NOPRINT);
      fprintf( fHandle,"====DSHeader====\n");
      xi(DSNXT            ,4  ,%nb   ,"Offset to next    ",NOPRINT);
      if (DSNXT == 0) dscount = 0;
@@ -215,9 +217,16 @@ void dosmf42_6( char  * pSMF,long count){
      xi(DSSNO            ,4  ,%     ,"Offset to sync    ",NOPRINT);
      xi(DSSNL            ,2  ,%     ,"Length Sync       ",NOPRINT);
      xi(DSRES94          ,2  ,%     ,"Reserved          ",NOPRINT);
+     xi(DSSN2O           ,4  ,%     ,"Offset to sync 2  ",NOPRINT);
+     xi(DSSN2L           ,2  ,%     ,"Length Sync    2  ",NOPRINT);
+     xi(DSRES102         ,2  ,%     ,"Reserved          ",NOPRINT);
+     xi(DSSN3O           ,4  ,%     ,"Offset to sync 3  ",NOPRINT);
+     xi(DSSN3L           ,2  ,%     ,"Length Sync    3  ",NOPRINT);
+     xi(DSRES110         ,2  ,%     ,"Reserved          ",NOPRINT);
      fprintf( fHandle,"%-44.44s vol:%6.6s type:%-8.8s "
                    "sc:%8.8s blksize:%5.1u\n",
                    DSN,DSVOL,DSTYPE,DSDSC,DSBSZ);
+  if ( JDDSL > 88) // offset to the seq section
   if ( DSSNO > 0 && DSSNL > 0)
   {
   TRIPLET(SYNCIO     ,pSMFZ+ DSSNO    ,
@@ -244,6 +253,65 @@ void dosmf42_6( char  * pSMF,long count){
      xi(SNONC            ,4  ,%nz   ,"Syn Conc IO Ops     ",  PRINT);
      xx(SNReserved76     ,4  ,%nz   ,"Reserved            ",NOPRINT);
  ETRIPLET(SYNCIO   );
+ }
+  if ( JDDSL > 96) // offset to the seq section
+  if ( DSSN2O> 0 && DSSN2L> 0)
+  {
+  TRIPLET(SYNCIO2    ,pSMFZ+ DSSN2O   ,
+        1         ,  DSSN2L,  NOPRINT);
+     fprintf( fHandle,"====DS Sync2====\n");
+     xi(SNTWR            ,4  ,%nz   ,"Num SyncIO Write    ",  PRINT);
+     xi(SNTWO            ,4  ,%nz   ,"Num SyncIO Ok       ",  PRINT);
+     xi(SNTWS            ,4  ,%nz   ,"!Syn prev Async     ",  PRINT);
+     xi(SNTWB            ,4  ,%nz   ,"!Syn->As Busy Link  ",  PRINT);
+     xi(SNTWM            ,4  ,%nz   ,"!Syn->As Cache miss ",  PRINT);
+     xi(SNTWP            ,4  ,%nz   ,"!Syn->As op delay   ",  PRINT);
+     xi(SNTWE            ,4  ,%nz   ,"!Syn->As no wr token",  PRINT);
+     xi(SNTWI            ,4  ,%nz   ,"!Syn->As bad wrtoken",  PRINT);
+     xi(SNTWC            ,4  ,%nz   ,"!Syn->As incon wri  ",  PRINT);
+     xi(SNTWD            ,4  ,%nz   ,"!Syn->As HL W disble",  PRINT);
+     xi(SNTWA            ,4  ,%nz   ,"!Num reads to RW    ",  PRINT);
+     xi(SNTWK            ,4  ,%nz   ,"!Sync zHL not done  ",  PRINT);
+     xi(SNTWV            ,4  ,%nz   ,"!Sync dev reserved  ",  PRINT);
+     xi(SNTWL            ,4  ,%nz   ,"!Sync Not open for W",  PRINT);
+     xi(SNTWT            ,4  ,%nz   ,"!Sync dis extended  ",  PRINT);
+     xi(SNTWN            ,4  ,%nz   ,"!Sync Not eligible  ",  PRINT);
+     xi(SNTWG            ,4  ,%nz   ,"!Sync Stor class    ",  PRINT);
+     xi(SNTWY            ,4  ,%nz   ,"!Sync Token error  ",  PRINT);
+     xi(SNTWU            ,4  ,%nz   ,"!Sync Unsupp copy  ",  PRINT);
+     xi(SNTWF            ,4  ,%nz   ,"!Sync Not page bdy ",  PRINT);
+     xi(SNTWQ            ,4  ,%nz   ,"!Sync bad write req",  PRINT);
+     xi(SNTWZ            ,4  ,%nz   ,"!Sync zHPF disabled",  PRINT);
+     xi(SNTWW            ,4  ,%nz   ,"!Sync zHPF int err ",  PRINT);
+     xi(SNTWX            ,4  ,%nz   ,"!Sync misc reasons ",  PRINT);
+ ETRIPLET(SYNCIO2  );
+ }
+ if ( JDDSL > 104 ) // offset to the seq section
+ if ( DSSN3O> 0 && DSSN3L> 0)
+  {
+  TRIPLET(SYNCIO3    ,pSMFZ+ DSSN2O   ,
+        1         ,  DSSN2L,  NOPRINT);
+     fprintf( fHandle,"====DS Sync2====\n");
+     xx(Reserved0        ,2  ,%nz   ,"rserved             ",NOPRINT);
+     xx(SNDHW            ,2  ,%nz   ,"SSID                ",  PRINT);
+     xx(Reserved4        ,1  ,%nz   ,"reserved            ",NOPRINT);
+     xx(SNDWJ            ,1  ,%     ,"Subchannel          ",NOPRINT);
+     xx(SNDWN            ,2  ,%     ,"Device number       ",NOPRINT);
+     xi(SNDWT            ,4  ,%nz   ,"Num SyncIO Write    ",  PRINT);
+     xi(SNDWO            ,4  ,%nz   ,"Num SyncIO Ok       ",  PRINT);
+     xi(SNDWS            ,4  ,%nz   ,"!Syn prev Async     ",  PRINT);
+     xi(SNDWB            ,4  ,%nz   ,"!Syn->As Busy Link  ",  PRINT);
+     xi(SNDWM            ,4  ,%nz   ,"!Syn->As Cache miss ",  PRINT);
+     xi(SNDWP            ,4  ,%nz   ,"!Syn->As op delay   ",  PRINT);
+     xi(SNDWE            ,4  ,%nz   ,"!Syn->As no wr token",  PRINT);
+     xi(SNDWI            ,4  ,%nz   ,"!Syn->As bad wrtoken",  PRINT);
+     xi(SNDWC            ,4  ,%nz   ,"!Syn->As incon wri  ",  PRINT);
+     xi(SNDWD            ,4  ,%nz   ,"!Syn->As HL W disble",  PRINT);
+     xi(SNDWU            ,4  ,%nz   ,"!Sync Unsupp copy  ",  PRINT);
+     xi(SNDWK            ,4  ,%nz   ,"!Sync zHL not done ",  PRINT);
+     xi(SNDWV            ,4  ,%nz   ,"!Sync dev reserved ",  PRINT);
+     xi(SNDWX            ,4  ,%nz   ,"!Sync misc reasons ",  PRINT);
+ ETRIPLET(SYNCIO3  );
  }
   if ( DSIOO    > 0)
   {
