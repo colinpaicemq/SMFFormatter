@@ -9,6 +9,8 @@ C formatter for z/OS SMF records, including
 
 Also provide a [formatter for SMS /VSAM DCOLLECT records](DCOLLECT.md),  as the DCOLLECT records have a similar structure.
 
+I have created the formatting for the SyncIO file operations in SMF 42.6 but I have not had a chance to test it and validate it.  If someone has used this (for example with DB2) please can they try it and let me know if it formats ok.
+
 
 ## Overview
 This formatter uses C macros to define fields, and automatically print/noprint fields.  It has basic support to summarise fields, for example 
