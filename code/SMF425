@@ -30,7 +30,6 @@ FILE * SMF42_5VR= 0;  // for reserved
 FILE * SMF42_5VM= 0;
 FILE * SMF42_5V = 0;
 FILE * SMF42_5  = 0;
-FILE * SUM42_5  = 0;
 int doneIDTHeader = 0;
 //
 // start processing here
@@ -44,8 +43,6 @@ void dosmf42_5( char  * pSMF,long count){
   if  (SMF42_5V == (FILE *)   -1)return;
   if  (SMF42_5  == 0 ) SMF42_5  = MYOPEN("dd:S425    ");
   if  (SMF42_5  == (FILE *)   -1)return;
-  if  (SUM42_5  == 0 ) SUM42_5  = MYOPEN("dd:SUM425  ");
-  if  (SUM42_5  == (FILE *)   -1)return;
   // the printf* routines use this global variable
   fHandle = SMF42_5 ;
   doneIDTHeader = 0;
@@ -122,7 +119,7 @@ void dosmf42_5( char  * pSMF,long count){
      xj(SCDAO             ,4  ,%     ,"DAO time          ",NOPRINT);
      xj(SCRDD             ,4  ,%     ,"avg read disc     ",NOPRINT);
      xi(SCRDT             ,4  ,%     ,"# read ops        ",  PRINT);
-      printCache(
+     printCache(
                  SCION,   //  Number of IOs
                  SCCND ,   //  Number Cache Cand
                  SCRDT ,   //  Number Read ops

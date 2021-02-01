@@ -55,7 +55,7 @@ void dcollectsg( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"===SG==============\n");
+  fprintf(fHandle,"===Storage Group===\n");
   xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);

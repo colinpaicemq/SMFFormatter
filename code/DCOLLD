@@ -142,7 +142,7 @@ void dcollectd( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"===================\n");
+  fprintf(fHandle,"===ACTIVE DATA SET==========\n");
   xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);

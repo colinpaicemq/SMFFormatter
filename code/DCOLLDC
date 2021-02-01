@@ -170,7 +170,7 @@ void dcollectdc( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"=======DC==========\n");
+  fprintf(fHandle,"=====DATA CLASS====\n");
   xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);

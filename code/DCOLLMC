@@ -144,7 +144,7 @@ void dcollectmc( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"=======MC==========\n");
+  fprintf(fHandle,"====Management class====\n");
   xi(DMULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DMURCTYP    ,2 ,%   ,"Type               ",NOPRINT);

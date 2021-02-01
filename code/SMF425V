@@ -34,7 +34,7 @@
          startDT,endDT,fDuration);
          fprintf(fHandle,"                    rd    wr zHPFR zHPFW "
                          "rt  conn pend "
-                         "disc RdDi CMD Busy CUQ  DAO  "
+                         "disc RdDi  CMD Busy CUQ  DAO  "
                          "| RdCa RdHi WrCa WrHi   Seq  1Tr  ICL"
                          "\n");
 

@@ -42,7 +42,7 @@ void dcollectvl( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"=VL================\n");
+  fprintf(fHandle,"=SMS Volume definition==\n");
   xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);

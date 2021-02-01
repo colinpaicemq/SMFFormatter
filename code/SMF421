@@ -25,15 +25,12 @@
 
 
 FILE * SMF42_1  = 0;
-FILE * SUM42_1  = 0;
 //
 // start processing here
 //
 void dosmf42_1( char  * pSMF,long count){
   if  (SMF42_1  == 0 ) SMF42_1  = MYOPEN("dd:S421    ");
   if  (SMF42_1  == (FILE *)   -1)return;
-  if  (SUM42_1  == 0 ) SUM42_1  = MYOPEN("dd:SUM421  ");
-  if  (SUM42_1  == (FILE *)   -1)return;
   // the printf* routines use this global variable
   fHandle = SMF42_1 ;
   int offset;

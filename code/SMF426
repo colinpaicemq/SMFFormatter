@@ -25,7 +25,6 @@
 
 #include <u426.h>
 FILE * SMF42_6  = 0;
-FILE * SUM42_6  = 0;
 int  SMF426DSTYP(char *  in, char * buffer)
  {
    switch(in[0])
@@ -113,8 +112,6 @@ int  SMF426DSFL1(char *  in, char * buffer)
 void dosmf42_6( char  * pSMF,long count){
   if  (SMF42_6  == 0 ) SMF42_6  = MYOPEN("dd:S426    ");
   if  (SMF42_6  == (FILE *)   -1)return;
-  if  (SUM42_6  == 0 ) SUM42_6  = MYOPEN("dd:SUM42   ");
-  if  (SUM42_6  == (FILE *)   -1)return;
   // the printf* routines use this global variable
   fHandle = SMF42_6 ;
   int offset;
