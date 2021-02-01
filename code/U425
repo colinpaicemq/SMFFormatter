@@ -22,35 +22,5 @@
 //
 //* Contributors:
 //*   Colin Paice - Initial Contribution
-// ===================================================================
-// Macros to define flag fields
-// ===================================================================
-//
-// print the field offset at the start of the record if
-// field printOffset > 0
-//
-#define list(a,b,c)   \
-    if ( c  )    \
-    doList(a,b,sizeof(b)/sizeof(flagTable));
-// structure defining the lookup tables
-//  bit mask and value
-#ifdef no
-typedef struct flagTable{
-  char  value;
-  char *name;
- } flagTable;
-#endif
-char * doList(char * comment, int  inFlag, flagTable FT[],int size){
-   char * pName;
-   pName = comment;
-   for(int i = 0;i< size;i++)
-   {
-     if((FT[i].  value == inFlag)                 )
-     {
-        printfs(" "   ,FT[i].name,"%",strlen(FT[i]. name),pName);
-        pName = " ";
-        return FT[i].name;
-     }
-   }
-   return "Unknown";
- }
+#include <U425C.h>
+#include <U425T.h>

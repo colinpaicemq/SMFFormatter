@@ -23,7 +23,7 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 
-
+#include <U306.h>
 FILE * SMF30_6  = 0;
 FILE * SUM30    = 0;
 //
@@ -43,6 +43,9 @@ void dosmf30_6( char  * pSMF,long count){
   char * pOffsetBase;   // this is used to caluclate field offsets
   pOffsetBase = pSMF;
   pSMFZ = pSMF;
+  char * pJBN;
+  char * pSTEPNAME;
+  char * pPROGRAM;
   char * system;
   char * p = pSMF;  // this is incremented with each field
   //
@@ -53,9 +56,9 @@ void dosmf30_6( char  * pSMF,long count){
   xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
   xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
   xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
-  xfn(time       ,4 ,SMFTime ,"SMFTime        ",  PRINT);
+  xfn(TME        ,4 ,SMFTime ,"SMFTime        ",  PRINT);
   xfn(date       ,4 ,SMFDate ,"SMFDate        ",  PRINT);
-  xs(sid         ,4 ,%    ,"SMF system id     ",  PRINT);
+  xs(SID         ,4 ,%    ,"SMF system id     ",  PRINT);
   xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",  PRINT);
   xfn(subtype    ,2 ,SMF30Subtype,"SMFSubtype   ",  PRINT);
   xi(subsyso     ,4 ,%    ,"Subsys offset     ",NOPRINT);
@@ -125,9 +128,12 @@ void dosmf30_6( char  * pSMF,long count){
         id____n   , id____l  ,NOPRINT);
 //   printHexS(p,40);
      xs(JBN              ,8  ,%     ,"Job Name          ",  PRINT);
-     xs(Program          ,8  ,%nb   ,"Program           ",  PRINT);
-     xs(Stepname         ,8  ,%nb   ,"StepName          ",  PRINT);
+     xs(PROGRAM          ,8  ,%nb   ,"PROGRAM           ",  PRINT);
+     xs(STEPNAME         ,8  ,%nb   ,"StepName          ",  PRINT);
      xs(UIF              ,8  ,%nb   ,"User defined field",  PRINT);
+     pJBN      = JBN;
+     pSTEPNAME = STEPNAME;
+     pPROGRAM  = PROGRAM;
      xs(JesJob           ,8  ,%     ,"JesJob            ",  PRINT);
      xi(STN              ,2  ,%     ,"Step number       ",NOPRINT);
      xi(CLS              ,1  ,%     ,"Job class         ",NOPRINT);
@@ -155,17 +161,17 @@ void dosmf30_6( char  * pSMF,long count){
      float fDuration =  ((float) lduration )/1000000;
      printfloat("duration",fDuration,"%","Interval in secs");
      xs(SSN              ,4  ,%nb   ,"Substep number    ",NOPRINT);
-     xs(EXN              ,16 ,%nb   ,"Program name      ",  PRINT);
+     xs(EXN              ,16 ,%nb   ,"PROGRAM name      ",  PRINT);
      xi(ASI              ,2  ,%nz   ,"ASID              ",NOPRINT);
      // the jes correlotor is a length fw followed by string
      xs(COR              ,64 ,%nb   ,"Jes Correlator    ",NOPRINT);
   if(subtype[0] == '4' ) // step total
   {
     fprintf(SUM30  ,"\n");  /* blank line before */
-    fprintf(SUM30  ,"==%4.4s Job:%8.8s Step:%8.8s Program:%8.8s "
+    fprintf(SUM30  ,"==%4.4s Job:%8.8s Step:%8.8s PROGRAM:%8.8s "
       "SMF Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
-       ssid,JBN, Stepname,Program,date,time,sid);
-    fprintf(SUM30  ," Interval Start:%25.25s Interval end%25.25s"
+       ssid,JBN, STEPNAME,PROGRAM,date,TME ,SID);
+    fprintf(SUM30  ," Interval Start:%25.25s Interval end:%25.25s"
       " Interval Duration %8.3f seconds\n",
        ISSdt,IETdt,fDuration);
   }
@@ -210,16 +216,16 @@ void dosmf30_6( char  * pSMF,long count){
      xh(T32              ,1  ,%nz   ,"TF32              ",NOPRINT);
      xh(T33              ,1  ,%nz   ,"TF33              ",NOPRINT);
      xh(PASrev3          ,1  ,%nz   ,"Reserved          ",NOPRINT);
-     xh(CPUonIFA         ,4  ,%nz   ,"Tot on ZAAP       ",  PRINT);
-     xh(ENCONIFA         ,4  ,%nz   ,"Ind ENC on ZAAP   ",  PRINT);
+     xh(IFAonIFA         ,4  ,%nz   ,"Tot on ZAAP       ",  PRINT);
+     xh(ENConIFA         ,4  ,%nz   ,"Ind ENC on ZAAP   ",  PRINT);
      xh(DepENFonIFA      ,4  ,%nz   ,"Dep  Enc on ZAAP  ",  PRINT);
      xh(IFAonCP          ,4  ,%nz   ,"ZAAP on CP        ",  PRINT);
      xh(ENCIFAonCP       ,4  ,%nz   ,"I Enc ZAAP on CP  ",  PRINT);
      xh(DepENCIFAonCP    ,4  ,%nz   ,"D Enc ZAAP on CP  " ,  PRINT);
      xk(CEPI             ,4  ,%nz   ,"ENQ promoted      " ,NOPRINT);
-     xh(CPUonZIIP        ,4  ,%nz   ,"Tot on ZIIP       " ,  PRINT);
+     xh(ZIIPonZIIP       ,4  ,%nz   ,"Tot on ZIIP       " ,  PRINT);
      xh(ENConZIIP        ,4  ,%nz   ,"I Enc CPU on ZIIP " ,  PRINT);
-     xh(DEPCPUonZIIP     ,4  ,%nz   ,"D Enc CPU on ZIIP " ,  PRINT);
+     xh(DEPZIIPonZIIP    ,4  ,%nz   ,"D Enc CPU on ZIIP " ,  PRINT);
 
      xh(ZIIPonCP         ,4  ,%nz   ,"ZIIP on CP       " ,  PRINT);
      xh(EZIIPonCP        ,4  ,%nz   ,"I Enc ZIIP on CP " ,  PRINT);
@@ -236,9 +242,11 @@ void dosmf30_6( char  * pSMF,long count){
      xh(MissedBlk        ,4  ,%nz   ,"MissedBlk         " ,  PRINT);
      xh(MissedDCT        ,4  ,%nz   ,"MissedDCT         " ,  PRINT);
      xi(TaskCPU          ,2  ,%nz   ,"Task CPU percent  " ,  PRINT);
-     xs(HighestProg      ,8  ,%nb   ,"Highest Program   " ,  PRINT);
-     float totalCPU = CPT  + CPS + CPUonIFA +IFAonCP
-                                 + CPUonZIIP + ZIIPonCP;
+     xs(HighestProg      ,8  ,%nb   ,"Highest PROGRAM   " ,  PRINT);
+     float totalCPU = CPT  + CPS + IFAonIFA +IFAonCP
+                                 + ZIIPonZIIP + ZIIPonCP;
+    U306C
+    U306E
   if(subtype[0] == '4' ) // step total
   {
     fprintf(SUM30  ,
@@ -250,26 +258,26 @@ void dosmf30_6( char  * pSMF,long count){
       "                      Ind Enc CPU      :%6.3f "
       "Dep Enc CPU     :%6.3f\n",
       ENC     ,DET    );
-    if ( CPUonIFA > 0 || IFAonCP > 0)
+    if ( IFAonIFA > 0 || IFAonCP > 0)
     fprintf(SUM30  ,
       "                      ZAAP on ZAAP     :%6.3f "
       "ZAAP on CP      :%6.3f\n",
-      CPUonIFA,IFAonCP);
-    if ( ENCONIFA > 0 || DepENFonIFA    > 0)
+      IFAonIFA,IFAonCP);
+    if ( ENConIFA > 0 || DepENFonIFA    > 0)
     fprintf(SUM30  ,
       "                      I Enc   ZAAP:%6.3f "
       "D Enc ZAAP       :6.3f\n",
-      ENCONIFA, DepENFonIFA   );
-    if ( CPUonZIIP > 0 || ZIIPonCP > 0)
+      ENConIFA, DepENFonIFA   );
+    if ( ZIIPonZIIP > 0 || ZIIPonCP > 0)
     fprintf(SUM30  ,
       "                      ZIIP on ZIIP     :%6.3f "
       "ZIIP on CP      :%6.3f \n",
-      CPUonZIIP,ZIIPonCP);
-    if (ENConZIIP > 0 ||  DEPCPUonZIIP > 0 )
+      ZIIPonZIIP,ZIIPonCP);
+    if (ENConZIIP > 0 ||  DEPZIIPonZIIP > 0 )
     fprintf(SUM30  ,
       "                        I Enc   ZIIP   :%6.3f "
       "  D Enc ZIIP    :%6.3f \n",
-      ENConZIIP,  DEPCPUonZIIP );
+      ENConZIIP,  DEPZIIPonZIIP );
  }
  ETRIPLET(Request  );
  float totalIOTime =0;
@@ -298,6 +306,7 @@ void dosmf30_6( char  * pSMF,long count){
      IOCount += TEX;
      totalIOTime += AIC + AID + AIW       ;
      xi(DAS              ,4  ,%nz   ,"IO DDs acct suppre",  PRINT);
+     U306I
  ETRIPLET(Request  );
   if(subtype[0] == '4' ) // step total
   {

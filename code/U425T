@@ -23,34 +23,45 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 // ===================================================================
-// Macros to define flag fields
+// Example user macros  for formatting of fields
 // ===================================================================
-//
-// print the field offset at the start of the record if
-// field printOffset > 0
-//
-#define list(a,b,c)   \
-    if ( c  )    \
-    doList(a,b,sizeof(b)/sizeof(flagTable));
-// structure defining the lookup tables
-//  bit mask and value
-#ifdef no
-typedef struct flagTable{
-  char  value;
-  char *name;
- } flagTable;
-#endif
-char * doList(char * comment, int  inFlag, flagTable FT[],int size){
-   char * pName;
-   pName = comment;
-   for(int i = 0;i< size;i++)
-   {
-     if((FT[i].  value == inFlag)                 )
-     {
-        printfs(" "   ,FT[i].name,"%",strlen(FT[i]. name),pName);
-        pName = " ";
-        return FT[i].name;
-     }
-   }
-   return "Unknown";
- }
+FILE * UF425T = 0;
+#define U425T u425t(SID,TME,SCRNN, \
+                     SCR1U, SCC1U,SCP1U,SCD1U,SCT1U,  \
+                     SCQ1U,SCA1U,SCT1U,SCB1U,SCM1U);
+u425t(char * pSID, char * pSMFTime,
+      char * pSC,
+      int SCR1U, int SCC1U,int SCP1U,  int SCD1U,int SCDT1U,
+      int SCQ1U,int SCA1U,int SCT1U,int SCB1U,int SCM1U)
+{
+  if  (UF425T    ==(FILE *)  -1) return;
+  if  (UF425T    == 0 )
+  {
+    UF425T    =  MYOPEN("dd:U425T    ");
+    if ( UF425T == 0)
+    {
+      perror("Error opening dd:U425T");
+      UF425T = (FILE *)  -1 ;
+      return;
+    }
+    // print the header
+    fprintf(UF425T,"%-4.4s,%-8.8s,%-8.8s,"
+                 "%6.6s,%6.6s,%6.6s,"
+                 "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                 "\n",
+        "Sys ","Time","SC",
+            "AvRT","Pend","Conn","Disc","DiscRe",
+            "Queue","DAU" ,"Busy","ICR","Other");
+
+
+    }
+    // Now print the data itself
+  int other = SCR1U-(SCC1U+SCP1U+SCQ1U+SCA1U+SCT1U+SCB1U+SCM1U);
+  fprintf(UF425T,"%4.4s,%8.8s,%-8.8s,"
+                 "%6u,%6u,%6u,%6u,%6u,%6u,"
+                 "%6u,%6u,%6u,%6u    "
+               "\n",
+       pSID,pSMFTime,pSC,
+       SCR1U,SCP1U,SCC1U,SCD1U,SCDT1U,SCQ1U,SCT1U,SCB1U,SCM1U,
+       other  );
+}

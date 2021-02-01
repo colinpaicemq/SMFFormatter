@@ -136,15 +136,16 @@ void dosmf14_1( char  * pSMF,long count,long inum){
          xx(Reserved57     ,9  ,%     ,"Reserved           ",NOPRINT);
          break;
         case 6:
-         xi(DRD            ,4  ,%     ," Dir read req       ",  PRINT);
-         xi(DRDH           ,4  ,%     ," Dir read hit       ",  PRINT);
-         xi(MRD            ,4  ,%     ," Mem read req       ",  PRINT);
+  xi(DRD          ,4  ,%   ," Dir read req       ",  PRINT);
+         xi(DRDH         ,4  ,%   ," Dir read hit       ",  PRINT);
+         xi(MRD          ,4  ,%   ," Mem read req       ",  PRINT);
          xi(MRDH           ,4  ,%     ," Mem read req       ",  PRINT);
          xi(MCE            ,4  ,%     ," Mem cache elig     ",  PRINT);
          xi(MST            ,4  ,%     ," Mem cach stolen    ",  PRINT);
          xi(MNC            ,4  ,%     ," Mem elig not cached",  PRINT);
          xi(MCF            ,4  ,%     ," Mem cach elig. Full",  PRINT);
          break;
+#ifdef ccp
         case 8:
 //   fprintf(fHandle,"RAS\n")
          xx(RFG0           ,28 ,%     ," flag               ",NOPRINT);
@@ -152,6 +153,7 @@ void dosmf14_1( char  * pSMF,long count,long inum){
      default:
      printHexS(p,ESL);
      p +=ESL;
+  #endif
   }  // switch
   } // while
   } // if extended

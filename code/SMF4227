@@ -1,0 +1,154 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+
+FILE * SMF42_27 = 0;
+//
+// start processing here
+//
+void dosmf42_27( char  * pSMF,long count){
+  if  (SMF42_27 == 0 ) SMF42_27 = MYOPEN("dd:S4227   ");
+  if  (SMF42_27 == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = SMF42_27 ;
+  int offset;
+  int perCent;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  fprintf(fHandle,"====SMF42 -27=============== \n");
+  //
+  // start of fields
+  //
+  xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
+  xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
+  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xfn(TME        ,4 ,SMFTime ,"SMFTime        ",NOPRINT);
+  xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",NOPRINT);
+  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
+  xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
+  xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
+  xi(NT          ,2 ,%    ,"Number of triplets",NOPRINT);
+  xi(OPS         ,4 ,%    ,"offset to prod    ",NOPRINT);
+  xi(LPS         ,2 ,%    ,"Length    prod    ",NOPRINT);
+  xi(NPS         ,2 ,%    ,"Number    prod    ",NOPRINT);
+  // offset 36
+  xi(VTOCO       ,4 ,%    ,"offset to VTOC    ",NOPRINT);
+  xi(VTOCL       ,2 ,%    ,"Length  VTOC      ",NOPRINT);
+  xi(VTOCN       ,2 ,%    ,"Number  VTOC      ",NOPRINT);
+  xi(ODSCBO      ,4 ,%    ,"offset to ODSCB   ",NOPRINT);
+  xi(ODSCBL      ,2 ,%    ,"Length  ODSCB     ",NOPRINT);
+  xi(ODSCBN      ,2 ,%    ,"Number  ODSCB     ",NOPRINT);
+  xi(NDSCBO      ,4 ,%    ,"offset to NDSCB   ",NOPRINT);
+  xi(NDSCBL      ,2 ,%    ,"Length  NDSCB     ",NOPRINT);
+  xi(NDSCBN      ,2 ,%    ,"Number  NDSCB     ",NOPRINT);
+  TRIPLET(VTOC   ,pSMFZ+ VTOCO       ,
+        VTOCN    , VTOCL    ,NOPRINT);
+   printOffset = 0;
+     xs(RJOB             ,8  ,%     ,"JobName            ",  PRINT);
+     xs(RJNO             ,8  ,%     ,"JobNumber          ",  PRINT);
+     xs(RSTN             ,8  ,%     ,"StepName           ",  PRINT);
+     xs(RPRN             ,8  ,%     ,"ProcName           ",  PRINT);
+     xs(RVOL             ,6  ,%     ,"Volid              ",  PRINT);
+     xx(RDEV             ,2  ,%     ,"DeviceNumber       ",  PRINT);
+     xfn(RACT        ,4  ,lookupACT,"Activity           ",  PRINT);
+     xx(RIND             ,1  ,%     ,"80=reserved        ",  PRINT);
+     xx(RDS1             ,1  ,%     ,"DSI                ",  PRINT);
+     checkOffset(46);
+     xx(Reserved46       ,2  ,%     ,"Reserved           ",NOPRINT);
+     xx(RSEEK            ,4  ,%     ,"SeekCCCCHHHH       ",  PRINT);
+     xx(RSRCH            ,5  ,%     ,"SRCHCCCCHHHHR      ",  PRINT);
+     xx(RCMDS            ,15 ,%     ,"zHPFCMDs           ",  PRINT);
+     xx(RUPSW            ,4  ,%     ,"ExCP address       ",  PRINT);
+     checkOffset(76);
+   ETRIPLET(VTOC     );
+  TRIPLET(ODSCB t,pSMFZ+ ODSCBO      ,
+        ODSCBN   , ODSCBL   ,NOPRINT);
+     xs(RKEY             ,44 ,%     ,"ODSCB Key field     ",  PRINT);
+     xx(RDSC             ,96 ,%     ,"ODSCB Data field    ",NOPRINT);
+   ETRIPLET(ODSCB    );
+  TRIPLET(NDSCB  ,pSMFZ+ NDSCBO      ,
+        NDSCBN   , NDSCBL   ,NOPRINT);
+     xs(RKEY             ,44 ,%     ,"NDSCB Key field     ",  PRINT);
+     xx(RDSC             ,96 ,%     ,"NDSCB Data field    ",NOPRINT);
+   ETRIPLET(NDSCB    );
+}
+int  lookupACT(char *  in, char * buffer)
+{
+  const struct lookup {
+    char *name;
+    char *value;
+   } MQI_BY_NAME_STR[] = {
+    {"AZAP","AMASPZAP"},
+    {"DCLO","Close for output non-VSAM data set"},
+    {"DCLX","CLOSE executor non-VSAM extended format data set"},
+    {"DCON"," DSS consolidate"},
+    {"DCPY","DSS copy"},
+    {"DCRE","DADSM create data set"},
+    {"DCVF","CVAFDIR"},
+    {"DDEL","DADSM scratch data set"},
+    {"DDMP","DSS dump"},
+    {"DEVO","End-of-volume on output non-VSAM data set"},
+    {"DEXT","DADSM extend data set"},
+    {"DFRG","DSS defrag"},
+    {"DMMS","DFSMS media manager services"},
+    {"DPAR"," DADSM partial release data set"},
+    {"DADSM partial release data set"},
+    {"DREN","DADSM rename data set"},
+    {"DRST","DSS restore"},
+    {"DSSM","SSAM non-VSAM extended format data set"},
+    {"DUPT","Update DSCB fields"},
+    {"IOBE","IOBE not provided"},
+    {"DERR","VTOC Protect"},
+    {"DMMS","Called by Media Manager"},
+    {"DOPV","VSAM Open"},
+    {"DCLV","VSAM Close"},
+    {"DOPI","Open for Input"},
+    {"DOPO","Open for Output"},
+    {"DCLI","Close for Input (non-VSAM)"},
+    {"DEVI","EOV for Input"},
+    {"DEVO","EOV for Output"}
+  };
+  int size = sizeof(MQI_BY_NAME_STR)/sizeof(MQI_BY_NAME_STR[0]) ;
+  int i;
+  for (i = 0; i<size ; i++)
+  {
+    if (memcmp(MQI_BY_NAME_STR[i].name,in,4) == 0)
+    break;
+  }
+  if (i < size)
+    strcpy(buffer,MQI_BY_NAME_STR[i].value);
+  else strcpy(buffer,in);
+  return strlen(buffer);
+}

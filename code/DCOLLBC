@@ -1,0 +1,137 @@
+// Program to process DCOLLECT ASSOC records
+//
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * BASE     = 0;
+//
+// start processing here
+//
+void dcollectbc( char  * pSMF,long count, int inum){
+  if  (BASE     == 0 ) BASE     = MYOPEN("dd:BASE ");
+  if  (BASE     == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = BASE    ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===BASE============\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+//  BC specifi
+  xx(Reserver24  ,32,%    ,"reserved           ",NOPRINT);
+  xs(User        ,8 ,%    ,"Last updated userid",  PRINT);
+  xs(Date        ,10,%    ,"Last updated date  ",  PRINT);
+  xs(Reserved74  ,2 ,%    ,"Reserved           ",NOPRINT);
+  xs(Time        ,8 ,%    ,"Last updated time  ",  PRINT);
+  xs(Desc        ,120,%   ,"Description        ",  PRINT);
+  checkOffset(204);
+  xx(reserved204 ,1 ,%    ,"reserved           ",NOPRINT);
+  xx(FLGDC       ,1 ,%    ,"Dcollect flags     ",  PRINT);
+  xx(reserved206 ,2 ,%    ,"reserved           ",NOPRINT);
+  //
+  checkOffset(208)
+//xs(DEFMC       ,32,%    ,"Default MC         ",  PRINT);
+  xi(MCLen       ,2 ,%    ,"MC length          ",  PRINT);
+  xs(MCName      ,30,%    ,"MC Name            ",  PRINT);
+//xs(DGeom       ,8 ,%    ,"Default geometry   ",  PRINT);
+  xi(Trksz       ,4 ,%    ,"Track size in bytes",  PRINT);
+  xi(CylCP       ,4 ,%    ,"Cyl capacity       ",  PRINT);
+  xs(DUnit       ,8 ,%    ,"Default Unit       ",  PRINT);
+  // bc info
+  checkOffset(256)
+  xs(SRST        ,8 ,%    ,"SMS resource tok   ",  PRINT);
+  xx(STAT        ,1 ,%    ,"Data set status    ",  PRINT);
+  xx(reserved265 ,3 ,%    ,"reserved           ",NOPRINT);
+  xs(System1     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System2     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System3     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System4     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System5     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System6     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System7     ,8 ,%nb  ,"System name        ",  PRINT);
+  xs(System8     ,8 ,%nb  ,"System name        ",  PRINT);
+  checkOffset(332);
+  xs(SCDSN       ,44,%    ,"SCDS names used    ",  PRINT);
+  //  features
+  checkOffset(376);
+  xs(SFeat1      ,2 ,%nb  ,"System Feat 1      ",  PRINT);
+  xs(SFeat2      ,2 ,%nb  ,"System Feat 2      ",  PRINT);
+  xs(SFeat3      ,2 ,%nb  ,"System Feat 3      ",  PRINT);
+  xs(SFeat4      ,2 ,%nb  ,"System Feat 4      ",  PRINT);
+  xs(SFeat5      ,2 ,%nb  ,"System Feat 5      ",  PRINT);
+  xs(SFeat6      ,2 ,%nb  ,"System Feat 6      ",  PRINT);
+  xs(SFeat7      ,2 ,%nb  ,"System Feat 7      ",  PRINT);
+  xs(SFeat8      ,2 ,%nb  ,"System Feat 8      ",  PRINT);
+  xx(Sysnt1      ,1 ,%nz  ,"System type 1      ",  PRINT);
+  xx(Sysnt2      ,1 ,%nz  ,"System type 2      ",  PRINT);
+  xx(Sysnt3      ,1 ,%nz  ,"System type 3      ",  PRINT);
+  xx(Sysnt4      ,1 ,%nz  ,"System type 4      ",  PRINT);
+  xx(Sysnt5      ,1 ,%nz  ,"System type 5      ",  PRINT);
+  xx(Sysnt6      ,1 ,%nz  ,"System type 6      ",  PRINT);
+  xx(Sysnt7      ,1 ,%nz  ,"System type 7      ",  PRINT);
+  xx(Sysnt8      ,1 ,%nz  ,"System type 8      ",  PRINT);
+  //
+  xs(SysnNM1     ,8 ,%nb  ,"System/group Name1 ",  PRINT);
+  xs(Sysnft1     ,2 ,%nb  ,"System/group feat1 ",  PRINT);
+  xx(Reserved410 ,2 ,%nb  ,"System/group feat1 ",NOPRINT);
+  xx(SNMTY1      ,1 ,%    ,"System name type1  ",  PRINT);
+  xx(Reserved413 ,2 ,%nb  ,"System/group feat1 ",NOPRINT);
+  //
+  xs(SysnNM2     ,8 ,%nb  ,"System/group Name2 ",  PRINT);
+  xs(Sysnft2     ,2 ,%nb  ,"System/group feat2 ",  PRINT);
+  xx(Reserved420 ,2 ,%nb  ,"System/group feat2 ",NOPRINT);
+  xx(SNMTY2      ,1 ,%    ,"System name type2  ",  PRINT);
+  xx(Reserved423 ,2 ,%nb  ,"resevrved          ",NOPRINT);
+  //
+  xs(SysnNM3     ,8 ,%nb  ,"System/group Name3 ",  PRINT);
+  xs(Sysnft3     ,2 ,%nb  ,"System/group feat3 ",  PRINT);
+  xx(Reserved430 ,2 ,%nb  ,"System/group feat3 ",NOPRINT);
+  xx(SNMTY3      ,1 ,%    ,"System name type3  ",  PRINT);
+  xx(Reserved433 ,2 ,%nb  ,"resevrved          ",NOPRINT);
+  //
+  xs(SysnNM4     ,8 ,%nb  ,"System/group Name4 ",  PRINT);
+  xs(Sysnft4     ,2 ,%nb  ,"System/group feat4 ",  PRINT);
+  xx(Reserved440 ,2 ,%nb  ,"System/group feat4 ",NOPRINT);
+  xx(SNMTY4      ,1 ,%    ,"System name type4  ",  PRINT);
+  xx(Reserved443 ,2 ,%nb  ,"resevrved          ",NOPRINT);
+}

@@ -1,0 +1,169 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * VOLUMEL  = 0;
+//
+// start processing here
+//
+void dcollectvl( char  * pSMF,long count, int inum){
+  if  (VOLUMEL  == 0 ) VOLUMEL  = MYOPEN("dd:VOLUMEL");
+  if  (VOLUMEL  == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = VOLUMEL ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"=VL================\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+
+  xx(reserved24  ,2 ,%    ,"reserved           ",NOPRINT);
+  xs(VSER        ,6 ,%    ,"Vol ser            ",  PRINT);
+  xx(reserved32  ,24,%    ,"reserved           ",NOPRINT);
+  xs(User        ,8 ,%    ,"Last updated user  ",  PRINT);
+  xs(Date        ,10,%    ,"Last updated date  ",  PRINT);
+  xx(reserved74  ,2 ,%    ,"reserved           ",NOPRINT);
+  xs(time        ,8 ,%    ,"Last updated time  ",  PRINT);
+  //
+  xx(Flags       ,1 ,%    ,"Flags              ",NOPRINT);
+  xx(FlagDC      ,1 ,%    ,"Flags DC           ",NOPRINT);
+  xx(reserved86  ,2 ,%    ,"reserved           ",NOPRINT);
+  //
+  checkOffset(88);
+  xx(reserved88  ,2 ,%    ,"Length sg name     ",NOPRINT);
+  xs(StrGP       ,30,%    ,"Storage group name ",  PRINT);
+  xx(SMSS1       ,2 ,%nz  ,"SMS MVS status 1   ",  PRINT);
+  xx(SMSS2       ,2 ,%nz  ,"SMS MVS status 2   ",  PRINT);
+  xx(SMSS3       ,2 ,%nz  ,"SMS MVS status 3   ",  PRINT);
+  xx(SMSS4       ,2 ,%nz  ,"SMS MVS status 4   ",  PRINT);
+  xx(SMSS5       ,2 ,%nz  ,"SMS MVS status 5   ",  PRINT);
+  xx(SMSS6       ,2 ,%nz  ,"SMS MVS status 6   ",  PRINT);
+  xx(SMSS7       ,2 ,%nz  ,"SMS MVS status 7   ",  PRINT);
+  xx(SMSS8       ,2 ,%nz  ,"SMS MVS status 8   ",  PRINT);
+  xx(CSMSS       ,8 ,%    ,"Confirmed status(8)",  PRINT);
+  //
+  checkOffset(144);
+  xi(NUCBA       ,4 ,%    ,"a(UCB)             ",NOPRINT);
+  xi(NTCPY       ,4 ,%    ,"Capacity in MB     ",  PRINT);
+  xi(NFREE       ,4 ,%    ,"Free space in MB  ",  PRINT);
+  xi(NLEXT       ,4 ,%    ,"Largest free extent",  PRINT);
+  xi(N0CNT       ,2 ,%    ,"Vol Level reset cnt",  PRINT);
+  xi(TRKSZ       ,2 ,%    ,"Vol R1 track cap   ",  PRINT);
+  xi(NLEVL       ,4 ,%    ,"Update level for vol",  PRINT);
+  //
+  xx(STSMS1      ,8 ,%nz  ,"SMS/MVS/CSMS ....1  ",  PRINT);
+  xx(STSMS2      ,8 ,%nz  ,"SMS/MVS/CSMS ....2  ",  PRINT);
+  xx(STSMS3      ,8 ,%nz  ,"SMS/MVS/CSMS ....3  ",  PRINT);
+  xx(STSMS4      ,8 ,%nz  ,"SMS/MVS/CSMS ....4  ",  PRINT);
+  xx(STSMS5      ,8 ,%nz  ,"SMS/MVS/CSMS ....5  ",  PRINT);
+  xx(STSMS6      ,8 ,%nz  ,"SMS/MVS/CSMS ....6  ",  PRINT);
+  xx(STSMS7      ,8 ,%nz  ,"SMS/MVS/CSMS ....7  ",  PRINT);
+  xx(STSMS8      ,8 ,%nz  ,"SMS/MVS/CSMS ....8  ",  PRINT);
+  xx(STSMS9      ,8 ,%nz  ,"SMS/MVS/CSMS ....9  ",  PRINT);
+  xx(STSMS10     ,8 ,%nz  ,"SMS/MVS/CSMS ....10 ",  PRINT);
+  xx(STSMS11     ,8 ,%nz  ,"SMS/MVS/CSMS ....11 ",  PRINT);
+  xx(STSMS12     ,8 ,%nz  ,"SMS/MVS/CSMS ....12 ",  PRINT);
+  xx(STSMS13     ,8 ,%nz  ,"SMS/MVS/CSMS ....13 ",  PRINT);
+  xx(STSMS14     ,8 ,%nz  ,"SMS/MVS/CSMS ....14 ",  PRINT);
+  xx(STSMS15     ,8 ,%nz  ,"SMS/MVS/CSMS ....15 ",  PRINT);
+  xx(STSMS16     ,8 ,%nz  ,"SMS/MVS/CSMS ....16 ",  PRINT);
+  xx(STSMS17     ,8 ,%nz  ,"SMS/MVS/CSMS ....17 ",  PRINT);
+  xx(STSMS18     ,8 ,%nz  ,"SMS/MVS/CSMS ....18 ",  PRINT);
+  xx(STSMS19     ,8 ,%nz  ,"SMS/MVS/CSMS ....19 ",  PRINT);
+  xx(STSMS20     ,8 ,%nz  ,"SMS/MVS/CSMS ....20 ",  PRINT);
+  xx(STSMS21     ,8 ,%nz  ,"SMS/MVS/CSMS ....21 ",  PRINT);
+  xx(STSMS22     ,8 ,%nz  ,"SMS/MVS/CSMS ....22 ",  PRINT);
+  xx(STSMS23     ,8 ,%nz  ,"SMS/MVS/CSMS ....23 ",  PRINT);
+  xx(STSMS24     ,8 ,%nz  ,"SMS/MVS/CSMS ....24 ",  PRINT);
+  xx(STSMS25     ,8 ,%nz  ,"SMS/MVS/CSMS ....25 ",  PRINT);
+  xx(STSMS26     ,8 ,%nz  ,"SMS/MVS/CSMS ....26 ",  PRINT);
+  xx(STSMS27     ,8 ,%nz  ,"SMS/MVS/CSMS ....27 ",  PRINT);
+  xx(STSMS28     ,8 ,%nz  ,"SMS/MVS/CSMS ....28 ",  PRINT);
+  xx(STSMS29     ,8 ,%nz  ,"SMS/MVS/CSMS ....29 ",  PRINT);
+  xx(STSMS30     ,8 ,%nz  ,"SMS/MVS/CSMS ....30 ",  PRINT);
+  xx(STSMS31     ,8 ,%nz  ,"SMS/MVS/CSMS ....31 ",  PRINT);
+  xx(STSMS32     ,8 ,%nz  ,"SMS/MVS/CSMS ....32 ",  PRINT);
+  checkOffset(424);
+  xi(TRKCP       ,4 ,%nz  ,"Cap of track mangd  ",  PRINT);
+  xi(TRKFR       ,4 ,%nz  ,"Fr sp  track mangd  ",  PRINT);
+  xi(TRKEX       ,4 ,%nz  ,"LG fr sp     mangd  ",  PRINT);
+  checkOffset(436);
+  xx(reserved436 ,4 ,%nz  ,"LG fr sp     mangd  ",NOPRINT);
+  #ifdef no
+  xx(STSMS1      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS1      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS1      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved1   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS2      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS2      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS2      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved2   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS3      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS3      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS3      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved3   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS4      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS4      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS4      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved4   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS5      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS5      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS5      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved5   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS6      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS6      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS6      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved6   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS7      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS7      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS7      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved7   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS8      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS8      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS8      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved8   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS9      ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS9      ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS9      ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved9   ,5 ,%    ,"reserved           ",NOPRINT);
+  xx(STSMS10     ,1 ,%nz  ,"SMS system status   ",  PRINT);
+  xx(STMVS10     ,1 ,%nz  ,"MVS system status   ",  PRINT);
+  xx(CNSMS10     ,1 ,%nz  ,"Confirmed SMS status",  PRINT);
+  xx(reserved10  ,5 ,%    ,"reserved           ",NOPRINT);
+#endif
+}

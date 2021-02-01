@@ -1,3 +1,5 @@
+#ifndef colinmacros
+#define colinmacros
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -29,16 +31,19 @@
 // print the field offset at the start of the record if
 // field printOffset > 0
 //
-#define OFFSET(a,b,c,d) \
+int skipBytes = 0;
+#define OFFSET(a,b,c,d,e) \
   if (printOffset > 0           ) \
-  fprintf(fHandle,"     %12.12s offset %3.1i  len %3.1i.\n"d,a, b,c);
+  fprintf(fHandle,"%-8.8s %-12.12s offset %3.1i len %3.1i" \
+                  " %-20.20s file:%s line:%i\n",   \
+  d, a, b,c,e,__FILE__,__LINE__);
 //
 // call a function to process a field.  Data is returned in a
 // char field[132] which can then be output.
 // Typical use is decoding fields
 //
 #define xfn(name,length,fn,comment,clause) \
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"xfn",comment); \
     char name[133]; \
     { \
       int l =fn(p,&name[0]); \
@@ -46,37 +51,37 @@
       if ( clause) \
       printfs(#name,name,"%",l, comment); \
     } \
-    p += length;
+    p += length + skipBytes;
 //
 //
 //  Take a STCK value eg CPU time and convert to microseconds
 // in unsigned long long.  Take STCK and divide by 4096
 // convert it to float
 #define xSTCKf(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"xstckf",comment); \
     float name =  ((float)(* (int##length *) p)/4096) /1000000; \
    {\
     if ( clause) \
       printfloat(#name,name ,#format,comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 //
 //  Take a STCK value eg CPU time and convert to microseconds
 // in unsigned long long.  Take STCK and divide by 4096
 #define xSTCKll(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"xSTCKll",comment); \
     ll##length  name   = (* (int##length *) p)/4096; \
    {\
     if ( clause) \
       printfi8(#name, name , #format,length, comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 //
 //  Take an 8 byte STCK and create a date time string
 //  The field name is the passed field name +dt
 //  also convert to microseconds field name +ll
 #define xSTCKDT(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"xSTCKDT",comment);\
     char name##dt[27] ; \
     unsigned long long   name##ll; \
     name##ll         = (*(unsigned long long *) p)/4096 ;  \
@@ -85,7 +90,7 @@
     { \
      printfs(#name, name##dt        ,#format,26, comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 //
 //  Take a 16 byte STCKE and create a date time string
 //  The field name is the passed field name +dt
@@ -93,7 +98,7 @@
 //  to convert a STCKE to microseconds divide by 16,
 //  (STCK is divide by 4096) but STCKE has extra byte on the front
 #define xSTCKEDT(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"xSTCKEDT",comment); \
     char name##dt##[27] ; \
     unsigned long long   name##ll; \
     name##ll = (* (unsigned long long *) p)/16 ; \
@@ -102,7 +107,7 @@
     { \
      printfs(#name, (char *)  name##dt        ,#format,26, comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 // triplet
 // set up code to iterate around as many times as requested
 // reset the pointer to reset the offset.
@@ -124,108 +129,127 @@
      } \
    }
 
-// Display an integer
+// Display an float  promoted to double
 // it relies on a typedef int1, int2, int4, int8 etc
 // it then calls printfi1, printfi2, printfi4, printfi8
 #define xf(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
-    float  name        =*(int##length *) p; \
+    OFFSET(#name,p-pOffsetBase,length,"float",comment); \
+    double name        =*(float##length *) p; \
     if ( clause) \
       printfloat(#name,name ,#format,comment); \
-    p += length;
+    p += length + skipBytes;
+
+// Display an float promoted to double - in hundertsh of a second
+// it relies on a typedef int1, int2, int4, int8 etc
+// it then calls printfi1, printfi2, printfi4, printfi8
+#define xfh(name,length,format,comment,clause)\
+    OFFSET(#name,p-pOffsetBase,length,"float",comment); \
+    /* convert from hundreths of a second to secodns by *0.01 */\
+    double name        = 0.01 * *(float##length *) p; \
+    if ( clause) \
+      printfloat(#name,name ,#format,comment); \
+    p += length + skipBytes;
 
 // Display an integer
 // it relies on a typedef int1, int2, int4, int8 etc
 // it then calls printfi1, printfi2, printfi4, printfi8
 #define xi(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
     int##length  name        =*(int##length *) p; \
+    OFFSET(#name,p-pOffsetBase,length,"int"#length,comment); \
     if ( clause) \
       printfi##length(#name, name,#format,length,comment); \
-    p += length;
+    p += length + skipBytes;
+//  OFFSET(#name,p-pOffsetBase,length,#__typeof__(name)); \
+//  OFFSET(#name,p-pOffsetBase,length,""); \
+//  OFFSET(#name,p-pOffsetBase,length,typeof(name)); \
 //  hundredths of a second - smf 30
 #define xh(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"hundths",comment); \
     float name =   (float)(* (int##length *) p)*0.01; \
    {\
     if ( clause) \
       printfloat(#name,name ,#format,comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 // for units of 1024 microsecond
 #define xk(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"1024uS",comment); \
     float name =   (float)(* (int##length *) p)* 0.001024 ;\
    {\
     if ( clause) \
       printfloat(#name,name ,#format,comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 
 // for units of 128  microsecond  ( eg SMF 30 IO)
 #define xj(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"128uS",comment); \
     float name =   (float)(* (int##length *) p)* 0.000128 ;\
    {\
     if ( clause) \
       printfloat(#name,name ,#format,comment); \
     }\
-    p += length;
+    p += length + skipBytes;
 
 // display in hex
 #define xx(name,length,format,comment,clause) \
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    OFFSET(#name,p-pOffsetBase,length,"hex",comment); \
     if ( clause) \
       printfx(#name, p ,#format,length, comment); \
     char * name      ;  /* [length#] */ \
     name   =     p;  \
-    p += length;
+    p += length + skipBytes;
 
 // display a string
+#define xn(name,length,format,comment,clause)\
+    /* xnn */ \
+    xs(name,length,format,comment,clause); \
+    * p = 0;                    \
+    p+= 1;
 #define xs(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
-    if (clause) \
-      printfs(#name, p,#format,length, comment); \
+    OFFSET(#name,p-pOffsetBase,length,"string",comment); \
     char  name[length+1];        \
-    memcpy(&name,p,length); /* copy it*/  \
-    name[length]=0;   /* set a trailing null */  \
-    p += length;
-#ifdef no
-#define xsold(name,length,format,comment,clause)\
-    OFFSET(#name,p-pOffsetBase,length,""); \
+    copyandstrip((void *) &name,p,length); \
     if (clause) \
-      printfs(#name, p,#format,length, comment); \
-    char * name ;                 \
-    name  =  p; \
-    p += length;
-#endif
+      printfs(#name,(char *) name,#format,length, comment); \
+    p += length + skipBytes;
+//
+//  memcpy(&name,p,length); /* copy it*/  \
+//  name[length]=0;   /* set a trailing null */  \
 // look up a 1 char field in structure
 #define xflag(name,length,dStruct,comment,clause) \
-     OFFSET(#name,p-pOffsetBase,length,""); \
+     OFFSET(#name,p-pOffsetBase,length,"flag",comment); \
      int##length  name        =*(int##length *) p; \
      if ( clause) \
      { \
     doFlags(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
      } \
-     p += length;
+    p += length + skipBytes;
 #define xlist(name,length,dStruct,comment,clause) \
-     OFFSET(#name,p-pOffsetBase,length,""); \
+     OFFSET(#name,p-pOffsetBase,length,"list",comment); \
      int##length  name        =*(int##length *) p; \
      if ( clause) \
      { \
     doFlags(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
      } \
-     p += length;
+    p += length + skipBytes;
 //       printfx(#name, p ,"%"    ,length, comment); \
 
 // look up an integer in a  list
 #define xlist2(name,length,dStruct,comment,clause) \
-     OFFSET(#name,p-pOffsetBase,length,""); \
+     OFFSET(#name,p-pOffsetBase,length,"list2",comment); \
      int##length  name        =*(int##length *) p; \
      if ( clause) \
      { \
       doList(comment,name,dStruct,sizeof(dStruct)/sizeof(flagTable));\
      } \
-     p += length;
-//    printfx(#name, p ,"%"    ,length, comment); \
-
+    p += length + skipBytes;
+#define checkOffset(o) \
+  { \
+    int actual = p-pOffsetBase;\
+    int expected = o; \
+    if (actual != expected) \
+    fprintf(stderr,"%s Line %i  Offset wrong. Expected %i actual %i\n",\
+    __FILE__,__LINE__,   expected,actual);         \
+   }
+#endif

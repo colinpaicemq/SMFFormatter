@@ -1,0 +1,135 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+// the width of the description at the start of the output line
+#define wDesc 20
+#include <ctype.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#define SMF_REC_MAX_SIZE 32756
+#include <search.h>
+#include <macros.h>
+#include <time.h>
+void doargs(char * kw,char * value);
+typedef struct parm * pParm;
+typedef struct parm    {
+   pParm  next;
+   int   length;
+   char  * keyword;
+   char  * value ;
+} parmItem;
+pParm parms;
+void readArgs(int argc, char *argv[])
+{
+  FILE * SYSIN;
+  char * token1;
+  char * token2;
+  char * token3;
+  SYSIN = fopen("dd:SYSIN ", "rb");
+  if (SYSIN == 0)
+  {
+     perror("fopen SYSIN: ");
+     return;
+  }
+  /* Read the input file and parse the data records                */
+  /* if a token statrs with * then the rest of the line is treated */
+  /* as a comment                                                  */
+  if (SYSIN != NULL) {
+    char * token;
+    char buffer[80];
+    int numRead;
+    int ac, rc;
+    char *av[20];
+    while (   1       ) {
+      numRead = fread(&buffer, 1, sizeof(buffer), SYSIN);
+      if (numRead == 0 ) break;
+      buffer[72] = '\0';
+      printf("buffer:%s \n", buffer);
+      // if comment then do the next
+      if (buffer[0] == '*') continue ;
+      token1= strtok(buffer   , " =");
+
+      if ( token1 == NULL) continue;
+      token2= strtok(NULL     , " =");
+      if ( token2 == NULL) continue;
+      doargs(token1,token2);
+  }
+ }
+ for ( int i = 1;i < argc; i++)
+ {
+     token1= strtok(argv[i] , "=");
+     if ( token1 == NULL) continue;
+     token2= strtok(NULL     , "=");
+     doargs(token1,token2);
+ }
+ parmItem * p = parms        ;
+ while( p!= NULL)
+ {
+   printf("values used:%s=%s.\n",p->keyword, p->value);
+   p = p-> next;
+ }
+
+}
+void doargs(char * kw,char * value){
+  parmItem * p =  (parmItem *) malloc(sizeof(parmItem));
+  p -> next     = parms;
+  parms = p;
+  p -> keyword = strdup(kw+1);
+  p -> value   = strdup(value);
+  p -> length  = strlen(value);
+}
+//
+// checkparm
+//
+int checkParm(char * kw, char * pValue,int length)
+{
+   int foundkw = 0;
+   parmItem * p = parms;
+   int l;
+   int rc;
+   int loop = 0;
+   while(p != NULL)
+   {
+    loop ++;
+    rc= strncmp(kw,p->keyword,8);
+ // printf("checkParm KW %s.%s.%i loop %i\n",kw,p->keyword,rc,loop);
+    if (strncmp(kw,p->keyword,8) == 0)
+      {
+       foundkw = 1;
+       l = p-> length;
+       if (l > length) l = length;
+       rc = strncmp(pValue,p-> value,l );
+ //    printf("checkParms %s %*.*s %i\n",p-> value, l,l,pValue,rc);
+       if (rc==0       ) return 1;
+      }
+     p = p-> next;
+   }
+   if (foundkw == 1) return 0;
+   else return 1;  // keyword was not specified
+
+ }

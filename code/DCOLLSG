@@ -1,0 +1,188 @@
+// Program to process DCOLLECT Storage Group records
+//
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * STORGRP  = 0;
+//
+// start processing here
+//
+void dcollectsg( char  * pSMF,long count, int inum){
+  if  (STORGRP  == 0 ) STORGRP  = MYOPEN("dd:STORGRP");
+  if  (STORGRP  == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = STORGRP ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  char * p = pSMF;  // this is incremented with each field
+   struct flagTable Type[] =
+   {
+     { 0xff, 0 ,"Pool  " },
+     { 0xff, 1 ,"VIO   " },
+     { 0xff, 2 ,"Dummy "           },
+     { 0xff, 3 ,"Object " },
+     { 0xff, 4, "Object Backup " },
+     { 0xff, 5, "Tape  " },
+     { 0xff, 6, "Copy Target" },
+   };
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===SG==============\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+//  SG specific
+  xx(reserverd24 ,2 ,%    ,"length            ",NOPRINT);
+  xs(Name        ,30,%    ,"SG Name           ",  PRINT);
+  xs(User        ,8 ,%    ,"Last updated user ",  PRINT);
+  xs(Date        ,10,%    ,"Last updated date ",  PRINT);
+  xx(reserverd74 ,2 ,%    ,"filler            ",NOPRINT);
+  xs(Time        ,8 ,%    ,"Last updated time ",  PRINT);
+  xs(Desc        ,120,%   ,"Description        ",  PRINT);
+  xx(reserverd204,4 ,%    ,"filler            ",NOPRINT);
+//xx(FType       ,1 ,%    ,"SG Type           ",  PRINT);
+  xlist(FType    ,1  ,Type ,"SG Type            ",  PRINT);
+  xi(FHTHR       ,1 ,%    ,"SG High threshold ",  PRINT);
+  xi(FLTHR       ,1 ,%    ,"SG Low  threshold ",  PRINT);
+  xx(reserverd211,1 ,%    ,"filler            ",NOPRINT);
+  xi(FVMax       ,4 ,%    ,"VIO Max ds size   ",  PRINT);
+  xs(FVUnit      ,4 ,%nb  ,"VIO Unit type     ",  PRINT);
+  checkOffset(220);
+  xs(DMPCL1      ,8 ,%nb  ,"Dump class 1      ",  PRINT);
+  xs(DMPCL2      ,8 ,%nb  ,"Dump class 2      ",  PRINT);
+  xs(DMPCL3      ,8 ,%nb  ,"Dump class 3      ",  PRINT);
+  xs(DMPCL4      ,8 ,%nb  ,"Dump class 4      ",  PRINT);
+  xs(DMPCL5      ,8 ,%nb  ,"Dump class 5      ",  PRINT);
+  checkOffset(260);
+  xx(FPRST       ,8 ,%nz  ,"Status by processr",  PRINT);
+  xs(ABSYS       ,8 ,%nb  ,"Autobackup sys    ",  PRINT);
+  xs(ADSYS       ,8 ,%nb  ,"Autodump   sys    ",  PRINT);
+  xs(AMSYS       ,8 ,%nb  ,"Automigrate sys   ",  PRINT);
+  xx(CNFRM       ,8 ,%nb  ,"Confirmed SMS Stts",  PRINT);
+  xi(GBKUP       ,4 ,%nz  ,"Gntd backup fre   ",  PRINT);
+  checkOffset(304);
+
+  xs(TBLGR       ,8 ,%nb  ,"OAM Table gr  nn  ",  PRINT);
+  xx(OAMFL       ,1 ,%nz  ,"OAM flags         ",  PRINT);
+  xx(reserverd313,1 ,%    ,"filler            ",NOPRINT);
+  xi(CYLST       ,1 ,%nz  ,"OAM cycle start Hrs",  PRINT);
+  xi(CYLET       ,1 ,%nz  ,"OAM cycle end   Hrs",  PRINT);
+  xi(VOLFT       ,2 ,%nz  ,"Vol full thrshold  ",  PRINT);
+  xi(SRVTT       ,2 ,%nz  ,"Drive start  Thrs  ",  PRINT);
+  checkOffset(320);
+
+  xx(reserverd321,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM1      ,8 ,%nb  ,"Optical lib name1 ",  PRINT);
+  xx(reserverd331,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd322,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM2      ,8 ,%nb  ,"Optical lib name2 ",  PRINT);
+  xx(reserverd332,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd323,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM3      ,8 ,%nb  ,"Optical lib name3 ",  PRINT);
+  xx(reserverd333,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd324,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM4      ,8 ,%nb  ,"Optical lib name4 ",  PRINT);
+  xx(reserverd334,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd325,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM5      ,8 ,%nb  ,"Optical lib name5 ",  PRINT);
+  xx(reserverd335,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd326,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM6      ,8 ,%nb  ,"Optical lib name6 ",  PRINT);
+  xx(reserverd336,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd327,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM7      ,8 ,%nb  ,"Optical lib name7 ",  PRINT);
+  xx(reserverd337,22,%    ,"filler            ",NOPRINT);
+
+  xx(reserverd328,2 ,%    ,"Length            ",NOPRINT);
+  xs(OLBNM8      ,8 ,%nb  ,"Optical lib name8 ",  PRINT);
+  xx(reserverd338,22,%    ,"filler            ",NOPRINT);
+checkOffset(576);
+  xx(SSTAT1      ,8 ,%nz  ,"req/cnm status 1  ",  PRINT);
+  xx(SSTAT2      ,8 ,%nz  ,"req/cnm status 2  ",  PRINT);
+  xx(SSTAT3      ,8 ,%nz  ,"req/cnm status 3  ",  PRINT);
+  xx(SSTAT4      ,8 ,%nz  ,"req/cnm status 4  ",  PRINT);
+  xx(SSTAT5      ,8 ,%nz  ,"req/cnm status 5  ",  PRINT);
+  xx(SSTAT6      ,8 ,%nz  ,"req/cnm status 6  ",  PRINT);
+  xx(SSTAT7      ,8 ,%nz  ,"req/cnm status 7  ",  PRINT);
+  xx(SSTAT8      ,8 ,%nz  ,"req/cnm status 8  ",  PRINT);
+  xx(SSTAT9      ,8 ,%nz  ,"req/cnm status 9  ",  PRINT);
+  xx(SSTAT10     ,8 ,%nz  ,"req/cnm status 10 ",  PRINT);
+  xx(SSTAT11     ,8 ,%nz  ,"req/cnm status 11 ",  PRINT);
+  xx(SSTAT12     ,8 ,%nz  ,"req/cnm status 12 ",  PRINT);
+  xx(SSTAT13     ,8 ,%nz  ,"req/cnm status 13 ",  PRINT);
+  xx(SSTAT14     ,8 ,%nz  ,"req/cnm status 14 ",  PRINT);
+  xx(SSTAT15     ,8 ,%nz  ,"req/cnm status 15 ",  PRINT);
+  xx(SSTAT16     ,8 ,%nz  ,"req/cnm status 16 ",  PRINT);
+  xx(SSTAT17     ,8 ,%nz  ,"req/cnm status 17 ",  PRINT);
+  xx(SSTAT18     ,8 ,%nz  ,"req/cnm status 18 ",  PRINT);
+  xx(SSTAT19     ,8 ,%nz  ,"req/cnm status 19 ",  PRINT);
+  xx(SSTAT20     ,8 ,%nz  ,"req/cnm status 20 ",  PRINT);
+  xx(SSTAT21     ,8 ,%nz  ,"req/cnm status 21 ",  PRINT);
+  xx(SSTAT22     ,8 ,%nz  ,"req/cnm status 22 ",  PRINT);
+  xx(SSTAT23     ,8 ,%nz  ,"req/cnm status 23 ",  PRINT);
+  xx(SSTAT24     ,8 ,%nz  ,"req/cnm status 24 ",  PRINT);
+  xx(SSTAT25     ,8 ,%nz  ,"req/cnm status 25 ",  PRINT);
+  xx(SSTAT26     ,8 ,%nz  ,"req/cnm status 26 ",  PRINT);
+  xx(SSTAT27     ,8 ,%nz  ,"req/cnm status 27 ",  PRINT);
+  xx(SSTAT28     ,8 ,%nz  ,"req/cnm status 28 ",  PRINT);
+  xx(SSTAT29     ,8 ,%nz  ,"req/cnm status 29 ",  PRINT);
+  xx(SSTAT30     ,8 ,%nz  ,"req/cnm status 30 ",  PRINT);
+  xx(SSTAT31     ,8 ,%nz  ,"req/cnm status 31 ",  PRINT);
+  xx(SSTAT32     ,8 ,%nz  ,"req/cnm status 32 ",  PRINT);
+  xx(reserverd832,16,%    ,"                  ",NOPRINT);
+  checkOffset(848);
+  if ( DCURVERS >= 2)
+  {
+  xi(OFLOW       ,1 ,%nz  ,"Overflow          ",  PRINT);
+  xx(reserverd849,2 ,%    ,"Length            ",NOPRINT);
+  xs(EXNM        ,30,%nz  ,"Extended SG Name  ",  PRINT);
+  xx(reserverd881,3 ,%    ,"filler            ",NOPRINT);
+  xi(SBKPT       ,4 ,%nz  ,"Breakpoint value  ",  PRINT);
+  xi(SHTHR       ,2 ,%nz  ,"High Thresh pc val",  PRINT);
+  xi(SLTHR       ,2 ,%nz  ,"Low  Thresh pc val",  PRINT);
+  xx(reserverd892,24,%    ,"reserved          ",NOPRINT);
+  xi(TOTAP       ,1 ,%nz  ,"Tot Space alert pc",  PRINT);
+  xi(TMSAP       ,1 ,%nz  ,"Trk Space alert pc",  PRINT);
+  xs(OAMID       ,4 ,%nb  ,"DB2 id for OAM    ",  PRINT);
+  checkOffset(922);
+  }
+}

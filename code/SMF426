@@ -23,7 +23,7 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 
-
+#include <u426.h>
 FILE * SMF42_6  = 0;
 FILE * SUM42_6  = 0;
 int  SMF426DSTYP(char *  in, char * buffer)
@@ -59,10 +59,10 @@ int  SMF426DSFL1(char *  in, char * buffer)
    if (in[0] && 0xc0 == 0xc0 )
       strcat(buffer,"VSAM Buffer GSR,");
    else
-   if (in[0] && 0x80 == 0x80 )
+   if (in[0] && 0xC0 == 0x80 )
       strcat(buffer,"VSAM Buffer LSR,");
    else
-   if (in[0] && 0x40 == 0x40 )
+   if (in[0] && 0xC0 == 0x40 )
       strcat(buffer,"VSAM Buffer RLS,");
    else
       strcat(buffer,"VSAM Buffer NSR,");
@@ -120,10 +120,9 @@ void dosmf42_6( char  * pSMF,long count){
   int offset;
   printOffset = 0;
   char * pSMFZ;
-//  fprintf(fHandle,"====SMF42 -6 =============== record %u\n",count);
+  fprintf(fHandle,"====SMF42 -6 =============== record %u\n",count);
   char * pOffsetBase;   // this is used to caluclate field offsets
   pOffsetBase = pSMF;
-//printHexS(pSMF,4096);
   pSMFZ = pSMF;
   char * system;
   float fDuration;
@@ -139,7 +138,7 @@ void dosmf42_6( char  * pSMF,long count){
   xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
   xfn(TME        ,4 ,SMFTime ,"SMFTime        ",NOPRINT);
   xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",NOPRINT);
-  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(SID         ,4 ,%    ,"SMF system id     ",NOPRINT);
   xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
   xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
   xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
@@ -162,7 +161,6 @@ void dosmf42_6( char  * pSMF,long count){
      fDuration =  ((float) lduration )/1000000;
      memcpy(&startDT[0],PTSdt,sizeof(startDT));
      memcpy(&endDT[0],PTEdt,sizeof(endDT));
-//   printfloat("duration",fDuration,"%","Interval in secs");
      xx(res36            ,4  ,%     ,"Reserverd          ",NOPRINT);
  ETRIPLET(Prod     );
  TRIPLET(JobHeader  ,pSMFZ+ JHO         ,
@@ -174,23 +172,23 @@ void dosmf42_6( char  * pSMF,long count){
      xi(JDDSO            ,4  ,%     ,"Offset dataset HD ",NOPRINT);
      xi(JDDSL            ,2  ,%     ,"Len    dataset HD ",NOPRINT);
      xi(JDCOD            ,1  ,%     ,"Close 0/Interval 1",NOPRINT);
-     xi(JDRES1           ,1  ,%     ,"Reserved          ",NOPRINT);
+     xi(JDRES31          ,1  ,%     ,"Reserved          ",NOPRINT);
+     xi(JDDPGN           ,2  ,%     ,"Perf group numb   ",NOPRINT);
      xi(JDIOL            ,2  ,%     ,"Len IO stats      ",NOPRINT);
      xi(JDAML            ,2  ,%     ,"Len AM stats      ",NOPRINT);
-     xi(JDRES2           ,2  ,%     ,"Reserved          ",NOPRINT);
+     xi(JDRES38          ,2  ,%     ,"Reserved          ",NOPRINT);
      xi(JDGMO            ,4  ,%     ,"GMT offset        ",NOPRINT);
-     xs(JDWSC            ,8  ,%nb   ,"WLM service class ",NOPRINT);
-     xs(JDWLD            ,8  ,%nb   ,"WLM Workload name ",NOPRINT);
-     xi(JDRES3           ,4  ,%     ,"Reserved 3        ",NOPRINT);
-//if  (memcmp(JDJNM,"BAQWRI  ",6) != 0) return  ;
+     xs(JDWSC            ,8  ,%nb   ,"WLM service class ",  PRINT);
+     xs(JDWLD            ,8  ,%nb   ,"WLM Workload name ",  PRINT);
+     xi(JDRES60          ,4  ,%     ,"Reserved 3        ",NOPRINT);
   fprintf(fHandle ,"\n"); /* blank line before */
   fprintf(fHandle ,"==Job:%8.8s "
        "SMF Date:%10.10s SMF Time:%11.11s Sysid:%4.4s Userid:%8.8s.\n",
-        JDJNM, DTE ,TME ,sid,JDUID);
+        JDJNM, DTE ,TME ,SID,JDUID);
      fprintf(fHandle ,"Interval Start:%26.26s End:%26.26s"
        " Duration %8.3f seconds\n",
         startDT,endDT,fDuration);
- int dscount = 9999;
+  int dscount = 9999;
   // length needs to be zero because we calculate the offset of next
   // header from the field in the header
   TRIPLET(DSHeader   ,pSMFZ+ JDDSO,
@@ -199,7 +197,6 @@ void dosmf42_6( char  * pSMF,long count){
      xi(DSNXT            ,4  ,%nb   ,"Offset to next    ",NOPRINT);
      if (DSNXT == 0) dscount = 0;
      xs(DSN              ,44 ,%nb   ,"Data set name     ",NOPRINT);
-// if ( memcmp(DSN,"CEE.SCEEH.",10)!= 0) return;
      xfn(DSTYPE     ,1,SMF426DSTYP     ,"Dataset type   ",NOPRINT);
      xs(DSCOD            ,1  ,%     ,"First open        ",NOPRINT);
      xfn(DSFLAGS    ,1,SMF426DSFL1     ,"Dataset flags  ",NOPRINT);
@@ -226,6 +223,7 @@ void dosmf42_6( char  * pSMF,long count){
      fprintf( fHandle,"%-44.44s vol:%6.6s type:%-8.8s "
                    "sc:%8.8s blksize:%5.1u\n",
                    DSN,DSVOL,DSTYPE,DSDSC,DSBSZ);
+  U426S
   if ( JDDSL > 88) // offset to the seq section
   if ( DSSNO > 0 && DSSNL > 0)
   {
@@ -332,16 +330,10 @@ void dosmf42_6( char  * pSMF,long count){
      xi(DSRLC            ,4  ,%nz   ,"Num 1trace cache RW",NOPRINT);
      xi(DSICL            ,4  ,%nz   ,"Num No cache req RW",NOPRINT);
      xj(DSDA0            ,4  ,%     ,"Avg IO dev act only",NOPRINT);
-     xj(DSMXR            ,4  ,%     ,"Max DS IO resp time",NOPRINT);
-     xj(DSMXS            ,4  ,%     ,"Max DS IO serv time",NOPRINT);
+     xj(DSMXR            ,4  ,%     ,"Max DS IO resp time",  PRINT);
+     xj(DSMXS            ,4  ,%     ,"Max DS IO serv time",  PRINT);
      xj(DSRDD            ,4  ,%nz   ,"Avg disc read  time",NOPRINT);
-//printOffset = 1;
      xi(DSRDT            ,4  ,%     ,"Number disk reads  ",  PRINT);
-//   if ( DSRDT!= (DSCND - DSWCN ) )
-//   fprintf(fHandle,"?? %44.44s Mismatch tot %i cache %i read%i\n",
-//   DSN,
-//   DSION, (DSCND - DSWCN ) ,DSRDT);
-//printOffset = 0;
      printCache(
                 DSION,   //  Number of IOs
                 DSRDT,   //  Number reads
@@ -369,17 +361,22 @@ void dosmf42_6( char  * pSMF,long count){
      DSQ1U,DSA1U,DST1U,DSB1U,DSM1U);
      xi(DSSIOS           ,4  ,%nz   ,"Number of req MM   ",  PRINT);
      xi(DSRes120         ,4  ,%nz   ,"Reserved           ",NOPRINT);
-     xi(DSRRU            ,4  ,%nz   ,"avg resp time RandR",NOPRINT);
-     xi(DSRSU            ,4  ,%nz   ,"avg serv time RandR",NOPRINT);
-     xi(DSAVGAPRSDDEL    ,4  ,%nz   ,"avg Appl resume del",NOPRINT);
-     xi(DSAVGAPRSN       ,4  ,%nz   ,"Num resum del acc  ",NOPRINT);
+     if ( JDIOL  > 124 )
+     {
+     xi(DSRRU            ,4  ,%nz   ,"avg resp time RandR",  PRINT);
+     xi(DSRSU            ,4  ,%nz   ,"avg serv time RandR",  PRINT);
+     xi(DSAVGAPRSDDEL    ,4  ,%nz   ,"avg Appl resume del",  PRINT);
+     xi(DSAVGAPRSN       ,4  ,%nz   ,"Num resum dely acc ",  PRINT);
      xx(DSReserved140    ,12 ,%nz   ,"reserved           ",NOPRINT);
+     }
+     U426C
+     U426E
  ETRIPLET(DSIO     );
  }
  else
    fprintf(fHandle,"== No Dataset section \n");
-  if ( DSAMO    > 0)
-  {
+ if ( DSAMO    > 0)
+ {
   TRIPLET(DSAM       ,pSMFZ+ DSAMO    ,
         1         ,  JDAML  , NOPRINT);
      fprintf( fHandle,"====AM IO   ====\n");
@@ -396,7 +393,7 @@ void dosmf42_6( char  * pSMF,long count){
      xi(AMZWB            ,4  ,%nz   ,"Dir-y  w num block",  PRINT);
      xj(AMZWR            ,4  ,%nz   ,"Dir-y  w IO delay ",  PRINT);
      xi(AMRIB            ,8  ,%nz   ,"Bytes read        ",  PRINT);
-     xi(AMRIW            ,8  ,%nz   ,"Bytes written     ",  PRINT);
+     xi(AMWIB            ,8  ,%nz   ,"Bytes written     ",  PRINT);
      xi(AMRBD            ,8  ,%nz   ,"Encrypt read      ",NOPRINT);
      xi(AMRBW            ,8  ,%nz   ,"Encrypt write     ",NOPRINT);
      xi(AMRCI            ,4  ,%nz   ,"CI/Blocks read    ",  PRINT);
@@ -410,6 +407,7 @@ void dosmf42_6( char  * pSMF,long count){
     AMSRB,  AMDRB,                     AMZRB, // ind reads seq,dct,dy
                       AMSWB + AMDWB          +AMZWB,  // sum writes
                       AMSWB,  AMDWB,          AMZWB); // ind writes
+   U426A
  ETRIPLET(DSAM     );
  }
  if (DSNXT == 0)  break ;

@@ -1,0 +1,85 @@
+// Program to process DCOLLECT AI records
+//
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * ACCOUNT  = 0;
+//
+// start processing here
+//
+void dcollectai( char  * pSMF,long count, int inum){
+  if  (ACCOUNT  == 0 ) ACCOUNT  = MYOPEN("dd:ACCOUNT");
+  if  (ACCOUNT  == (FILE *)   -1)return;
+  // the printf* routines use this global variable
+  fHandle = ACCOUNT ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===AI==============\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+//  AI specifi
+  xs(DDate       ,10,%    ,"DC Last update date ",  PRINT);
+  xs(DDSNM       ,44,%    ,"DC Dataset name     ",  PRINT);
+  xs(DDSMR       ,8 ,%    ,"DC Member           ",  PRINT);
+  xs(DSRID       ,8 ,%    ,"DC Last update user ",  PRINT);
+  xs(DTIME       ,8 ,%    ,"DC Last update time ",  PRINT);
+
+  xs(MDate       ,10,%    ,"MC Last update date ",  PRINT);
+  xs(MDSNM       ,44,%    ,"MC Dataset name     ",  PRINT);
+  xs(MDSMR       ,8 ,%    ,"MC Member           ",  PRINT);
+  xs(MSRID       ,8 ,%    ,"MC Last update user ",  PRINT);
+  xs(MTIME       ,8 ,%    ,"MC Last update time ",  PRINT);
+
+
+checkOffset(180);
+  xs(SDate       ,10,%    ,"SC Last update date ",  PRINT);
+  xs(SDSNM       ,44,%    ,"SC Dataset name     ",  PRINT);
+  xs(SDSMR       ,8 ,%    ,"SC Member           ",  PRINT);
+  xs(SSRID       ,8 ,%    ,"SC Last update user ",  PRINT);
+  xs(STIME       ,8 ,%    ,"SC Last update time ",  PRINT);
+
+checkOffset(258);
+  xs(SGDate       ,10,%    ,"SG Last update date ",  PRINT);
+  xs(SGDSNM       ,44,%    ,"SG Dataset name     ",  PRINT);
+  xs(SGDSMR       ,8 ,%    ,"SG Member           ",  PRINT);
+  xs(SGSRID       ,8 ,%    ,"SG Last update user ",  PRINT);
+  xs(SGTIME       ,8 ,%    ,"SG Last update time ",  PRINT);
+checkOffset(336);
+}

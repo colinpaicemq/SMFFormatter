@@ -25,6 +25,7 @@
 #include <SMF425VF.h> //  the functions for common printing of vtocs
 
 
+#include <U425.h> //  the functions for common printing of vtocs
 FILE * SMF42_5VR= 0;  // for reserved
 FILE * SMF42_5VM= 0;
 FILE * SMF42_5V = 0;
@@ -35,6 +36,7 @@ int doneIDTHeader = 0;
 // start processing here
 //
 void dosmf42_5( char  * pSMF,long count){
+// #include <U425i.h> //  the functions for common printing of vtocs
   if  (SMF42_5VM== 0 ) SMF42_5VM= MYOPEN("dd:S425VM  ");
   if  (SMF42_5VR== 0 ) SMF42_5VR= MYOPEN("dd:S425VR  ");
 //if  (SMF42_5VM== (FILE *)   -1)return;
@@ -64,13 +66,13 @@ void dosmf42_5( char  * pSMF,long count){
   xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
   xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
   xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
-  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xx(REC_TYPE    ,1 ,%    ,"Record type       ",NOPRINT);
   xfn(TME        ,4 ,SMFTime ,"SMFTime        ",NOPRINT);
   xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",NOPRINT);
-  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
-  xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
-  xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
-  xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
+  xs(SID         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(SSID        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
+  xi(SUBTYPE     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
+  xx(RES1A       ,2 ,%    ,"reserverd         ",NOPRINT);
   xi(NT          ,2 ,%    ,"Number of triplets",NOPRINT);
   xi(OPS         ,4 ,%    ,"offset to prod    ",NOPRINT);
   xi(LPS         ,2 ,%    ,"Length    prod    ",NOPRINT);
@@ -110,49 +112,51 @@ void dosmf42_5( char  * pSMF,long count){
      xj(SCIOQ            ,4  ,%     ,"CU queue time     ",NOPRINT);
      xi(SCION            ,4  ,%     ,"# IOs             ",  PRINT);
      // 3990
-     xi(CCND             ,4  ,%     ,"# tot cache cand  ",NOPRINT);
-     xi(CHIT             ,4  ,%     ,"# tot cache hit   ",NOPRINT);
-     xi(CWCN             ,4  ,%     ,"# Write cand      ",NOPRINT);
-     xi(CWHI             ,4  ,%     ,"# write hits      ",NOPRINT);
-     xi(CSEQ             ,4  ,%     ,"# seq IOs         ",NOPRINT);
-     xi(CRLC             ,4  ,%     ,"# rec level       ",NOPRINT);
-     xi(CICL             ,4  ,%     ,"# inhibit cache   ",NOPRINT);
-     xj(CDAO             ,4  ,%     ,"DAO time          ",NOPRINT);
-     xj(CRDD             ,4  ,%     ,"avg read disc     ",NOPRINT);
-     xi(CRDT             ,4  ,%     ,"# read ops        ",  PRINT);
+     xi(SCCND             ,4  ,%     ,"# tot cache cand  ",NOPRINT);
+     xi(SCHIT             ,4  ,%     ,"# tot cache hit   ",NOPRINT);
+     xi(SCWCN             ,4  ,%     ,"# Write cand      ",NOPRINT);
+     xi(SCWHI             ,4  ,%     ,"# write hits      ",NOPRINT);
+     xi(SCSEQ             ,4  ,%     ,"# seq IOs         ",NOPRINT);
+     xi(SCRLC             ,4  ,%     ,"# rec level       ",NOPRINT);
+     xi(SCICL             ,4  ,%     ,"# inhibit cache   ",NOPRINT);
+     xj(SCDAO             ,4  ,%     ,"DAO time          ",NOPRINT);
+     xj(SCRDD             ,4  ,%     ,"avg read disc     ",NOPRINT);
+     xi(SCRDT             ,4  ,%     ,"# read ops        ",  PRINT);
       printCache(
                  SCION,   //  Number of IOs
-                 CCND ,   //  Number Cache Cand
-                 CRDT ,   //  Number Read ops
-                 CHIT ,   //  Number Cache hits
-                 CWCN ,   //  Number Write candi
-                 CWHI ,   //  Number Write Hits
-                 CSEQ,    //  Number SEQ
-                 CRLC ,   //  Number Rec lvl Cac
-                 CICL     //  Number Inh lvl Cac
+                 SCCND ,   //  Number Cache Cand
+                 SCRDT ,   //  Number Read ops
+                 SCHIT ,   //  Number Cache hits
+                 SCWCN ,   //  Number Write candi
+                 SCWHI ,   //  Number Write Hits
+                 SCSEQ,    //  Number SEQ
+                 SCRLC ,   //  Number Rec lvl Cac
+                 SCICL     //  Number Inh lvl Cac
                 );
-     xi(CHRD             ,4  ,%nz   ,"# zHPF read       ",  PRINT);
-     xi(CHWR             ,4  ,%nz   ,"# zHPF write      ",  PRINT);
-     xi(CR1U             ,4  ,%     ,"Response time     ",NOPRINT);
-     xi(CC1U             ,4  ,%     ,"avg conn time     ",NOPRINT);
-     xi(CP1U             ,4  ,%     ,"avg pend time     ",NOPRINT);
-     xi(CD1U             ,4  ,%     ,"avg disc time     ",NOPRINT);
-     xi(CQ1U             ,4  ,%     ,"avg CU q time     ",NOPRINT);
-     xi(CA1U             ,4  ,%     ,"avg DAO  time     ",NOPRINT);
-     xi(CT1U             ,4  ,%     ,"avg read disc time",  PRINT);
-     xi(CB1U             ,4  ,%     ,"avg busy time     ",NOPRINT);
-     xi(CM1U             ,4  ,%     ,"avg IC time       ",NOPRINT);
-     printAvgRT(     CR1U,      CC1U,     CP1U, CD1U,
-     CQ1U,     CA1U,     CT1U,     CB1U,     CM1U);
-     xi(CSNO             ,4  ,%     ,"offset sync       ",NOPRINT);
-     xi(CSNL             ,2  ,%     ,"len sync          ",NOPRINT);
-     xi(CSNN             ,2  ,%     ,"num sync reseved  ",NOPRINT);
-     xi(CRRU             ,2  ,%     ,"avg rand read rt  ",  PRINT);
-     xi(CRSU             ,2  ,%     ,"avg rand read st  ",  PRINT);
-  if ( CSNO  > 0 && CSNL  > 0)
+     xi(SCHRD            ,4  ,%nz   ,"# zHPF read       ",  PRINT);
+     xi(SCHWR            ,4  ,%nz   ,"# zHPF write      ",  PRINT);
+     xi(SCR1U            ,4  ,%     ,"Response time     ",NOPRINT);
+     xi(SCC1U            ,4  ,%     ,"avg conn time     ",NOPRINT);
+     xi(SCP1U            ,4  ,%     ,"avg pend time     ",NOPRINT);
+     xi(SCD1U            ,4  ,%     ,"avg disc time     ",NOPRINT);
+     xi(SCQ1U            ,4  ,%     ,"avg CU q time     ",NOPRINT);
+     xi(SCA1U            ,4  ,%     ,"avg DAO  time     ",NOPRINT);
+     xi(SCT1U            ,4  ,%     ,"avg read disc time",  PRINT);
+     xi(SCB1U            ,4  ,%     ,"avg busy time     ",NOPRINT);
+     xi(SCM1U            ,4  ,%     ,"avg IC time       ",NOPRINT);
+     printAvgRT(    SCR1U,     SCC1U,    SCP1U,SCD1U,
+    SCQ1U,    SCA1U,    SCT1U,    SCB1U,    SCM1U);
+     xi(SCSNO            ,4  ,%     ,"offset sync       ",NOPRINT);
+     xi(SCSNL            ,2  ,%     ,"len sync          ",NOPRINT);
+     xi(SCSNN            ,2  ,%     ,"num sync reseved  ",NOPRINT);
+     xi(SCRRU            ,2  ,%     ,"avg rand read rt  ",  PRINT);
+     xi(SCRSU            ,2  ,%     ,"avg rand read st  ",  PRINT);
+     U425C
+     U425T
+  if (SCSNO  > 0 &&SCSNL  > 0)
   {
-  TRIPLET(SYNCIO     ,pSMFZ+ CSNO     ,
-        1         ,  CSNL ,   NOPRINT);
+  TRIPLET(SYNCIO     ,pSMFZ+SCSNO     ,
+        1         , SCSNL ,   NOPRINT);
      fprintf( fHandle,"====DS Sync ====\n");
      xi(SNERD            ,4  ,%nz   ,"Syn r req eli ^ att ",  PRINT);
      xi(SNERH            ,4  ,%nz   ,"Syn r hit eli ^ att ",  PRINT);

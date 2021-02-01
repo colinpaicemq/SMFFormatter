@@ -1,3 +1,5 @@
+// Program to process DCOLLECT MC management class
+//
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -142,14 +144,14 @@ void dcollectmc( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"===================\n");
+  fprintf(fHandle,"=======MC==========\n");
   xi(DMULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DMURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
   xi(DMURVERS    ,2 ,%   ,"version            ",NOPRINT);
   xs(DMUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
-  xfn(DMUTIME    ,4 ,SMFTime ,"Time collected ",  PRINT);
-  xfn(DMUDATE    ,4 ,SMFDate ,"Date collected ",  PRINT);
+  xfn(DMUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DMUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
   xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
   //   MC data
   xi(DDCNMLEN    ,2 ,%    ,"length of name     ",NOPRINT);
@@ -199,7 +201,7 @@ void dcollectmc( char  * pSMF,long count, int inum){
   xflag(DMCCTSLU ,1  ,TSLU ,"Time since last used",  PRINT);
   xflag(DMCPERD  ,1  ,PERD ,"Perioudic flags     ",  PRINT);
   xx(Reserved267 ,1  ,%nb  ,"Reserved            ",NOPRINT);
-
+  checkOffset(268);
   xi(DMCVSCY  ,2  ,%    ,"Time since crea  yy ",  PRINT);
   xi(DMCVSCM  ,2  ,%    ,"Time since crea  mm ",  PRINT);
   xi(DMCVSCD  ,2  ,%    ,"Time since crea  dd ",  PRINT);
@@ -225,6 +227,7 @@ void dcollectmc( char  * pSMF,long count, int inum){
   xs(DMCLNAM  ,30 ,%    ,"Cloud name for migr  ",  PRINT);
   xx(Reserved346,2,%    ,"Reserved             ",NOPRINT);
   xi(DMCSZLTE ,4  ,%    ,"<= Data size thresh  ",  PRINT);
+  checkOffset(352);
   xi(DMCSZGT  ,4  ,%    ,">  Data size thresh  ",  PRINT);
   xflag(DMCACTLE,1   ,ACTLE," Action for <=       ",  PRINT);
   xflag(DMCACTGT,1   ,ACTLE," Action for >        ",  PRINT);

@@ -1,3 +1,5 @@
+// Program to process DCOLLECT Storage Class records
+//
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -69,14 +71,14 @@ void dcollectsc( char  * pSMF,long count, int inum){
   //
   // start of fields
   //
-  fprintf(fHandle,"===================\n");
+  fprintf(fHandle,"======SC===========\n");
   xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
   xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
   xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
   xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
-  xfn(DCUTIME    ,4 ,SMFTime ,"Time           ",  PRINT);
-  xfn(DCUDATE    ,4 ,SMFDate ,"Date           ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
   xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
 
   xi(DSCNMLEN    ,2 ,%    ,"length of name     ",NOPRINT);

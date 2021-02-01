@@ -1,0 +1,275 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+// ===================================================================
+// Example user macros  for formatting of fields
+// ===================================================================
+FILE * UF306C = 0;  // CPU
+FILE * UF306E   = 0;  // Enclave
+FILE * UF306I   = 0;  // IO
+#define U306C u306c(subtype,SID,TME,pJBN,pSTEPNAME,pPROGRAM,\
+                    CPT,CPS,ENC,DET,IFAonIFA,IFAonCP, \
+                    ZIIPonZIIP,ZIIPonCP );
+#define U306E u306e(subtype,SID,TME,pJBN,pSTEPNAME,pPROGRAM,\
+                    ENC,DET,ENConIFA,DepENFonIFA,\
+                    ENCIFAonCP, DepENCIFAonCP, \
+                    ENConZIIP,DEPZIIPonZIIP, \
+                    EZIIPonCP , DEZIIPonCP);
+#define U306I u306i(subtype,SID,TME,pJBN,pSTEPNAME,pPROGRAM,\
+                 AIC,\
+                 AID,\
+                 AIW,\
+                 AIS,\
+                 EIC,\
+                 EID,\
+                 EIW,\
+                 EIS,\
+                 TEX);
+// CPU
+void  u306c(char * pWhen,char * pSID, char * pSMFTime,char * pJBN,
+      char * pSTEP,char *pProg,
+      float CPT, float CPS ,float ENC, float DET,
+      float IFAonIFA, float IFAonCP,
+      float ZIIPonZIIP, float ZIIPonCPU)
+{
+  if ( checkParm("jobname",pJBN,8) == 1
+      &&checkParm("when",pWhen+2,4) == 1
+     )
+  {
+      // open the file and print the header
+      if  (UF306C    ==(FILE *)  -1) return;
+      if  (UF306C    == 0 )
+      {
+        UF306C    = MYOPEN("dd:U306C   ");
+        if ( UF306C == 0)
+        {
+          perror("Error opening dd:U306C");
+          UF306C = (FILE *) -1 ;
+          return;
+        }
+        fprintf(UF306C,"When,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s," // Sys ti J s p
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "\n",
+                "Sys ","Time","Job","StepName","Program",
+                "TCB"    ,"SRB"  ,"ENC"    ,"DET"    ,
+                "IFA","IFA","ZIIP","ZIIP"   );
+        fprintf(UF306C,"    ,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "\n",
+                "   ","    ","   ","   "     ,"       ",
+                "CPU"    ,"CPU"  ,"CPU"    ,"CPU"    ,
+                "on IFA" ,"on CPU" ,"onZIIP","on CPU" );
+      }
+  // now the data
+  fprintf(UF306C,"%4.4s,%-4.4s,%8.8s,%-8.8s,%-8.8s,%-8.8s," // sys,time,job,
+                 "%6.3f,%6.3f,%6.3f,"     // CPT    CPS  ENC
+                 "%6.3f,"      // DET
+                 "%6.3f,%6.3f,"
+                 "%6.3f,%6.3f,"
+                 "\n",
+       pWhen+2,pSID,pSMFTime,pJBN,pSTEP,pProg,
+       CPT,  CPS , ENC,  DET,
+       IFAonIFA,  IFAonCP,
+       ZIIPonZIIP,  ZIIPonCPU
+    );
+ }
+}
+// Enclave
+void  u306e(char * pWhen,char * pSID, char * pSMFTime,char * pJBN,
+      char * pSTEP,char *pProg,
+            float ENC,        float DET,
+            float ENConIFA,   float DepENFonIFA,\
+            float ENCIFAonCP, float DepENCIFAonCP, \
+            float ENConZIIP,  float DEPZIIPonZIIP, \
+            float EZIIPonCP , float DEZIIPonCP)
+{
+  if ( checkParm("jobname",pJBN,8) == 1
+      &&checkParm("when",pWhen+2,4) == 1
+     )
+  {
+    // enclave
+      if  (UF306E    ==(FILE *)  -1) return;
+      if  (UF306E    == 0 )
+      {
+        UF306E    = MYOPEN("dd:U306E   ");
+        if ( UF306E == 0)
+        {
+          perror("Error opening dd:U306E");
+          UF306E = (FILE *) -1 ;
+          return;
+        }
+        fprintf(UF306E,"When,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s," // Sys ti J s p
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s|"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                "Sys ","Time","Job","StepName","Program",
+                "Indep","Indep", "Indep","Indep","Indep",
+                "Dep","Dep", "Dep","Dep","Dep"
+                );
+        fprintf(UF306E,"    ,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s," // Sys ti J s p
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s|"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                "   ","    ","   ","   "     ,"       ",
+                "CPU on" ,"IFA on"  ,"IFA on"  ,"ZIIPon" ,"ZIIPon",
+                "CPU on" ,"IFA on"  ,"IFA on"  ,"ZIIPon" ,"ZIIPon"
+                );
+        fprintf(UF306E,"    ,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s|"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                "   ","    ","   ","   "     ,"       ",
+                "CPU"    ,"IFA"  ,"IFA"    ,"CPU"    ,"ZIIP",
+                "CPU"    ,"IFA"  ,"IFA"    ,"CPU"    ,"ZIIP"
+               );
+      }
+   // now the data
+   if (
+             ENC+
+             ENConIFA+
+             ENCIFAonCP+
+             ENConZIIP+
+             EZIIPonCP +
+             DET+
+             DepENFonIFA+
+             DepENCIFAonCP+
+             DEPZIIPonZIIP+
+             DEZIIPonCP
+    > 0)
+  fprintf(UF306E,"%4.4s,%-4.4s,%8.8s,%-8.8s,%-8.8s,%-8.8s," // sys,time,job,
+                 "%6.3f,%6.3f,%6.3f,"  // CPU CP on IFA IFA on IFA
+                 "%6.3f,%6.3f" // ZIP on CP, ZIP on ZIIP
+  //  dependent
+                 "|"
+                 "%6.3f,%6.3f,%6.3f,"  // CPU CP on IFA IFA on IFA
+                 "%6.3f,%6.3f" // ZIP on CP, ZIP on ZIIP
+                 "\n",
+       pWhen+2,pSID,pSMFTime,pJBN,pSTEP,pProg,
+             ENC,
+             ENConIFA,
+             ENCIFAonCP,
+             ENConZIIP,
+             EZIIPonCP ,
+             DET,
+             DepENFonIFA,
+             DepENCIFAonCP,
+             DEPZIIPonZIIP,
+             DEZIIPonCP
+    );
+ }
+}
+// IO
+// IO
+// IO
+void  u306i( char * pWhen,char * pSID,
+char * pSMFTime,char * pJBN,
+      char * pSTEP,char *pProg,
+      float   AIC,
+      float   AID,
+      float   AIW,
+      long    AIS,
+      float   EIC,
+      float   EID,
+      float   EIW,
+      long    EIS,
+   long long  TEX)
+{
+  if ( checkParm("jobname",pJBN,8) == 1
+      &&checkParm("when",pWhen+2,4) == 1
+     )
+  {
+    //
+    // IO
+    //
+      if  (UF306I    ==(FILE *)  -1) return;
+      if  (UF306I    == 0 )
+      {
+        UF306I    = MYOPEN("dd:U306I   ");
+        if ( UF306I == 0)
+        {
+          perror("Error opening dd:U306I");
+          UF306I = (FILE *) -1 ;
+          return;
+        }
+        fprintf(UF306I,"When,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s,"
+                "%8.8s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s |"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                // now the variables
+                "Sys ","Time","Job","StepName","Program",
+                "Total",
+                "Dep",  "Dep",   "Dep",  "Dep","Dep",
+                "Indep","Indep", "Indep","Indep","Indep"
+                );
+        fprintf(UF306I,"    ,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s," // Sys ti J s p
+                "%8.8s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s |"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                "   ","    ","   ","   "     ,"       ",
+                "Blocks",
+                "SSCH","Tot" ,"Conn","Disc" ,"Pend"  ,
+                "SSCH","Tot" ,"Conn","Disc" ,"Pend"
+                );
+        fprintf(UF306I,"    ,%4.4s,%8.8s,%8.8s,%8.8s,%8.8s,"
+                "%8.8s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s |"
+                "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                "\n",
+                "   ","    ","   ","   "     ,"       ",
+                "  ", // total blocks
+                "   "    ,"uSec","uSec","uSec"    ,"uSec"    ,
+                "   "    ,"uSec","uSec","uSec"    ,"uSec"
+               );
+      }
+ // now the data records
+  fprintf(UF306I,"%4.4s,"
+                 "%-4.4s,%8.8s,%-8.8s,%-8.8s,%-8.8s," // sys,time,job,
+                 "%8llu,"  // total IO
+                 "%6u,"
+                 "%6.3f,%6.3f,%6.3f,%6.3f "
+  //independent
+                 "|"
+                 "%6u,"
+                 "%6.3f,%6.3f,%6.3f,%6.3f "
+                 "\n",
+       pWhen+2,
+       pSID,pSMFTime,pJBN,pSTEP,pProg,
+              TEX,
+              AIS,
+              AIC +AID + AIW ,  // sum of time
+              AIC,
+              AID,
+              AIW,
+              EIS,
+              EIC +EID+ EIW,  // sum of time
+              EIC,
+              EID,
+              EIW
+    );
+  }
+}

@@ -1,0 +1,68 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+// ===================================================================
+// Macros to define fields in an RACF unload  dataset
+// ===================================================================
+//
+//
+//  reacf verb and value
+#define xrv(start,stop,name)  \
+   if (start >= stop) printf("BAD data %s %s,  %s line %i\n",\
+   #start,#stop,__FILE__,__LINE__) ;\
+   char * name = buffer + start-1; \
+   copyandstrip(name,name,stop-(start-1));\
+   if (strlen(name) != 0)  \
+  fprintf(fHandle," %s %s  -\n",#name,name);
+#define xrf(start,stop,name)  \
+   if (start >  stop) printf("BAD data %s %s,  %s line %i\n",\
+   #start,#stop,__FILE__,__LINE__) ;\
+   char * name = buffer + start-1; \
+   copyandstrip(name,name,stop-(start-1));\
+   if (strlen(name) != 0)  \
+  fprintf(fHandle," %s(%s) -\n",#name,name);
+#define xrc(start,stop,name)  \
+   if (start >  stop) printf("BAD data %s %s,  %s line %i\n",\
+   #start,#stop,__FILE__,__LINE__) ;\
+   char * name = buffer + start-1; \
+   copyandstrip(name,name,stop-(start-1));\
+  fprintf(fHandle," /* %s(%s) */ -\n",#name,name);
+//
+// Display it if YES
+#define xry(start,stop,name)  \
+   if (start >  stop) printf("BAD data %s %s,  %s line %i\n",\
+   #start,#stop,__FILE__,__LINE__) ;\
+   char * name = buffer + start-1; \
+   copyandstrip(name,name,stop-(start-1));\
+   if (name[0]='Y') \
+  fprintf(fHandle,"    %s   -\n",#name);
+
+// Display it if NO
+#define xrn(start,stop,name)  \
+   if (start >  stop) printf("BAD data %s %s,  %s line %i\n",\
+   #start,#stop,__FILE__,__LINE__) ;\
+   char * name = buffer + start-1; \
+   copyandstrip(name,name,stop-(start-1));\
+   if (name[0]='N') \
+  fprintf(fHandle,"  NO%s   -\n",#name);

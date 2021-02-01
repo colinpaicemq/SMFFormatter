@@ -1,0 +1,246 @@
+// Program to process DCOLLECT Dataset records
+//
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+FILE * DATASET  = 0;
+FILE * DATASETL = 0;
+struct flagTable DSORG0[] =
+ {
+   {0x80, 0x80,"Indexed seq        " },
+   {0x40, 0x40,"Physcial seq       " },
+   {0x20, 0x20,"Direct access      " },
+   {0x02, 0x02,"PO Paritioned      " },
+   {0x01, 0x01,"Unmovable          " }
+ };
+ struct flagTable DSORG1[] =
+ {
+   {0x80, 0x80,"GS Graphics        " },
+   {0x08, 0x08,"VSAM               " }
+ };
+int  DSORG(char *  in, char * buffer)
+{
+  char * s0 = buffer;
+  strcpy(s0,"");
+   if ((* (in+0) & 0x80 )== 0x80) strcat(s0,"IS ");
+   if ((* (in+0) & 0x40 )== 0x40) strcat(s0,"PS ");
+   if ((* (in+0) & 0x20 )== 0x20) strcat(s0,"DA ");
+   if ((* (in+0) & 0x02 )== 0x02) strcat(s0,"PO ");
+   if ((* (in+0) & 0x01 )== 0x01) strcat(s0,"Unmovable ");
+   if ((* (in+1) & 0x80 )== 0x80) strcat(s0,"GS ");
+   if ((* (in+1) & 0x08 )== 0x08) strcat(s0,"VSAM ");
+
+   if (( *(in+2) & 0xc0 )== 0x80) strcat(s0,"F");
+    else
+   if (( *(in+2) & 0xc0 )== 0x40) strcat(s0,"V");
+    else
+   if (( *(in+2) & 0xc0 )== 0xc0) strcat(s0,"U");
+    else strcat(s0,"??");
+
+   if (( *(in+2) & 0x10 )== 0x10) strcat(s0,"B");
+   if (( *(in+2) & 0x04 )== 0x04) strcat(s0,"A");
+   if (( *(in+2) & 0x02 )== 0x02) strcat(s0,"M");
+  return strlen(s0);
+}
+//
+// start processing here
+//
+void dcollectd( char  * pSMF,long count, int inum){
+  if  (DATASET  == 0 ) DATASET = MYOPEN("dd:DATASET ");
+  if  (DATASET  == (FILE *)   -1)return;
+  if  (DATASETL == 0 )
+      {
+        DATASETL = MYOPEN("dd:DATASETL");
+        if  (DATASETL == (FILE *)   -1)return;
+        fprintf(DATASETL,
+          "Volser,DatasetName                                 ,"
+           "SMS,Cha,PDSE,GDG,"
+          "LastRef   ,SpaceA,SpaceU,DSORG"
+          "\n");
+   }
+  if  (DATASETL == (FILE *)   -1)return;
+ struct flagTable FLAG1[] =
+ {
+   {0x80, 0x80,"Data set is RACF-Defined" },
+   {0x40, 0x40,"Data set is SMS managed " },
+   {0x20, 0x20,"Data set is Temporary   " },
+   {0x10, 0x10,"Data set is PDSE        " },
+   {0x08, 0x08,"Data set is GDG         " },
+   {0x04, 0x04,"Data set can be reblocked" },
+   {0x02, 0x02,"Change indicator        " },
+   {0x01, 0x01,"Checkpoint data         " },
+ };
+ struct flagTable FLAG2[] =
+ {
+   {0x80, 0x80,"NO VVRR for this dataset" },
+   {0x40, 0x40,"This is ICF catalog     " },
+   {0x08, 0x08,"DCALLSP has valid value " },
+   {0x04, 0x04,"DCUSESP has valid value " },
+   {0x02, 0x02,"DCDSCALLhas valid value " },
+   {0x01, 0x01,"DCNMBLK has valid value " },
+ };
+ struct flagTable RECRD[] =
+ {
+   {0x20, 0x20,"Track overflow     " },
+   {0x10, 0x10,"Blocked            " },
+   {0x08, 0x08,"Standard blocks    " },
+   {0x04, 0x04,"ASCI CC            " },
+   {0x02, 0x02,"Machine CC         " },
+ };
+ struct flagTable CATALOG[] =
+ {
+   {0x02, 0x02,"VSAM EATTR in catalog " },
+ };
+ struct flagTable DSCB[] =
+ {
+   {0x02, 0x02,"Non VSAM EATTR in catalog " },
+ };
+ struct flagTable FLAG3[] =
+ {
+   {0x80, 0x80,"Posix HFS          " },
+   {0x40, 0x40,"Extended format    " },
+   {0x20, 0x20,"DDM info exists    " },
+   {0x10, 0x10,"Checkpointed DS    " },
+   {0x08, 0x08,"GT 64K track support " },
+   {0x04, 0x04,"Compress field is valid" },
+ };
+  // the printf* routines use this global variable
+  fHandle = DATASET ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  //
+  // start of fields
+  //
+  fprintf(fHandle,"===================\n");
+  xi(DCULENG     ,2 ,%    ,"Length            ",NOPRINT);
+  xx(Reserved    ,2 ,%    , "                 ",NOPRINT);
+  xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
+  xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
+  xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
+  xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
+
+  xs(DCDDSNAM    ,44,%    ,"Dataset name       ",  PRINT);
+  xx(DCDERROR    ,1 ,%nz  ,"error flags        ",  PRINT);
+//xx(DCDFLAG1    ,1 ,%    ,"Flags1             ",  PRINT);
+  xflag(DCDFLAG1,1 ,FLAG1,"Flags1             ",  PRINT);
+    checkOffset(70);
+  xflag(DCDFLAG2,1, FLAG2,"Flags2             ",  PRINT);
+  xflag(DCDFLAG3,1, FLAG3,"Flags3             ",  PRINT);
+//xx(DCDFLAG2    ,1 ,%    ,"Flags2             ",  PRINT);
+//xx(DCDFLAG3    ,1 ,%    ,"Flags3             ",  PRINT);
+  xx(reserved72  ,2 ,%    ,"reserved           ",NOPRINT);
+//xx(DCDSORG     ,2 ,%    ,"DSORG              ",  PRINT);
+//xflag(DCDSORG0 ,1 ,DSORG0  ,"DSORG0             ",  PRINT);
+//xflag(DCDSORG1 ,1 ,DSORG1  ,"DSORG1             ",  PRINT);
+//xflag(DCDRECFM ,1 ,RECRD   ,"Record format      ",  PRINT);
+  xfn(DCSORG     ,3 ,DSORG   ,"Info           ",  PRINT);
+//xx(DCDRECRD    ,1 ,%    ,"rec format         ",  PRINT);
+  xi(DCDNMEXT    ,1 ,%    ,"Number of extents ",  PRINT);
+  checkOffset(78);
+  xs(DCVOLSR     ,6 ,%    ,"Volser            ",  PRINT);
+  xi(DCBKLNG     ,2 ,%    ,"Block length      ",  PRINT);
+  xi(DCDLRECL    ,2 ,%nz  ,"Record length     ",  PRINT);
+  xi(DCDALLSP    ,4 ,%nz  ,"Space alloc KB    ",  PRINT);
+  xi(DCDUSESP    ,4 ,%nz  ,"Space used  KB    ",  PRINT);
+  xi(DCDSCALL    ,4 ,%nz  ,"31 sec alloc KB   ",  PRINT);
+  xi(DCDNMBLK    ,4 ,%nz  ,"^Optimised KB     ",  PRINT);
+  xfn(DCDCREDT   ,4 ,yyyyddd,"Creation date  ",NOPRINT);
+  xfn(DCDEXPDT   ,4 ,yyyyddd,"expiry   date     ",  PRINT);
+  xfn(DCDLSTRF   ,4 ,yyyyddd ,"Last ref date  ",  PRINT);
+  xs(DCDSSER     ,6 ,%    ,"Serial number     ",  PRINT);
+  xx(DCDVOLSQ    ,2 ,%    ,"vol seq number    ",  PRINT);
+  xx(DCDLBKDT    ,8 ,%    ,"Last backup time  ",  PRINT);
+  xi(DCDDCLNG    ,2 ,%nz  ,"Dataclass length  ",  PRINT);
+  xs(DCDATCL     ,30,%nb  ,"Dataclass         ",  PRINT);
+  xi(DCDSCLNG    ,2 ,%    ,"Storclass length  ",NOPRINT);
+  xs(DCSCTCL     ,30,%nb  ,"Storclass         ",  PRINT);
+  xi(DCMGTLNG    ,2 ,%    ,"MGT class length  ",NOPRINT);
+  xs(DCMGTCL     ,30,%nb  ,"MGT class         ",  PRINT);
+  xi(DCSGTLNG    ,2 ,%    ,"Stor group length ",NOPRINT);
+  xs(DCSGTCL     ,30,%nb  ,"Storage group     ",  PRINT);
+  xi(DCDCCSID    ,2 ,%nz  ,"CCSID             ",  PRINT);
+  xflag(DCDCATF ,1 ,CATALOG,"Catalog flag     ",  PRINT);
+  xflag(DCDDSCBF,1 ,DSCB   ,"DSCB    flag     ",  PRINT);
+  xi(DCDUDSIZ    ,8 ,%nz  ,"User data size    ",  PRINT);
+  xi(DCDCUDZSZ   ,8 ,%nz  ,"Compressed size   ",  PRINT);
+  xx(DCDEXFLG    ,2 ,%    ,"Compressed flag   ",  PRINT);
+  xi(DCDSCNT     ,2 ,%nz  ,"Stripe count      ",  PRINT);
+  xi(DCDOVERA    ,4 ,%nz  ,"Overallocated     ",  PRINT);
+  xs(DCDACCT     ,32,%nb  ,"Account           ",  PRINT);
+  if ( pSMF + inum  <=p) return;
+  // new fields added in 2.4
+  xx(DCDFLAG5    ,1 ,%    ,"Flag5             ",NOPRINT);
+  xx(Reserved321 ,6 ,%    ,"                  ",NOPRINT);
+  xx(DCDDS9F1    ,1, %    ,"Format 9 DSCB     ",  PRINT);
+  xs(DCDJBNMC    ,8, %nb  ,"Job name created DS",  PRINT);
+  xs(DCDSTNMC    ,8, %nb  ,"Job Step created DS",  PRINT);
+  xx(DCDSTIMEC   ,6, %nz  ,"Create time uS     ",  PRINT);
+  xx(Reserved350 ,2, %nz  ,"reserved 350       ",NOPRINT);
+  xi(DCDALLSX    ,8, %nz  ,"Alloc size in KB   ",  PRINT);
+  xi(DCDUSESX    ,8, %nz  ,"Used  size in KB   ",  PRINT);
+  xi(DCDSCALX    ,8, %nz  ,"Sec alloc  in KB   ",  PRINT);
+  xi(DCDNMBLX    ,8, %nz  ,"Could be added KB  ",  PRINT);
+  xi(DCDXPSEV    ,1, %nz  ,"PS Exteded version ",  PRINT);
+  xi(DCDCTYPE    ,1, %nz  ,"Compression type   ",  PRINT);
+  xx(DCDENCR     ,66,%    ,"Encryption info    ",  PRINT);
+  xx(DCDTYPE     ,66,%    ,"Encryption type    ",  PRINT);
+  xs(DCDKLBL     ,64,%    ,"Encryption Label   ",  PRINT);
+  xs(Reserved452 ,16,%    ,"reserved           ",NOPRINT);
+
+  char * changed = "   ";
+  char * pdse    = "    ";
+  char * sms     = "   ";
+  char * gdg     = "   ";
+  if ((DCDFLAG1 & 0x40 ) == 0x40 ) sms     = "SMS";
+  if ((DCDFLAG1 & 0x10 ) == 0x10 ) pdse    = "PDSE";
+  if ((DCDFLAG1 & 0x08 ) == 0x08 ) gdg     = "GDG";
+  if ((DCDFLAG1 & 0x02 ) == 0x02 ) changed = "Cha";
+  int zz = DCDFLAG1;
+ // printf("SMS etc %x %s %s %s %s\n",zz,sms,pdse,gdg,changed);
+  fprintf(DATASETL,"%6.6s,%-44.44s,%3.3s,%3.3s,%4.4s,%3.3s,"
+  "%10.10s,%6.1f,%6.1f,"
+  "%4.14s"
+      ",blksize=%hi,lrecl=%hi"
+      "\n",
+      DCVOLSR,
+      DCDDSNAM,
+      sms,changed,pdse,gdg,
+      DCDLSTRF,
+     ((float) DCDALLSP)/1024,
+     ((float) DCDUSESX )/1024,DCSORG,
+     DCBKLNG,DCDLRECL
+);
+}

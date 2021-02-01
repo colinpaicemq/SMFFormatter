@@ -1,0 +1,69 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+// ===================================================================
+// Example user macros  for formatting of fields
+// ===================================================================
+FILE * UF425C = 0;
+#define U425C u425c(SID,TME,SCRNN ,SCION,SCCND,SCHIT,\
+                    SCWCN,SCWHI,SCSEQ,SCRLC,SCICL);
+u425c(char * pSID, char * pSMFTime,
+      char * pSC,
+      int IO, int CND,int HTS,
+      int WCN, int WHI,
+      int SEQ, int RLC, int ICL)
+{
+  // open the file and print the header
+  if  (UF425C    ==(FILE *)  -1) return;
+  if  (UF425C    == 0 )
+  {
+    UF425C    = MYOPEN("dd:U425C   ");
+    if ( UF425C == 0)
+    {
+      perror("Error opening dd:U$25C");
+      UF425C = (FILE *) -1 ;
+      return;
+    }
+     fprintf(UF425C,"%-4.4s,%-8.8s,%-8.8s,%6.6s,%6.6s,"
+                  "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                  "\n",
+         "Sys ","Time","Storage",
+         "IOs","RCache","RCache","RCache","WCache","WCache","WCache",
+         "Seq","RLC","ICL");
+     fprintf(UF425C,"%-4.4s,%-8.8s,%-8.8s,%6.6s,%6.6s,"
+                  "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                  "\n",
+             "    ","    ","Class   ","           ",
+             "Req","Hits","^Hits","Req","Hits"," ^Hits"
+             "   ","   ","1TR"," ");
+   }
+   // now print the record itself
+  fprintf(UF425C,"%4.4s,%8.8s,%-8.8s,%6u,%6u,%6u,"
+               "%6u,%6u,%6u,%6u,%6u,%6u,%6u"
+               "\n",
+       pSID,pSMFTime,pSC,IO,CND-WCN,HTS-WHI,
+       (CND-WCN) -(HTS-WHI), // read cache non hits
+       WCN,WHI,(WCN-WHI),  // write cache misses
+       SEQ,RLC,ICL);
+}

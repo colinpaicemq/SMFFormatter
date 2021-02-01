@@ -93,7 +93,7 @@ char * unescape(char * in,  int length)
       }
  return in;
 }
-void printfloat(char * name , float in, char * format,char * descr)
+void printfloat(char * name , double in, char * format,char * descr)
 {
   char *  sFormat = format;
  if (strlen(format)==3 &&strcmp( format,"%nz")== 0)
@@ -282,4 +282,16 @@ void STCKTIME(char * pData,long length, char * timeBuffer)
    tm2->tm_min,
    tm2->tm_sec,
    microseconds);
+}
+void copyandstrip(char * out, char * in, int size)
+{
+   int i;
+   memcpy(out,in,size);
+   *(out +size)=0x00; // add a trailing null
+   // needs to be size-1 as using size refers to trailing blank
+   for (i = size-1;i>=0;i--) // from the end to the front
+   {
+    if (*(out+i) != ' ') break;
+    *(out + i)= 0x00;
+   }
 }

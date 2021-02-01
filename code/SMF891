@@ -1,0 +1,172 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+
+//  #include <u891.h>
+ FILE * SMF89_1  = 0;
+//
+// start processing here
+//
+void dosmf89_1( char  * pSMF,long count){
+if  (SMF89_1  == 0 ) SMF89_1  = MYOPEN("dd:S891    ");
+if  (SMF89_1 == (FILE *)   -1)return;
+  fHandle = SMF89_1 ;
+  int offset;
+  printOffset = 0;
+  char * pSMFZ;
+//  fprintf(fHandle,"====SMF42 -6 =============== record %u\n",count);
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  fprintf( fHandle,"=============================\n");
+  //
+  // start of fields
+  //
+  xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
+  xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
+  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xfn(TME        ,4 ,SMFTime ,"SMFTime        ",NOPRINT);
+  xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",NOPRINT);
+  xs(SID         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(WID         ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
+  xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
+  xi(STP         ,2 ,%    ,"Subtype           ",NOPRINT);
+  xi(SDL         ,2 ,%    ,"Length of self d  ",NOPRINT);
+  TRIPLET(Self   ,p                  ,
+        1        , SDL      ,NOPRINT);
+     xi(PRO              ,4  ,%     ,"Offset Rec prod    ",NOPRINT);
+     xi(PRL              ,2  ,%     ,"Len    Rec prod    ",NOPRINT);
+     xi(PRN              ,2  ,%     ,"Number Rec prod    ",NOPRINT);
+
+     xi(SIO              ,4  ,%     ,"Offset System id   ",NOPRINT);
+     xi(SIL              ,2  ,%     ,"Len    System id   ",NOPRINT);
+     xi(SIN              ,2  ,%     ,"Number Sstem id    ",NOPRINT);
+
+     xi(UDO              ,4  ,%     ,"Offset Usage data  ",NOPRINT);
+     xi(UDL              ,2  ,%     ,"Len    Usage Data  ",NOPRINT);
+     xi(UDN              ,2  ,%     ,"Number Usage data  ",NOPRINT);
+
+     xi(CNO              ,4  ,%     ,"Offset intersect   ",NOPRINT);
+     xi(CNL              ,2  ,%     ,"Len    intersect   ",NOPRINT);
+     xi(CNN              ,2  ,%     ,"Number intersect   ",NOPRINT);
+
+     xi(TRO              ,4  ,%     ,"Offset Tenant res  ",NOPRINT);
+     xi(TRL              ,2  ,%     ,"Len    tenant res  ",NOPRINT);
+     xi(TRN              ,2  ,%     ,"Number Tenant res  ",NOPRINT);
+
+     xi(TCO              ,4  ,%     ,"Offset Tenant res  ",NOPRINT);
+     xi(TCL              ,2  ,%     ,"Len    tenant res  ",NOPRINT);
+     xi(TCN              ,2  ,%     ,"Number Tenant res  ",NOPRINT);
+
+ TRIPLET(Product    ,pSMFZ+ PRO         ,
+        PRN       , PRL      ,NOPRINT);
+     xs(PNM              ,8  ,%     ,"Product name      ",  PRINT);
+     xi(RNM              ,4  ,%     ,"record version    ",  PRINT);
+     xs(OSL              ,8  ,%     ,"Op system level   ",  PRINT);
+  xfn(IST        ,4 ,SMFTime ,"Initial start t",NOPRINT);
+  xfn(ISD        ,4 ,SMFDate ,"Initial start d",NOPRINT);
+  xfn(IET        ,4 ,SMFTime ,"Initial end tim",NOPRINT);
+  xfn(IED        ,4 ,SMFDate ,"Initial end dat",NOPRINT);
+     xi(PFL              ,1  ,%     ,"flag              ",  PRINT);
+     xx(reserved37       ,3  ,%     ,"reserved          ",NOPRINT);
+    xSTCKDT(HOF         ,8  ,%     ,"Hipervisor offset ",NOPRINT);
+    xSTCKDT(DTO         ,8  ,%     ,"Date time offset  ",NOPRINT);
+     xi(Core_CP          ,2  ,%     ,"CP cores          ",  PRINT);
+     xi(Core_ZAAP        ,2  ,%     ,"ZAAP cores        ",  PRINT);
+     xi(Core_ZIIP        ,2  ,%     ,"ZIIP cores        ",  PRINT);
+ ETRIPLET(Product    );
+  // length needs to be zero because we calculate the offset of next
+  // header from the field in the header
+  TRIPLET(SysID      ,pSMFZ+ SIO  ,
+        SIN       , SIL               ,NOPRINT);
+     xs(SYN              ,8  ,%     ,"System name       ",  PRINT);
+  xfn(UST        ,4 ,SMFTime ,"Initial start t",  PRINT);
+  xfn(USD        ,4 ,SMFDate ,"Initial start d",  PRINT);
+  xfn(UET        ,4 ,SMFTime ,"Initial end tim",  PRINT);
+  xfn(UED        ,4 ,SMFDate ,"Initial end dat",  PRINT);
+     xi(Reserved24       ,4  ,%     ,"reserved          ",NOPRINT);
+     xi(Reserved28       ,4  ,%     ,"reserved          ",NOPRINT);
+     xx(CMN              ,2  ,%     ,"Model number      ",  PRINT);
+     xi(CVN              ,1  ,%     ,"CPU version       ",  PRINT);
+     xx(LPI              ,1  ,%     ,"LPAR indicator    ",  PRINT);
+     xx(SER              ,3  ,%     ,"CPU serial num    ",  PRINT);
+     xi(LLP3             ,1  ,%     ,"LPAR id           ",  PRINT);
+     xi(RPP              ,4  ,%     ,"CPU rel power     ",  PRINT);
+     xs(SPN              ,8  ,%     ,"Sysplex name      ",  PRINT);
+     xs(CPT              ,6  ,%     ,"CPC type          ",  PRINT);
+     xs(CPM              ,3  ,%     ,"CPC model         ",  PRINT);
+     xs(CPS              ,12 ,%     ,"CPC sequence      ",  PRINT);
+     xx(SIF              ,1  ,%     ,"Bits              ",  PRINT);
+     xx(Reserved74       ,2  ,%     ,"reserved          ",NOPRINT);
+     xs(MNF              ,16 ,%     ,"V1 CPC maker      ",  PRINT);
+     xs(TID              ,4  ,%     ,"V1 CPC type       ",  PRINT);
+     xs(MDL              ,16 ,%     ,"V1 CPC model      ",  PRINT);
+     xs(SQC              ,16 ,%     ,"V1 CPC seq cod    ",  PRINT);
+     xs(POM              ,4  ,%     ,"V1 CPC Plant      ",  PRINT);
+     xi(CPC              ,4  ,%     ,"CPU capability    ",  PRINT);
+     xi(CCC              ,2  ,%     ,"Configured CPU    ",  PRINT);
+     xi(SCC              ,2  ,%     ,"Standby    CPU    ",  PRINT);
+     xx(MAF              ,30 ,%     ,"Array CPU cap     ",  PRINT);
+     xs(LPN              ,8  ,%     ,"LPAR name         ",  PRINT);
+     xi(Cap_cha_cnt      ,2  ,%nz   ,"cap cha cnt       ",  PRINT);
+     xi(CPU_Adj_Act      ,4  ,%nz   ,"CPU adj actual    ",  PRINT);
+     xi(CPU_Adj_Nom      ,4  ,%nz   ,"CPU adj nominal   ",  PRINT);
+     xi(CPU_Sca_Fac      ,4  ,%nz   ,"CPU Scaling factor",  PRINT);
+     xi(CAP_Adj_Int      ,1  ,%nz   ,"CPU Cap adj ind   ",  PRINT);
+     xi(CAP_Cha_Rea      ,1  ,%nz   ,"CPU Cap cha reason",  PRINT);
+     xx(CAP_flags        ,1  ,%nz   ,"CPU flags         ",  PRINT);
+     xx(reserved195      ,1  ,%nz   ,"reserved          ",NOPRINT);
+     xi(ZNF              ,4  ,%nz   ,"ZAAP norm factor  ",  PRINT);
+     xi(SNF              ,4  ,%nz   ,"ZIIP norm factor  ",  PRINT);
+     xi(SEQ              ,2  ,%nz   ,"Rec Seq numb      ",  PRINT);
+ ETRIPLET(SysID      );
+
+
+  TRIPLET(Usage      ,pSMFZ+ UDO  ,
+        UDN       , UDL               ,NOPRINT);
+  printOffset = 0;
+     xs(UPO              ,16 ,%     ,"Prod owner        ",  PRINT);
+     xs(UPN              ,16 ,%     ,"Prod name         ",  PRINT);
+     xs(UPV              , 8 ,%     ,"Prod version      ",  PRINT);
+     xs(UPQ              , 8 ,%     ,"Prod qualifier    ",  PRINT);
+     xs(UPI              , 8 ,%     ,"Prod ID           ",  PRINT);
+     xfh(UCT             , 8 ,%     ,"TCB  in hundredth ",  PRINT);
+     xfh(USR             , 8 ,%     ,"SRB  in hundredth ",  PRINT);
+     xx(UFG              , 1 ,%     ,"Usage entry flag  ",  PRINT);
+     xx(UF2              , 1 ,%     ,"Usage entry flag2 ",  PRINT);
+     xx(Boost            , 1 ,%     ,"Boost             ",  PRINT);
+     xx(URT              , 1 ,%     ,"URT               ",  PRINT);
+     xx(URD              , 8 ,%     ,"Resource data     ",  PRINT);
+     xfh(UTZ             , 8 ,%     ,"Prod offload      ",  PRINT);
+     xi(CountAsTrad      , 4 ,%     ,"Count of asids^TRG",  PRINT);
+     xi(CountAsTrg       , 4 ,%     ,"Count of asids TRG",  PRINT);
+ ETRIPLET(Usage    );
+ ETRIPLET(Self     );
+}

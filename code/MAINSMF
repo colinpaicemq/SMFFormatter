@@ -1,5 +1,3 @@
-// Main program to format the data from the DCOLLECT output file
-//
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -25,8 +23,8 @@
 //* Contributors:
 //*   Colin Paice - Initial Contribution
 
-#pragma csect(code,  "DCOLLECT")
-#pragma csect(static,"DCOLLECTS")
+#pragma csect(code,  "SMFFORM")
+#pragma csect(static,"SMFFORM$S")
 // the width of the description at the start of the output line
 #define wDesc 20
 #include <ctype.h>
@@ -55,34 +53,42 @@ typedef unsigned int    int4;
 typedef unsigned long long    int8;
 typedef unsigned long long    ull;
 typedef unsigned long long     ll8;
+typedef float          float4;
+typedef double         float8;
+typedef long double    float16;
 int size;
 #include <printfs.h>
 #define PRINT_EBCDIC_STRING(fieldName, value) {      \
     size = getEbcdicStringSize(value, sizeof(value));   \
     printf("%s%.*s\n", fieldName, size, value);      \
 }
+char dateTime[30];
 /*******************************************************************/
 /* Start the program                                               */
 /*******************************************************************/
+#include <readArgs.h>
 #include <MYOPEN.h>
-#include <smfsub.h>
 #include <HTTPCODE.h>
 #include <printhx.h>
 #include <tree.h>
-#include <flags.h>
-#include <list.h>
 int printOffset=0;
-#include <dcolld.h>
-#include <dcollsc.h>
-#include <dcollsg.h>
-#include <dcollmc.h>
-#include <dcolldc.h>
-#include <dcollbc.h>
-#include <dcollv.h>
-#include <dcollvl.h>
-#include <dcolla.h>
-#include <dcollai.h>
-int main(void) {
+#include <smf12301.h>
+#include <smfsub.h>
+#include <prcache.h>
+// #include <smf1209.h>
+#include <smf12011.h>
+// #include <smf120_9>
+#include <smf306.h>
+#include <smf426.h>
+#include <smf425.h>
+#include <smf4227.h>
+#include <smf421.h>
+#include <smf891.h>
+#ifdef no
+#include <smf14.h >
+#endif
+int  main(int argc, char *argv[])
+{
    char *      pSMF = 0;
    char *      pRAW = 0; // this is the record including len and seg
                          // at the front
@@ -92,6 +98,7 @@ int main(void) {
    __amrc_type save_amrc;  /* File return code information        */
    FILE * SMFIN;           /* SMF Input file                      */
 
+    readArgs( argc, argv  );
     /****************************************************************/
     /* Open the input file called SMFIN                             */
     /* If the handle is null then put out an error message and quit */
@@ -130,39 +137,52 @@ int main(void) {
         if (inum == 0) break;
         // pSMF is 4 bytes into the SMF structure so need
         // to bias the pointer
-//   printf("++Record type %2.2s.\n",
-//     pSMF+4);
-    if (memcmp(pSMF+4,"D ",2)== 0)
-          dcollectd(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"SC",2)== 0)
-          dcollectsc(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"SG",2)== 0)
-          dcollectsg(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"DC",2)== 0)
-          dcollectdc(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"BC",2)== 0)
-          dcollectbc(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"MC",2)== 0)
-          dcollectmc(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"V ",2)== 0)
-          dcollectv(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"VL",2)== 0)
-          dcollectvl(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"A ",2)== 0)
-          dcollecta(pSMF,count,inum);
-    else
-    if (memcmp(pSMF+4,"AI",2)== 0)
-          dcollectai(pSMF,count,inum);
-   else printf("++Record type %2.2s.\n",pSMF+4);
+        recordType  = * (pSMF-4 +5 );
+        short subType = * (short * ) (pSMF-4 + 22);
+        long smf123V1version = * (long *) (pSMF -4 +24);
+      if (recordType  ==  123 && subType == 1)
+         doSMF123_1_1(pRAW,count               );
+      else
+      if (recordType  ==   120  && (subType == 11) )
+          dosmf120_11(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 1 ) )
+          dosmf30_6(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 2 ) )
+          dosmf30_6(pRAW,count);
+      if (recordType  ==   30   && (subType == 3 ) )
+          dosmf30_6(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 4 ) )
+          dosmf30_6(pRAW,count);
+      else
+      if (recordType  ==   30   && (subType == 5 ) )
+          dosmf30_6(pRAW,count);
+      if (recordType  ==   42   && (subType == 6 ) )
+          dosmf42_6(pRAW,count);
+      else if (recordType  ==   42   && (subType == 1 ) )
+          dosmf42_1(pRAW,count);
+      else if (recordType  ==   42   && (subType == 5 ) )
+          dosmf42_5(pRAW,count);
+      else if (recordType  ==   42   && (subType == 27) )
+          dosmf42_27(pRAW,count);
+      else if (recordType  ==   89   && (subType == 1 ) )
+          dosmf89_1(pRAW,count);
+#ifdef no
+      else if (recordType  ==   14                      )
+          dosmf14_1(pRAW,count,inum);
+      else if (recordType  ==   15                      )
+          dosmf14_1(pRAW,count,inum);
+#endif
+      else printf("++Record type  %hhu - %hd not processed \n",
+       recordType,subType);
     }
     fclose(SMFIN);
+    printTree("dd:S123SUM",serverRoot,"system   Userid  resp key\n");
+    printTree("dd:S123IP ",IPRoot    ,"IP       Userid  resp key\n");
+    printTree("dd:S120SUM",S120Root   ,"HH:MM Userid  URI     \n");
+    printTree("dd:S120TOT",S120TotCPU   ,"URI     \n");
+    printTree("dd:S120TOT", RootS123URI, "URI     \n");
     return 0;
 }

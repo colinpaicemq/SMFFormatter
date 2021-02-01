@@ -28,11 +28,11 @@
   fprintf(fHandle ,"\n"); /* blank line before */
   fprintf(fHandle ,"== "
         "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
-                DTE ,TME ,sid);
+                DTE ,TME ,SID);
   fprintf(fHandle ,"Interval Start:%26.26s End:%26.26s"
         " Duration %8.3f seconds\n",
          startDT,endDT,fDuration);
-         fprintf(fHandle,"                 rd    wr zHPFR zHPFW "
+         fprintf(fHandle,"                    rd    wr zHPFR zHPFW "
                          "rt  conn pend "
                          "disc RdDi CMD Busy CUQ  DAO  "
                          "| RdCa RdHi WrCa WrHi   Seq  1Tr  ICL"
@@ -76,10 +76,10 @@
        {
          fprintf(fHandle ,"== "
              "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
-                     DTE ,TME ,sid);
+                     DTE ,TME ,SID);
          fprintf(SMF42_5VR ,"== "
              "Date:%10.10s SMF Time:%11.11s Sysid:%4.4s\n",
-                     DTE ,TME ,sid);
+                     DTE ,TME ,SID);
         doneIDTHeader = 1;
        }
       TRIPLET(VOLMET ,pSMFZ+ VTMCO       ,

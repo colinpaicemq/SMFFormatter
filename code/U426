@@ -1,0 +1,244 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+// ===================================================================
+// Example user macros  for formatting of fields
+// ===================================================================
+FILE * UF426S = 0; // summary
+FILE * UF426A = 0;  // AM
+FILE * UF426C = 0;
+FILE * UF426E = 0;
+#define U426A u426a(SID,TME,JDJNM,DSN,DSVOL, \
+AMSRB,AMSRR,AMSWB,AMSWR,AMDRB,AMDRR,AMDWB, \
+AMDWR,AMZRB,AMZRR,AMZWB,AMZWR,AMRIB, \
+AMWIB,AMRBD,AMRBW,AMRCI,AMWCI  );
+
+
+#define U426B
+#define U426C u426c(SID,TME,JDJNM,DSN,DSVOL,DSION,DSCND,DSHTS,\
+                    DSWCN,DSWHI,DSSEQ,DSRLC,DSICL);
+#define U426D
+#define U426E u426e(SID,TME,JDJNM,DSN,DSVOL,\
+                     DSR1U, DSC1U,DSP1U,DSD1U,DST1U,  \
+                     DSQ1U,DSA1U,DST1U,DSB1U,DSM1U);
+#define U426S u426s(SID,TME,JDJNM,DSN,DSVOL,DSTYPE,DSDSC,DSSTRP);
+#define U426F
+
+// AM  Statistics
+u426a(char * pSID, char * pSMFTime,
+      char * pJobName,char * pDSN,char * pDSVOL,
+int AMSRB,int AMSRR,int AMSWB,int AMSWR,int AMDRB,int AMDRR,int AMDWB,
+int AMDWR,int AMZRB,int AMZRR,int AMZWB,int AMZWR,int AMRIB,
+int AMWIB,int AMRBD,int AMRBW,int AMRCI,int AMWCI )
+{
+  if ( checkParm("jobname",pJobName,8) == 1
+     &&checkParm("dsname",pDSN,   44) == 1
+     &&checkParm("volser",pDSVOL,  6) == 1)
+    {
+      //  AMS stats
+      // open the file and write header if required
+      if  (UF426A    ==(FILE *)  -1) return;
+      if  (UF426A    == 0 )
+      {
+        UF426A    = MYOPEN("dd:U426A   ");
+        if ( UF426A == 0)
+        {
+        perror("Error opening dd:U426A");
+        UF426A = (FILE *) -1 ;
+        return;
+        }
+        fprintf(UF426A,"%4.4s,%8.8s,%-8.8s,%-44.44s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s"
+                "\n",
+                "Sys ","Time","Job","DataSetName","VolSer",
+                "Seq Rd","Seq Rd","Seq Wr","Seq Wr",
+                "DirecR","DirecR","DirecW","DirecW",
+                "DiryRd","DiryRd","DiryWr","DiryWr",
+                "MBytes","MBytes"
+        );
+        fprintf(UF426A,"%4.4s,%8.8s,%-8.8s,%-44.44s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s,%6.6s,%6.6s,"
+                "%6.6s,%6.6s"
+                "\n",
+                "    ","    ","   ","           "," ",
+                "Blocks","Delay","Blocks","Delay",
+                "Blocks","Delay","Blocks","Delay",
+                "Blocks","Delay","Blocks","Delay",
+                "Read","Writen"
+        );
+      }
+    float r,w;
+    r = (float ) AMRIB /(1024*1024);
+    w = (float ) AMWIB /(1024*1024);
+      fprintf(UF426A,"%4.4s,%8.8s,%8.8s,%44.44s,%6.6s"
+           "%6u,%6u,%6u,%6u,%6u,%6u,"
+           "%6u,%6u,%6u,%6u,%6u,%6u,"
+           "%6.3f,%6.3f"
+           "\n",
+           pSID,pSMFTime,pJobName,pDSN,pDSVOL,
+           AMSRB,AMSRR,AMSWB,AMSWR,AMDRB,AMDRR,
+           AMDWB,AMDWR,AMZRB,AMZRR,AMZWB,AMZWR,
+           r    ,w
+           );
+    }
+}
+//  summary
+u426s(char * pSID, char * pSMFTime,
+      char * pJobName,char * pDSN, char * pDSVOL,
+      char * pType, char * pSC,int Stripes){
+  if ( checkParm("jobname",pJobName,8) == 1
+     &&checkParm("dsname",pDSN,   44) == 1
+     &&checkParm("volser",pDSVOL,  6) == 1)
+    {
+      // check the file and open it if required
+      if  (UF426S    ==(FILE *)  -1) return;
+      if  (UF426S    == 0 )
+      {
+        UF426S    = MYOPEN("dd:U426S   ");
+        if ( UF426S == 0)
+        {
+        perror("Error opening dd:U426S");
+        UF426S = (FILE *) -1 ;
+        return;
+        }
+        fprintf(UF426S,"%4.4s,%8.8s,%-8.8s,%-44.44s,%6.6s,"
+                "%-6.6s,%-8.8s,"
+                "%6.6s"
+                "\n",
+                "Sys ","Time","Job","DataSetName","VolSer",
+                "Type","Storage","Stripes");
+        fprintf(UF426S,"%4.4s,%8.8s,%8.8s,%44.44s,%6.6s,"
+        "%6.6s,%-8.8s,"
+                "%6.6s"
+                "\n",
+                "    ","    ","  ","          "," ",
+                "    ","Class",
+                "      ");
+      }
+
+  fprintf(UF426S,"%4.4s,%8.8s,%8.8s,%44.44s,%6.6s,"
+       "%-6.6s,%-8.8s,"
+       "%6i\n",
+       pSID,pSMFTime,pJobName,pDSN,pDSVOL,
+       pType,pSC,Stripes);
+       }
+}
+// cache
+u426c(char * pSID, char * pSMFTime,
+      char * pJobName,char * pDSN, char * pDSVOL,
+      int IO, int CND,int HTS,
+      int WCN, int WHI,
+      int SEQ, int RLC, int ICL)
+{
+  if ( checkParm("jobname",pJobName,8) == 1
+     &&checkParm("dsname",pDSN,   44) == 1
+     &&checkParm("volser",pDSVOL,  6) == 1)
+    {
+      // cache
+      if  (UF426C    ==(FILE *)  -1) return;
+      if  (UF426C    == 0 )
+      {
+        UF426C    =  MYOPEN("dd:U426C    ");
+        if ( UF426C == 0)
+        {
+          perror("Error opening dd:U426C");
+          UF426C = (FILE *)  -1 ;
+          return;
+        }
+        fprintf(UF426C,"%-4.4s,%-8.8s,%-8.8s,%-44.44s,%6.6s,"
+        "%6.6s,%6.6s,%6.6s,"
+                     "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                     "\n",
+            "Sys ","Time","Job","DataSetName","VolSer",
+            "IOs","RCache","RCache","Cache","WCache","WCache","WCache",
+            "Seq","RLC","ICL");
+        fprintf(UF426C,"%-4.4s,%-8.8s,%-8.8s,%-44.44s,%6.6s,"
+                     "%6.6s,%6.6s,"
+                     "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                     "\n",
+                "    ","    ","   ","           "," ",
+                "   ","Req","Hits","^Hits","Req","Hits","^Hits"
+                "   ","   ","   ");
+      }
+  // elapsed time
+  if  (UF426E    ==(FILE *)  -1) return;
+  if  (UF426E    == 0 )
+  {
+    UF426E    =  MYOPEN("dd:U426E    ");
+    if ( UF426E == 0)
+    {
+      perror("Error opening dd:U426E");
+      UF426E = (FILE *)  -1 ;
+      return;
+    }
+    fprintf(UF426E,"%-4.4s,%-8.8s,%-8.8s,%-44.44s,%6.6s,"
+                 "%6.6s,%6.6s,%6.6s,"
+                 "%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s,%6.6s"
+                 "\n",
+        "Sys ","Time","Job","DataSetName","Volid",
+            "AvRT","Pend","Conn","Disc","DiscRe",
+            "Queue","DAU" ,"Busy","ICR","Other");
+
+  }
+  fprintf(UF426C,"%4.4s,%8.8s,%8.8s,%44.44s,%6.6s," // sys,time,job,dsn
+                 "%6u,%6u,%6u,"     // io rds
+                 "%6u,"      // read cache non hit
+                 "%6u,%6u,%6u,"
+                 "%6u,%6u,%6u"
+                 "\n",
+       pSID,pSMFTime,pJobName,pDSN,pDSVOL,
+       IO,CND-WCN,HTS-WHI,
+   0-( (CND-WCN) -(HTS-WHI)),// read cache non hits make -ve
+       WCN,WHI,
+   0-  (WCN-WHI) ,         // write cache non hits - make -ver
+       SEQ,RLC,ICL);
+  }
+}
+// elapsed times
+u426e(char * pSID, char * pSMFTime,
+      char * pJobName,char * pDSN, char * pDSVOL,
+      int DSR1U, int DSC1U,int DSP1U,  int DSD1U,int DSDT1U,
+      int DSQ1U,int DSA1U,int DST1U,int DSB1U,int DSM1U)
+{
+  if ( checkParm("jobname",pJobName,8) == 1
+     &&checkParm("dsname",pDSN,   44) == 1
+     &&checkParm("volser",pDSVOL,  6) == 1)
+    {
+    int other = DSR1U-(DSC1U+DSP1U+DSQ1U+DSA1U+DST1U+DSB1U+DSM1U);
+    fprintf(UF426E,"%4.4s,%8.8s,%8.8s,%44.44s,%-6.6s,"
+                 "%6u,%6u,%6u,%6u,%6u,%6u,"
+                 "%6u,%6u,%6u,%6u    "
+               "\n",
+       pSID,pSMFTime,pJobName,pDSN,pDSVOL,
+       DSR1U,DSP1U,DSC1U,DSD1U,DSDT1U,DSQ1U,DST1U,DSB1U,DSM1U,
+       other  );
+     }
+  //  if ( DST1U > 0) // if this is > 0 then data was not cached
+  //  fprintf( fHandle,"!!Read only disconnect time %i > 0\n",DST1U);
+}

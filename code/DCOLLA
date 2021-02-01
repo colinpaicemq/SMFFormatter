@@ -1,3 +1,5 @@
+// Program to process DCOLLECT ASSOC records
+//
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -74,8 +76,8 @@ void dcollecta( char  * pSMF,long count, int inum){
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
   xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
   xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
-  xfn(DCUTIME    ,4 ,SMFTime ,"Time           ",  PRINT);
-  xfn(DCUDATE    ,4 ,SMFDate ,"Date           ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
   xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
 
   xs(DCADSNAM    ,44,%    ,"Dataset name       ",  PRINT);
@@ -87,14 +89,15 @@ void dcollecta( char  * pSMF,long count, int inum){
   xi(DCAHARBA    ,4 ,%    ,"High Alloc RBA     ",  PRINT);
   xi(DCANLR      ,4 ,%nz  ,"Number logical recs",  PRINT);
   xi(DCADLR      ,4 ,%nz  ,"Number deleted recs",  PRINT);
-  xi(DCAILR      ,4 ,%nz  ,"Number insertedrecs",  PRINT);
-  xi(DCAULR      ,4 ,%nz  ,"Number updated recs",  PRINT);
+  xi(DCAINR      ,4 ,%nz  ,"Number insertedrecs",  PRINT);
+  xi(DCAUPR      ,4 ,%nz  ,"Number updated recs",  PRINT);
+  xi(DCARTR      ,4 ,%nz  ,"Number Retrieved   ",  PRINT);
   xi(DCAASP      ,4 ,%nz  ,"Free space in bytes",  PRINT);
   xi(DCACIS      ,4 ,%nz  ,"Number of CI splits",  PRINT);
   xi(DCACAS      ,4 ,%nz  ,"Number of CA splits",  PRINT);
   xi(DCAEXC      ,4 ,%nz  ,"Number of EXCPs    ",  PRINT);
   xi(DCARKP      ,2 ,%nz  ,"Relative Key pos   ",  PRINT);
-  xi(DCARKL      ,2 ,%nz  ,"Relative Key length",  PRINT);
+  xi(DCAKLN      ,2 ,%nz  ,"Relative Key length",  PRINT);
   xi(DCAHURBC    ,8 ,%    ,"Highest Alloc RBA  ",  PRINT);
   xi(DCAHARBC    ,8 ,%    ,"Highest used  RBA  ",  PRINT);
   xi(DCACISZ     ,4 ,%    ,"CI size            ",  PRINT);

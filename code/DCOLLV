@@ -1,3 +1,5 @@
+// Program to process DCOLLECT Volume records
+//
 //MIT License
 //
 //Copyright (c) 2020 Stromness Software Solutions.
@@ -24,12 +26,21 @@
 //*   Colin Paice - Initial Contribution
 
 FILE * VOLUME   = 0;
+FILE * VOLID    = 0;
 //
 // start processing here
 //
 void dcollectv( char  * pSMF,long count, int inum){
   if  (VOLUME   == 0 ) VOLUME   = MYOPEN("dd:VOLUME ");
   if  (VOLUME   == (FILE *)   -1)return;
+  if  (VOLID    == 0 )
+  {
+      VOLID    = MYOPEN("dd:VOLID  ");
+      if (VOLID == (FILE *) -1) VOLID =0;
+      fprintf(VOLID," volser,0cuu,device  ,    GB,%%use,%%free,frag"
+      ",FVTDSCB, FVTIX\n");
+  }
+  if  (VOLID    == (FILE *)   -1)return;
  struct flagTable FLAG1[] =
  {
    {0x80, 0x80,"Indexed VTOC exists" },
@@ -66,8 +77,8 @@ void dcollectv( char  * pSMF,long count, int inum){
   xs(DCURCTYP    ,2 ,%   ,"Type               ",NOPRINT);
   xi(DCURVERS    ,2 ,%   ,"version            ",NOPRINT);
   xs(DCUSYSID    ,4 ,%   ,"SYSID              ",  PRINT);
-  xfn(DCUTIME    ,4 ,SMFTime ,"Time           ",  PRINT);
-  xfn(DCUDATE    ,4 ,SMFDate ,"Date           ",  PRINT);
+  xfn(DCUTIME    ,4 ,SMFTime ,"DCollect Time  ",  PRINT);
+  xfn(DCUDATE    ,4 ,SMFDate ,"DCollect Date  ",  PRINT);
   xx(reserverd20 ,4 ,%    ,"                  ",NOPRINT);
 
   xs(DCVVOLSR    ,6 ,%    ,"Vol ser            ",  PRINT);
@@ -95,10 +106,21 @@ void dcollectv( char  * pSMF,long count, int inum){
   xi(DCVTRFSP    ,4 ,%    ,"Free space Track M",  PRINT);
   xi(DCVTRALC    ,4 ,%    ,"Allc space Track M",  PRINT);
   xi(DCVTRVLC    ,4 ,%    ,"total space Track M",  PRINT);
-  xi(DCVTRFRG    ,4 ,%    ,"Frag index  Track M",  PRINT);
-  xi(DCVTRLGE    ,4 ,%    ,"Lgst extent Track M",  PRINT);
-  xi(DCVTRFPX    ,4 ,%    ,"Num free traTrack M",  PRINT);
+  xi(DCVTRFRG    ,4 ,%    ,"Frag index  Track  ",  PRINT);
+  xi(DCVTRLGE    ,4 ,%    ,"Lgst extent Track  ",  PRINT);
+  xi(DCVTRFPX    ,4 ,%    ,"Num free traTrack  ",  PRINT);
   xi(DCVFCYLS    ,4 ,%    ,"Free cyliners      ",  PRINT);
   xi(DCVFTRKS    ,4 ,%    ,"Free track ^cyl    ",  PRINT);
   xi(Reserved156 ,4 ,%    ,"Reserved           ",NOPRINT);
+  int cuu = * (short*)    DCVDVNUM ;
+  double capacityGB = (double)  DCVVLCAP/(1024.0 * 1024.0);
+  int   free    = DCVPERCT  ;
+  int    full   = 100 -DCVPERCT;
+
+  fprintf(VOLID," %6.6s,%4.4X,%8.8s,%6.1f,%4.1u, %4.1u,%4.1u"
+                ",%7.1u,%5.1u"
+           "\n",
+            DCVVOLSR,cuu, DCVDPTYP,capacityGB,full, free,
+     DCVFRAGI,DCVFDSCB,DCVFVIRS
+     );
 }
