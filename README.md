@@ -6,6 +6,7 @@ C formatter for z/OS SMF records, including
 1.  SMF 42.6 Data set statistics
 1.  SMF 42.5 VTOC statistics
 1.  SMF 42.1 SMS buffer manager (PDSE)
+1.  SMF 42.27 VTOC Audit
 
 Also provide a [formatter for SMS /VSAM DCOLLECT records](DCOLLECT.md),  as the DCOLLECT records have a similar structure.
 
@@ -28,25 +29,49 @@ If you want to change the processing or write your own, upload the other members
     //STEPLIB  DD DISP=SHR,DSN=&LOADLIB 
     //*MFIN    DD DISP=SHR,DSN=*.SMFDUMP.DUMPOUT 
     //SMFIN    DD DISP=SHR,DSN=COLIN.SMF.OUT 
+    //SMFIN    DD DISP=SHR,DSN=*.SMFDUMP.DUMPOUT 
     //SYSPRINT DD SYSOUT=*,DCB=(LRECL=200) 
     //SYSABEND DD SYSOUT=*,DCB=(LRECL=200) 
+    //S12011   DD SYSOUT=*,DCB=(LRECL=200) 
     //S120SUM  DD SYSOUT=*,DCB=(LRECL=200) 
     //S120TOT  DD SYSOUT=*,DCB=(LRECL=200) 
-    //S12302   DD SYSOUT=*,DCB=(LRECL=200) 
-    //S12311   DD SYSOUT=*,DCB=(LRECL=200) 
-    //S123IP   DD SYSOUT=* 
+    //* 
+    //S123ERR  DD SYSOUT=*,DCB=(LRECL=200) 
+    //S123SH   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S123SS   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S123SUM  DD SYSOUT=*,DCB=(LRECL=200) 
     //S306     DD SYSOUT=*,DCB=(LRECL=200) 
     //SUM30    DD SYSOUT=*,DCB=(LRECL=200) 
-    //SYSUDUMP DD SYSOUT=*,DCB=(LRECL=200)
-    //S426     DD SYSOUT=*,DCB=(LRECL=200) 
+    //S141     DD SYSOUT=*,DCB=(LRECL=200) 
+    //SUM141   DD SYSOUT=*,DCB=(LRECL=200) 
     //SUM42    DD SYSOUT=*,DCB=(LRECL=200) 
     //S421     DD SYSOUT=*,DCB=(LRECL=200) 
     //SUM425   DD SYSOUT=*,DCB=(LRECL=200) 
-    //S425     DD SYSOUT=*,DCB=(LRECL=200) 
+    //S425     DD SYSOUT=*,DCB=(LRECL=200)  
+    //S426     DD SYSOUT=*,DCB=(LRECL=200) 
+    //S891     DD SYSOUT=*,DCB=(LRECL=200) 
     //S425V    DD SYSOUT=*,DCB=(LRECL=200) 
     //S425VM   DD SYSOUT=*,DCB=(LRECL=200) 
     //S425VR   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S4227    DD SYSOUT=*,DCB=(LRECL=200) 
     //SUM421   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S12302   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S12311   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S123IP   DD SYSOUT=*,DCB=(LRECL=200) 
+    //S123ADM  DD SYSOUT=*,DCB=(LRECL=200) 
+    //* User format 
+    //U426A    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U426S    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U426C    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U426E    DD SYSOUT=*,DCB=(LRECL=200) 
+    //* 
+    //U425C    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U425T    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U306C    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U306E    DD SYSOUT=*,DCB=(LRECL=200) 
+    //U306I    DD SYSOUT=*,DCB=(LRECL=200) 
+    //*   
+    //SYSUDUMP DD SYSOUT=*,DCB=(LRECL=200) 
     //SYSOUT   DD SYSOUT=* 
     //SYSERR   DD SYSOUT=* 
     //SUMMARY  DD SYSOUT=* 
@@ -54,6 +79,10 @@ If you want to change the processing or write your own, upload the other members
 Where the SMF 123 subtype 11 data comes out in //S12311, the summary information for SMF120 comes out in //SMF120UM.  
 
 Data summaries by key fields comes out in //S120SUM and //S123IP etc. 
+
+## For some records Ive made it pluggable. 
+There are macros in U425 for examle which allow you to write your own C program to output data in the format you want.
+A C function gets passed all of the fields, and you can select records and format them yourself.
 
 ## Definition fields
 You define fields within records with C macros.  You can choose to print the value or not( many fields are not interesting).
