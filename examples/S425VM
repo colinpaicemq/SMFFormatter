@@ -1,0 +1,15 @@
+== Date:  2021/2/1 SMF Time:09:30:00.02 Sysid:S0W1
+A4PRD4 IDT Avg:88 SSCH:413 Max:562 at 2021/02/01 09:13:01.617960 0-10:0, 10-100:289, 100-1000:124, 1ms-10ms:0, 10ms-100m:0 >100ms0
+Total in long busy  :0
+Count x reserved    :0
+Count with reserve  :0
+sum reserved        :0
+Max reserved time   :0
+Average RT with res :0
+USER00 IDT Avg:135 SSCH:1544 Max:685 at 2021/02/01 09:23:44.607285 0-10:0, 10-100:968, 100-1000:576, 1ms-10ms:0, 10ms-100m:0 >100ms0
+Total in long busy  :0
+Count x reserved    :34
+Count with reserve  :1079847
+sum reserved        :805828
+Max reserved time   :235
+Average RT with res :0

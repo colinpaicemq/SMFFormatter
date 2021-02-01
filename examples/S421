@@ -1,0 +1,16 @@
+Date time  2021/02/01 08:54:11.397642 to  2021/02/01 08:59:26.419003 Duration:315.021
+BMF:LRU time         : 6000 cycles till cast out:15
+BMF:Buffers:    102 HWM:   102
+BMF:==TOTAL==                     Data pages read:     25057 read by BMF:         0 not read by BMF:     25057 (100 %)
+BMF:==TOTAL==                     Dir  pages read:      2310 read by BMF:      2298 not read by BMF:        12 (  0 %)
+SC:**NONE**                       Data pages read:     25057 read by BMF:         0 not read by BMF:     25057 (100 %)
+SC:**NONE**                       Dir  pages read:      2310 read by BMF:      2298 not read by BMF:        12 (  0 %)
+ 
+Date time  2021/02/01 08:54:11.461417 to  2021/02/01 08:59:26.487571 Duration:315.026
+BMF:LRU time         : 5000 cycles till cast out:200
+BMF:Buffers:     11 HWM:    11
+BMF:==TOTAL==                     Data pages read:       271 read by BMF:         0 not read by BMF:       271 (100 %)
+BMF:==TOTAL==                     Dir  pages read:        38 read by BMF:        36 not read by BMF:         2 (  5 %)
+SC:**NONE**                       Data pages read:       271 read by BMF:         0 not read by BMF:       271 (100 %)
+SC:**NONE**                       Dir  pages read:        38 read by BMF:        36 not read by BMF:         2 (  5 %)
+ 

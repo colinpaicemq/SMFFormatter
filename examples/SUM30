@@ -1,0 +1,9 @@
+ 
+== STC Job:BLSJPRMI Step: IEFPROC PROGRAM:BLSQPRMI SMF Date:  2021/2/1 SMF Time:08:54:24.49 Sysid:S0W1
+ Interval Start:2021/02/01 08:54:22.10014 Interval end:2021/02/01 08:54:24.49204 Interval Duration    2.392 seconds
+ Total CPU: 0.800     TCB on CP        : 0.780 SRB on CP       : 0.020
+ Total IO count  528 total IO time  0.002432
+== STC Job:SMFCLEAR Step:   DUMP1 PROGRAM:IFASMFDP SMF Date:  2021/2/1 SMF Time:08:54:31.02 Sysid:S0W1
+ Interval Start:2021/02/01 08:54:25.15755 Interval end:2021/02/01 08:54:31.02396 Interval Duration    5.866 seconds
+ Total CPU: 0.840     TCB on CP        : 0.620 SRB on CP       : 0.220
+ Total IO count  7273 total IO time  0.000896

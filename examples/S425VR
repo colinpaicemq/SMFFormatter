@@ -1,0 +1,4 @@
+== Date:  2021/2/1 SMF Time:09:00:00.02 Sysid:S0W1
+A4CFG1 reserved:  58 SSCH with reserve:387677 avg reserved uS:   0 total reserved uS: 87095 max reserved uS:   108 long busy dur uS:   0
+A4SYS1 reserved: 815 SSCH with reserve:65878337 avg reserved uS:   0 total reserved uS:1666742 max reserved uS:   139 long busy dur uS:   0
+A4PAGA reserved:   4 SSCH with reserve: 12087 avg reserved uS:   0 total reserved uS:  7715 max reserved uS:   387 long busy dur uS:   0

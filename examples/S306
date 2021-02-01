@@ -1,0 +1,79 @@
+====SMF30 -6 =============== record 3
+SMFTime             :08:54:19.51
+SMFDate             :2021/2/1
+SMF system id       :S0W1
+SMF subsystem_id    :STC
+SMFSubtype          :1 Job Start
+Job Name            :MSTJCL00
+JesJob              :MSTR
+Programmers group   :*
+RACF userid         :+MASTER+
+Start date time     :0000/00/00 00:00:00.000000
+End   date time     :0000/00/00 00:00:00.000000
+Interval in secs    : 0.000000
+Product name        :SMF
+OPSYS   name        :SP7.2.4
+SYSNAME name        :S0W1
+PLEX    name        :ADCDPL
+====SMF30 -6 =============== record 27
+SMFTime             :08:54:21.10
+SMFDate             :2021/2/1
+SMF system id       :S0W1
+SMF subsystem_id    :STC
+SMFSubtype          :1 Job Start
+Job Name            :FPGHWAM
+JesJob              :FPGHWAM
+Programmers group   :SYS1
+RACF userid         :START1
+Start date time     :0000/00/00 00:00:00.000000
+End   date time     :0000/00/00 00:00:00.000000
+Interval in secs    : 0.000000
+Product name        :SMF
+OPSYS   name        :SP7.2.4
+SYSNAME name        :S0W1
+PLEX    name        :ADCDPL
+====SMF30 -6 =============== record 3160
+SMFTime             :12:29:50.46
+SMFDate             :2021/2/1
+SMF system id       :S0W1
+SMF subsystem_id    :TSO
+SMFSubtype          :2 Interval
+Job Name            :IBMUSER
+PROGRAM             :IKJEFT01
+StepName            :ISPFPROC
+JesJob              :TSU07233
+Programmers group   :SYS1
+RACF userid         :IBMUSER
+Terminal ID         :LCL701
+Terminal name       :LCL701
+Procedure step      :ISPFPROC
+Job class           :TSU
+Start date time     :2021/02/01 11:59:50.458272
+End   date time     :2021/02/01 12:29:50.458365
+Interval in secs    :1800.000000
+Product name        :SMF
+OPSYS   name        :SP7.2.4
+SYSNAME name        :S0W1
+PLEX    name        :ADCDPL
+All TCB on CP       : 0.000000
+Highest PROGRAM     :IEAVAR00
+Active time         : 0.006144
+Number SRM trans    :1
+Workload            :TSOOTHER
+Service class       :TSO01
+Collection name     :S0W1
+MSO * 1000          :1
+CPU SDC * 10        :10
+IOC SDC * 10        :1
+SRC SDC * 10        :10
+Norm factor IFA     :256
+Norm factor ZIIP    :256
+Total SU            :2
+SRB SU              :2
+Vendor              :IBM CORP
+Product name        :z/OS
+Product version     :02.04.00
+Product Qual        :TSO/E
+Product ID          :5645-001
+Product TCB         : 0.000000
+Product SRB         : 0.000000

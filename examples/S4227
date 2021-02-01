@@ -1,0 +1,30 @@
+====SMF42 -27===============
+JobName             :DUMPSRV
+JobNumber           :DUMPSRV
+StepName            :DUMPSRV
+ProcName            :
+Volid               :A4SYS1
+DeviceNumber        :0A82
+Activity            :Close for output non-VSAM data set
+80=reserved         :80
+DSI                 :00
+SeekCCCCHHHH        :00000001
+SRCHCCCCHHHHR       :00000001 11
+zHPFCMDs            :00000000 00000000 00000000 000000
+ExCP address        :80E0F984
+NDSCB Key field     :SYS1.DAE
+====SMF42 -27===============
+JobName             :SMF
+JobNumber           :SMF
+StepName            :SMF
+ProcName            :
+Volid               :A4SYS1
+DeviceNumber        :0A82
+Activity            :VSAM Open
+80=reserved         :80
+DSI                 :00
+SeekCCCCHHHH        :0000010C
+SRCHCCCCHHHHR       :0000010C 00
+zHPFCMDs            :00000000 00000000 00000000 000000
+ExCP address        :84259388
+NDSCB Key field     :SYS1.S0W1.MAN2.DATA

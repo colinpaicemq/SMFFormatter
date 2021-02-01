@@ -1,0 +1,35 @@
+Stor class name     :SCBASE
+# IOs               :1731
+# read ops          :54
+Normal write cache:000141 hits:000141 not hit:000000 %hit:100%
+Seq_cache_RW:1554 1Track_RW: 0 Bypass_cache_RW: 0
+avg read disc time  :0
+Avg resp time uS:  139 Pend:  12 Conn: 52 Disc:  0 Queue:  0 DAU:  0 Busy:  0 ICR:   0 Other: 75
+avg rand read rt    :0
+avg rand read st    :0
+====DS Sync ====
+Syn r req eli ^ att :11
+Syn r hit eli ^ att :11
+ 
+Stor class name     :SCAPPL
+# IOs               :138
+# read ops          :138
+Normal read cache :000138 hits:000138 not hit:000000 %hit:100%
+avg read disc time  :0
+Avg resp time uS:  191 Pend:  38 Conn: 39 Disc:  0 Queue:  0 DAU:  0 Busy:  0 ICR:   0 Other:114
+avg rand read rt    :0
+avg rand read st    :0
+Stor class name     :SCBASE
+# IOs               :668
+# read ops          :340
+Normal read cache :000214 hits:000216 not hit:4294967294 %hit:100%
+Normal write cache:000126 hits:000126 not hit:000000 %hit:100%
+Seq_cache_RW:326 1Track_RW: 0 Bypass_cache_RW: 0
+avg read disc time  :0
+Avg resp time uS:  494 Pend:  52 Conn:174 Disc:  0 Queue:  0 DAU:  0 Busy:  0 ICR:   0 Other:268
+avg rand read rt    :0
+avg rand read st    :0
+====DS Sync ====
+Syn r req eli ^ att :12
+Syn r hit eli ^ att :12
+ 

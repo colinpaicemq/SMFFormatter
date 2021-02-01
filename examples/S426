@@ -1,0 +1,30 @@
+====SMF42 -6 =============== record 2
+WLM service class   :SYSTEM
+WLM Workload name   :SYSTEM
+ 
+==Job:MSTJCL00 SMF Date:  2021/2/1 SMF Time:08:54:18.88 Sysid:S0W1 Userid:        .
+Interval Start:2021/02/01 08:54:18.842928 End:2021/02/01 08:54:18.886627 Duration    0.044 seconds
+====DSHeader====
+USER.Z24A.PARMLIB                            vol:A4CFG1 type:PDS      sc:         blksize:27920
+== No Dataset section
+====AM IO   ====
+Seq read num block  :1
+Seq read IO delay   : 0.000256
+Bytes read          :27920
+CI/Blocks read      :1
+AM count total:1 RD:1 (seq:1 direct:0 directory:0) WR:0 (seq:0 direct:0 directory:0)
+====SMF42 -6 =============== record 4
+WLM service class   :SYSTEM
+WLM Workload name   :SYSTEM
+ 
+==Job:MSTJCL00 SMF Date:  2021/2/1 SMF Time:08:54:20.57 Sysid:S0W1 Userid:        .
+Interval Start:2021/02/01 08:54:20.568293 End:2021/02/01 08:54:20.573840 Duration    0.006 seconds
+====DSHeader====
+USER.Z24A.PARMLIB                            vol:A4CFG1 type:PDS      sc:         blksize:27920
+== No Dataset section
+====AM IO   ====
+Seq read num block  :1
+Seq read IO delay   : 0.000384
+Bytes read          :27920
+CI/Blocks read      :1
+AM count total:1 RD:1 (seq:1 direct:0 directory:0) WR:0 (seq:0 direct:0 directory:0)
