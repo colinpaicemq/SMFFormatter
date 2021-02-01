@@ -1,0 +1,66 @@
+=SMS Volume definition==
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Vol ser             :APPL0A
+Last updated user   :IBMUSER
+Last updated date   :2019/02/11
+Last updated time   :11:13
+Storage group name  :SGAPPL
+SMS MVS status 1    :0102
+SMS MVS status 4    :0002
+SMS MVS status 7    :0002
+Confirmed status(8) :01000000 00000000
+Capacity in MB      :0
+Free space in MB    :0
+Largest free extent :0
+Vol Level reset cnt :0
+Vol R1 track cap    :0
+Update level for vol:0
+SMS/MVS/CSMS ....1  :01020100 00000000
+SMS/MVS/CSMS ....4  :00020000 00000000
+SMS/MVS/CSMS ....7  :00020000 00000000
+=SMS Volume definition==
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Vol ser             :APPL0B
+Last updated user   :IBMUSER
+Last updated date   :2019/02/11
+Last updated time   :11:13
+Storage group name  :SGAPPL
+SMS MVS status 1    :0102
+SMS MVS status 4    :0002
+SMS MVS status 7    :0002
+Confirmed status(8) :01000000 00000000
+Capacity in MB      :0
+Free space in MB    :0
+Largest free extent :0
+Vol Level reset cnt :0
+Vol R1 track cap    :0
+Update level for vol:0
+SMS/MVS/CSMS ....1  :01020100 00000000
+SMS/MVS/CSMS ....4  :00020000 00000000
+SMS/MVS/CSMS ....7  :00020000 00000000
+=SMS Volume definition==
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Vol ser             :APPL0C
+Last updated user   :IBMUSER
+Last updated date   :2019/02/11
+Last updated time   :11:13
+Storage group name  :SGAPPL
+SMS MVS status 1    :0102
+SMS MVS status 4    :0002
+SMS MVS status 7    :0002
+Confirmed status(8) :01000000 00000000
+Capacity in MB      :0
+Free space in MB    :0
+Largest free extent :0
+Vol Level reset cnt :0
+Vol R1 track cap    :0
+Update level for vol:0
+SMS/MVS/CSMS ....1  :01020100 00000000
+SMS/MVS/CSMS ....4  :00020000 00000000
+SMS/MVS/CSMS ....7  :00020000 00000000

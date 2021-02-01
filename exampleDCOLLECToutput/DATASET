@@ -1,0 +1,58 @@
+===ACTIVE DATA SET==========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Dataset name        :SYS1.VVDS.VA4RES1
+Flags2              :DCALLSP has valid value
+                    :DCDSCALLhas valid value
+Flags3              :Compress field is valid
+Info                :VSAM ??
+Number of extents   :1
+Volser              :A4RES1
+Block length        :4096
+Space alloc KB      :1660
+31 sec alloc KB     :830
+expiry   date       :1960/01/01
+Last ref date       :1960/01/01
+Serial number       :A4RES1
+vol seq number      :0001
+Last backup time    :00000000 00000000
+Compressed flag     :0000
+Format 9 DSCB       :00
+Alloc size in KB    :1660
+Sec alloc  in KB    :830
+Encryption info     :FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFF
+Encryption type     :00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 0000
+Encryption Label    :
+===ACTIVE DATA SET==========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Dataset name        :SYS1.VTOCIX.A4RES1
+Flags2              :NO VVRR for this dataset
+                    :DCALLSP has valid value
+                    :DCUSESP has valid value
+                    :DCDSCALLhas valid value
+                    :DCNMBLK has valid value
+Flags3              :Compress field is valid
+Info                :PS F
+Number of extents   :1
+Volser              :A4RES1
+Block length        :2048
+Record length       :2048
+Space alloc KB      :830
+Space used  KB      :830
+^Optimised KB       :180
+expiry   date       :1960/01/01
+Last ref date       :1960/01/01
+Serial number       :A4RES1
+vol seq number      :0001
+Last backup time    :00000000 00000000
+Compressed flag     :0000
+Format 9 DSCB       :00
+Alloc size in KB    :830
+Used  size in KB    :830
+Could be added KB   :180
+Encryption info     :00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 0000
+Encryption type     :00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 0000
+Encryption Label    :

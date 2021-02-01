@@ -1,0 +1,40 @@
+=====DATA CLASS====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Data class name     :CXDC
+Last updater        :IBMUSER
+Date last updated   :2019/12/17
+Time last updated   :15:14
+Description         :CONTAINER DATA CLASS
+spec 1              :Recorg specified
+spec 2              :Vol cnt specified
+spec 3              :VSAM ext address s'd
+Data set rec org    :Non VSAM PO or PS
+Carriage control    :Carriage control Null
+Max vol count       :1
+DSN type            :DSN type Extended(R)
+Reduce space %      :40
+Dyna Alloc count    :64
+Additional flagsC   :Log replication s'd
+Extended attr       :EATRR EAS not eligible
+=====DATA CLASS====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Data class name     :DCDB2
+Last updater        :IBMUSER
+Date last updated   :2019/02/07
+Time last updated   :10:21
+Description         :
+spec 1              :Recorg specified
+spec 2              :Vol cnt specified
+spec 4              :RLS CF cache s'd
+Data set rec org    :Non VSAM PO or PS
+Carriage control    :Carriage control Null
+Max vol count       :1
+DSN type            :DSN type Null
+Reduce space %      :40
+Dyna Alloc count    :64
+Additional flagsC   :Log replication s'd
+Extended attr       :EATRR EAS not eligible

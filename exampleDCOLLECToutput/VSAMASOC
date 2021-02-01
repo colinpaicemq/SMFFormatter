@@ -1,0 +1,34 @@
+======VSAM ASSOCOCIATION========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Dataset name        :CATALOG.Z24A.MASTER.CATINDEX
+Base cluster name   :CATALOG.Z24A.MASTER
+High Used RBA       :4096
+High Alloc RBA      :1474560
+Number updated recs :321
+Free space in bytes :1474560
+Relative Key pos    :9
+Relative Key length :45
+Highest Alloc RBA   :4096
+Highest used  RBA   :1474560
+CI size             :4096
+Number of CIs in CA :12
+HSM trans date      :
+======VSAM ASSOCOCIATION========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Dataset name        :USERCAT.Z24A.PRODS.CATINDEX
+Base cluster name   :USERCAT.Z24A.PRODS
+High Used RBA       :4096
+High Alloc RBA      :1474560
+Number updated recs :185
+Free space in bytes :1474560
+Relative Key pos    :9
+Relative Key length :45
+Highest Alloc RBA   :4096
+Highest used  RBA   :1474560
+CI size             :4096
+Number of CIs in CA :12
+HSM trans date      :

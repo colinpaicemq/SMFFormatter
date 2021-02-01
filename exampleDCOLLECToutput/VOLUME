@@ -1,0 +1,61 @@
+====Volume=========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Vol ser             :A4RES1
+Flag1               :Indexed VTOC exists
+                    :Indexed VTOC enabled
+                    :Private use
+                    :Shareable
+error flags         :00
+percent free space  :65
+Free space          :5405657
+Alloc on vol        :2908844
+Capacity of vol     :8314501
+Fragmentation indx  :17
+Largest extent      :5195989
+Numberof free xt    :3
+Free DSCBs in VTOC  :1083
+Free VTOC Index     :294
+Device type         :3390
+Device number       :0A80
+Physical dev type   :2107
+Percent free trk    :65
+Free space Track M  :5405657
+Allc space Track M  :2908844
+total space Track M :8314501
+Frag index  Track   :17
+Lgst extent Track   :5195989
+Num free traTrack   :3
+Free cyliners       :6510
+Free track ^cyl     :38
+====Volume=========
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Vol ser             :A4RES2
+Flag1               :Indexed VTOC exists
+                    :Indexed VTOC enabled
+                    :Private use
+                    :Shareable
+error flags         :00
+percent free space  :47
+Free space          :3877057
+Alloc on vol        :4437444
+Capacity of vol     :8314501
+Largest extent      :3876282
+Numberof free xt    :3
+Free DSCBs in VTOC  :1431
+Free VTOC Index     :301
+Device type         :3390
+Device number       :0A81
+Physical dev type   :2107
+Percent free trk    :47
+Free space Track M  :3877057
+Allc space Track M  :4437444
+total space Track M :8314501
+Frag index  Track   :0
+Lgst extent Track   :3876282
+Num free traTrack   :3
+Free cyliners       :4670
+Free track ^cyl     :14

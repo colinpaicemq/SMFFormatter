@@ -1,0 +1,48 @@
+====Storage class=====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Storage class       :CXROOTSC
+Last updater        :IBMUSER
+Date last updated   :2019/12/17
+Time last updated   :15:08
+Description         :CONTAINER STORAGE CLASS
+flag1               :Guaranteed space yes
+                    :Availability
+                    :SyncDev yes
+flag1               :Guaranteed space yes
+Accesibility        :1
+Direct MSR 0 means Must CACHE
+FLAG   CF weight    :64
+====Storage class=====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Storage class       :SCAPPL
+Last updater        :IBMUSER
+Date last updated   :2020/11/23
+Time last updated   :09:27
+Description         :APPLICATION DATA STORAGE CLASS
+flag1               :Availability
+                    :Use Direct response time
+                    :Use Seq response time
+flag1               :Guaranteed space yes
+Accesibility        :3
+Dir ms rate (MSR)   :9
+Direct MSR 9 means May  CACHE
+Seq ms rate (MSR)   :20
+FLAG   CF weight    :64
+====Storage class=====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Storage class       :SCARCH
+Last updater        :IBMUSER
+Date last updated   :2019/02/11
+Time last updated   :11:19
+Description         :ARCHIVE LOGS STORAGE CLASS
+flag1               :Availability
+flag1               :Guaranteed space yes
+Accesibility        :3
+Direct MSR 0 means Must CACHE
+FLAG   CF weight    :64

@@ -1,0 +1,24 @@
+===ACCOUNTING INFORMATION === 
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+DC Last update date :2019/12/17
+DC Dataset name     :SYS1.S0W1.DFSMS.CNTL                        
+DC Member           :DATACLAS
+DC Last update user :IBMUSER 
+DC Last update time :15:21:40
+MC Last update date :          
+MC Dataset name     :                                            
+MC Member           :        
+MC Last update user :        
+MC Last update time :        
+SC Last update date :2019/12/17
+SC Dataset name     :SYS1.S0W1.DFSMS.CNTL                        
+SC Member           :STORCLAS
+SC Last update user :IBMUSER 
+SC Last update time :15:22:19
+SG Last update date :2019/12/17
+SG Dataset name     :SYS1.S0W1.DFSMS.CNTL                        
+SG Member           :STORGRP 
+SG Last update user :IBMUSER 
+SG Last update time :15:23:06

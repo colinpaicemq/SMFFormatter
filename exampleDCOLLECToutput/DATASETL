@@ -1,0 +1,10 @@
+Volser,DatasetName                                 ,SMS,Cha,PDSE,GDG,LastRef   ,SpaceA,SpaceU,DSORG
+A4RES1,SYS1.VVDS.VA4RES1                           ,   ,   ,    ,   ,1960/01/01,   1.6,   0.0,VSAM ??,blksize=4096,lrecl=0
+A4RES1,SYS1.VTOCIX.A4RES1                          ,   ,   ,    ,   ,1960/01/01,   0.8,   0.8,PS F,blksize=2048,lrecl=2048
+A4RES1,CBC.SCCNCMP                                 ,   ,Cha,PDSE,   ,2020/12/24, 235.4, 235.4,PO U,blksize=32760,lrecl=0
+A4RES1,CBC.SCLBDLL                                 ,   ,Cha,    ,   ,2020/07/23,   0.9,   0.9,PO U,blksize=32760,lrecl=0
+A4RES1,CBC.SCLBDLL2                                ,   ,Cha,PDSE,   ,2020/07/23,   1.0,   1.0,PO U,blksize=32760,lrecl=0
+B4USS1,ZFS.Z24B.IZU.DATA                           ,   ,Cha,    ,   ,2020/04/29,   4.9,   0.0,VSAM U,blksize=4096,lrecl=0
+B4USS1,ZFS.Z24B.CNJ.DATA                           ,   ,Cha,    ,   ,2020/10/15,1134.8,   0.0,VSAM U,blksize=4096,lrecl=0
+B4USS1,ZFS.Z24B.ZEDC.DATA                          ,   ,Cha,    ,   ,2020/10/15,   1.8,   0.0,VSAM U,blksize=4096,lrecl=0
+B4USS1,SYS1.VTOCIX.B4USS1                          ,   ,   ,    ,   ,2020/12/16,   0.8,   0.8,PS F,blksize=2048,lrecl=2048

@@ -1,0 +1,117 @@
+====Management class====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Data class name     :COLIN
+Last updater        :IBMUSER
+Date last updated   :2020/11/24
+Time last updated   :15:22
+Description         :COLINS                                                      ...........................................................>
+spec 1              :MCBKVS specified
+                    :DMCBVRD   specified
+                    :DMCBKDY     spec'd
+                    :DMCBKNP specified
+                    :DMCEXDAT specified
+                    :DMCEXDYT specified
+                    :DMCFRDY  specified
+spec 2              :DMCFL1DY ecified
+                    :DMCFBKFQ pecified
+Partial release flg :Partial release Yes
+                    :Cond partn relea no
+                    :Immediate releas no
+?                   :02
+Expire no use- days :999
+Day of year         :998
+Migration flags     :80
+Min days on Prim    :20
+Min days on L1      :60
+Command or auto mig :Auto migr or cmd
+flag 1              :Auto backup allowed
+                    :Copy technique
+Backup frequency    :3
+Number backup versi :3
+Number backup deltd :3
+Days to keep bu ves :30
+Days to keep onlybu :60
+Allow admin/user    :2
+Command or auto mig :Standard copy
+Max days to retain  :0003E5
+Time simce created  :Years specified
+                    :Months specified
+                    :Days specified
+Time since crea  yy :44
+Time since crea  mm :43
+Time since crea  dd :42
+Time since las us yy:0
+Time since las us mm:0
+Time since las us dd:0
+Periodic value      :0
+Periodic month on day:0
+Periodic month in day:0
+Periodic month in mon:0
+Periodic yearly onday:0
+Periodic yearly onday:0
+HSM Class transistion:2
+HSM Cl trans techniq :2
+Move to cloud        :0
+Cloud name for migr  :CLOUDNAME111111111111111111119
+<= Data size thresh  :0
+>  Data size thresh  :0
+ Action for <=       :None
+ Action for >        :None
+====Management class====
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Data class name     :DEFAULT
+Last updater        :IBMUSER
+Date last updated   :1999/10/21
+Time last updated   :16:13
+Description         :
+spec 1              :MCBKVS specified
+                    :DMCBVRD   specified
+                    :DMCBKDY     spec'd
+                    :DMCBKNP specified
+                    :DMCEXDAT specified
+                    :DMCEXDYT specified
+                    :DMCFRDY  specified
+spec 2              :DMCFL1DY ecified
+                    :DMCFBKFQ pecified
+Partial release flg :Partial release No
+                    :Cond partn relea no
+                    :Immediate releas no
+Data set retention  :Expire after days
+                    :Expire after date
+Min days on Prim    :2
+Min days on L1      :60
+Command or auto mig :Auto migr or cmd
+flag 1              :Auto backup allowed
+                    :Copy technique
+Backup frequency    :1
+Number backup versi :2
+Number backup deltd :1
+Days to keep bu ves :30
+Days to keep onlybu :60
+Allow admin/user    :2
+Command or auto mig :Standard copy
+Max retention       :128
+Time since crea  yy :0
+Time since crea  mm :0
+Time since crea  dd :0
+Time since las us yy:0
+Time since las us mm:0
+Time since las us dd:0
+Periodic value      :0
+Periodic month on day:0
+Periodic month in day:0
+Periodic month in mon:0
+Periodic yearly onday:0
+Periodic yearly onday:0
+HSM Class transistion:0
+HSM Cl trans techniq :0
+Move to cloud        :0
+Cloud name for migr  :
+<= Data size thresh  :0
+>  Data size thresh  :0
+ Action for <=       :None
+ Action for >        :None

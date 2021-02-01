@@ -1,0 +1,36 @@
+===Storage Group===
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+SG Name             :CXROOTSG
+Last updated user   :IBMUSER
+Last updated date   :2019/12/17
+Last updated time   :15:07
+Description         :CONTAINER STORAGE GROUP
+SG Type             :Pool
+SG High threshold   :85
+SG Low  threshold   :1
+VIO Max ds size     :0
+Status by processr  :01000000 00000000
+Confirmed SMS Stts  :01000000 00000000
+req/cnm status 1    :01010000 00000000
+High Thresh pc val  :85
+Low  Thresh pc val  :1
+===Storage Group===
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+SG Name             :SGAPPL
+Last updated user   :IBMUSER
+Last updated date   :2019/02/11
+Last updated time   :11:13
+Description         :POOL FOR MIDDLEWARE CONFIG OR APPLICATION DATA
+SG Type             :Pool
+SG High threshold   :85
+SG Low  threshold   :1
+VIO Max ds size     :0
+Status by processr  :01000000 00000000
+Confirmed SMS Stts  :01000000 00000000
+req/cnm status 1    :01010000 00000000
+High Thresh pc val  :85
+Low  Thresh pc val  :1

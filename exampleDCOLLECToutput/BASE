@@ -1,0 +1,26 @@
+===BASE============
+SYSID               :S0W1
+DCollect Time       :17:34:46.20
+DCollect Date       :2020/12/24
+Last updated userid :IBMUSER 
+Last updated date   :2019/06/06
+Last updated time   :06:07   
+Description         :SMS CONFIGURATION FOR ADCD                                                                                              
+Dcollect flags      :80
+MC length           :7
+MC Name             :STANDEF                       
+Track size in bytes :56664
+Cyl capacity        :15
+Default Unit        :SYSDA   
+SMS resource tok    :       
+Data set status     :01
+System name         :S0W1    
+SCDS names used     :SYS1.S0W1.DFSMS.SCDS                        
+System Feat 1       :\ 
+System type 1       :01
+System/group Name1  :S0W1    
+System/group feat1  :\ 
+System name type1   :01
+System name type2   :00
+System name type3   :00
+System name type4   :00
