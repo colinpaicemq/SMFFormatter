@@ -1,4 +1,4 @@
-Sys ,Time    ,Storage ,   IOs,[RCache]("Read cache requests"),RCache,RCache,WCache,WCache,WCache,   Seq,   RLC,   ICL
+Sys ,Time    ,Storage ,   IOs,RCache,RCache,RCache,WCache,WCache,WCache,   Seq,   RLC,   ICL
     ,        ,Class   ,      ,   Req,  Hits, ^Hits,   Req,  Hits, ^Hits,      ,   1TR,      
 S0W1,09:00:00,SCBASE  ,  1731,    36,    36,     0,   141,   141,     0,  1554,     0,     0
 S0W1,09:30:00,SCAPPL  ,   138,   138,   138,     0,     0,     0,     0,     0,     0,     0
