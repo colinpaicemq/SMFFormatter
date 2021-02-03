@@ -58,6 +58,19 @@
    sprintf(buffer,"%2.2d:%2.2d:%2.2d.%2.2d\0",HH,MM,SS,hh);
    return 11;
  }
+ int  SMFTimeS(char *  in, char * buffer)
+ {
+   // input is the number of seconds since midnight
+   // and the buffer
+   int i = * (int  *) in;  // get the int from the buffer
+   int HH,MM,SS,hh;
+   SS = i%60;  //seconds
+   i  = i/60;
+   MM = i%60;  //seconds
+   HH = i/60;  //seconds
+   sprintf(buffer,"%2.2d:%2.2d:%2.2d\0",HH,MM,SS);
+   return 8; // lengt of the string
+ }
 // function  to convert SMF record date           to string
  int  SMFDate(char *  in, char * buffer)
  {

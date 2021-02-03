@@ -1,0 +1,211 @@
+//MIT License
+//
+//Copyright (c) 2020 Stromness Software Solutions.
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+//
+//* Contributors:
+//*   Colin Paice - Initial Contribution
+#include <u422.h>
+
+FILE * SMF42_2  = 0;
+//
+// start processing here
+//
+void dosmf42_2( char  * pSMF,long count){
+  if  (SMF42_2  == (FILE *)   -1)return;
+  if  (SMF42_2  == 0 ) SMF42_2  = MYOPEN("dd:S422    ");
+  if  (SMF42_2  == 0 )
+   {
+     perror("Error opening dd:S422 ");
+     SMF42_2  = (FILE *) -1 ;
+     return;
+  }
+  // the printf* routines use this global variable
+  fHandle = SMF42_2 ;
+  int offset;
+  int perCent;
+  printOffset = 0;
+  char * pSMFZ;
+  char * pOffsetBase;   // this is used to caluclate field offsets
+  pOffsetBase = pSMF;
+  pSMFZ = pSMF;
+  char * system;
+  char * pSMFDate;
+  char * pSMFTime;
+  char * pSystem ;
+  float fDuration;
+  char startDT[27];
+  char endDT[27];
+  char * p = pSMF;  // this is incremented with each field
+  // for flags
+  // mask, value, descr
+  // if (mask & input == value) then descr
+  struct flagTable FLAG1[] =
+  {
+    {0xE0, 0x00,"Cache active"        },
+    {0xE0, 0x20,"Cache Pending act"   },
+    {0xE0, 0x40,"Cache internal err"  },
+    {0xE0, 0x80,"Cache deactivated"   },
+    {0xE0, 0xC0,"Pending off ..."     },
+    {0xE0, 0xE0,"Pending off failed"  },
+
+    {0x10, 0x10,"Disabled"            },
+    {0x02, 0x02,"IM Device ! avail"   },
+    {0x01, 0x01,"Non reten deact"     }
+
+  };
+  struct flagTable FLAG2[] =
+  {
+    {0xC0, 0x00,"Cache active"        },
+    {0xC0, 0x40,"Internal error"      },
+    {0xC0, 0x80,"Disabled"            },
+    {0xC0, 0xC0,"Pending NV disable"  },
+
+    {0x10, 0x10,"NV disabled"         },
+    {0x01, 0x01,"IML Device ^ avail"  },
+    {0x08, 0x08,"Disabled error"      }
+
+  };
+  // now for volume
+  struct flagTable VOL1[] =
+  {
+    {0xC0, 0x00,"Cache active"        },
+    {0xC0, 0x40,"Unused"              },
+    {0xC0, 0x80,"Pending deact"       },
+    {0xC0, 0xC0,"Unavailable"         },
+
+    {0x30, 0x00,"Fast Write Active"  },
+    {0x30, 0x10,"Unused"              },
+    {0x30, 0x20,"Fast Write Deact"    },
+    {0x30, 0x30,"Fast Write Deact"    },
+    {0x08, 0x08,"Primary of duplex"   },
+    {0x04, 0x04,"secondary of Duplex" },
+    {0x03, 0x00,"Duplex available"    },
+    {0x03, 0x01,"Duplex pending"      },
+    {0x03, 0x02,"Duplex failed cmd"   },
+    {0x03, 0x03,"Duplex failed subs"  },
+  };
+  struct flagTable VOL2[] =
+  {
+    {0xC0, 0x00,"No pinned FW OK"     },
+    {0xC0, 0x40,"Pinned Data. FW OK"  },
+    {0xC0, 0x80,"Reserved"            },
+    {0xC0, 0xC0,"Pinned data, No FW"  },
+  };
+  //
+  // start of fields
+  //
+  xi(LEN         ,2 ,%    ,"Record length     ",NOPRINT);
+  xi(SEG         ,2 ,%    ,"Segment type      ",NOPRINT);
+  xx(FLG         ,1 ,%    ,"Record Flag       ",NOPRINT);
+  xx(rec_type    ,1 ,%    ,"Record type       ",NOPRINT);
+  xfn(TME        ,4 ,SMFTime ,"SMFTime        ",  PRINT);
+  pSMFTime = &TME[0];
+  xfn(DTE        ,4 ,SMFDate ,"SMFDate        ",  PRINT);
+  pSMFDate = &DTE[0];
+  xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
+  xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
+  xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
+  xi(NT          ,2 ,%    ,"Number of triplets",NOPRINT);
+  xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
+  xi(OPS         ,4 ,%    ,"offset to prod    ",NOPRINT);
+  xi(LPS         ,2 ,%    ,"Length    prod    ",NOPRINT);
+  xi(NPS         ,2 ,%    ,"Number    prod    ",NOPRINT);
+ //  end of common
+  xi(CUO         ,4 ,%    ,"Control Unit offs ",NOPRINT);
+  xi(CUL         ,2 ,%    ,"CUL               ",NOPRINT);
+  xi(CUN         ,2 ,%    ,"CUN               ",NOPRINT);
+  xi(VLO         ,4 ,%    ,"Volume  offset    ",NOPRINT);
+  xi(VLL         ,2 ,%    ,"Volume  all length",NOPRINT);
+  xi(VLN         ,2 ,%    ,"Volume  Number    ",NOPRINT);
+  TRIPLET(Prod  t,pSMFZ+ OPS         ,
+        NPS      , LPS      ,NOPRINT);
+     xs(PDL              ,8  ,%     ,"Product level      ",NOPRINT);
+     xs(PDN              ,10 ,%     ,"Product name       ",NOPRINT);
+     xi(PSV              ,1  ,%     ,"subversion         ",NOPRINT);
+     xi(PSVRES           ,1  ,%     ,"Reserved           ",NOPRINT);
+     xSTCKDT(PTS         ,8  ,%     ,"Start time         ",NOPRINT);
+     xSTCKDT(PTE         ,8  ,%     ,"End   time         ",NOPRINT);
+     if ( PTEll  != 0)
+     {
+       unsigned long long lduration =  PTEll - PTSll;
+       fDuration =  ((float) lduration )/1000000;
+       fprintf(fHandle,"Date time %27.27s to %27.27s Duration:%6.3f\n",
+       PTSdt,PTEdt,fDuration);
+       memcpy(&startDT[0],PTSdt,sizeof(startDT));
+       memcpy(&endDT[0],PTEdt,sizeof(endDT));
+     }
+     xx(res36            ,4  ,%     ,"Reserverd          ",NOPRINT);
+ ETRIPLET(Prod     );
+  TRIPLET(CU     ,pSMFZ+ CUO         ,
+        CUN      , CUL      ,NOPRINT);
+     xflagcat(SCS  ,1 ,FLAG1,"Caching Status      ",  PRINT);
+     xflagcat(NCS  ,1 ,FLAG2,"NV caching status   ",  PRINT);
+     xx(CID              ,2  ,%     ,"Subsystem ID       ",  PRINT);
+     short sCID;
+     memcpy(&sCID,CID,2);
+     int lCID =          sCID;  // for u422
+     xi(CSS              ,4  ,%     ,"Storage capacity    ",  PRINT);
+     xi(SSA              ,4  ,%     ,"Storage available  ",  PRINT);
+     xi(SAP              ,4  ,%     ,"S Alloc for Pinned ",  PRINT);
+     xi(SAU              ,4  ,%     ,"Storage unavailable",  PRINT);
+     xi(NSZ              ,4  ,%     ,"Non Vol-cache sz   ",  PRINT);
+     xi(SPR              ,4  ,%     ,"NVC Alloc for pinned",  PRINT);
+     xi(Reserved28       ,4  ,%     ,"                    ",NOPRINT);
+     // previous period
+     xi(LCT              ,4  ,%     ,"P IO count           ",  PRINT);
+     xi(LFW              ,4  ,%     ,"P Fast Write bypass  ",  PRINT);
+     xi(LRH              ,4  ,%     ,"P Read hit percent   ",  PRINT);
+     xi(LWM              ,4  ,%     ,"P Fast Wr Bypass/min",  PRINT);
+     checkOffset(48);
+     xfn(LYYDD      ,4 ,SMFDate  ,"P Date         ",  PRINT);
+     // the following is in seconds since midnight
+     xfn(LTM        ,4 ,SMFTimeS ,"P time         ",  PRINT);
+     // current  period
+     checkOffset(56);
+     xi(CCT              ,4  ,%     ,"C IO count           ",  PRINT);
+     xi(CFW              ,4  ,%     ,"C Fast Write bypass  ",  PRINT);
+     xi(CRH              ,4  ,%     ,"C Read hit percent   ",  PRINT);
+     xi(CWM              ,4  ,%     ,"C FCast Wr Bypass/min",  PRINT);
+     checkOffset(72);
+     xx(CYYDD       ,4 ,S%       ,"C Date         ",  PRINT);
+     xfn(CTM        ,4 ,SMFTimeS,"C time         ",  PRINT);
+     //
+     xi(IHR              ,2  ,%     ,"Avg Hit ratio       ",  PRINT);
+     xi(IFW              ,2  ,%     ,"Avg fast Wr Byp/min ",  PRINT);
+     checkOffset(84);
+     xx(RES84            ,4  ,%     ,"reserved            ",NOPRINT);
+     U422SC
+ ETRIPLET(CU       );
+ TRIPLET(Volume ,pSMFZ+ VLO         ,
+    // VLN is total length of volume not each record
+        VLN      , VLL/VLN  ,NOPRINT);
+     xs(VOL              ,6  ,%     ,"Volume             ",  PRINT);
+     xx(reserver6        ,2  ,%     ,"Reserved           ",NOPRINT);
+     xx(DEV              ,4  ,%     ,"Device Number      ",  PRINT);
+     xflagcat(DB1  ,1 ,VOL1 ,"Device Status1      ",  PRINT);
+     xflagcat(DB2  ,1 ,VOL2 ,"Device Status1      ",  PRINT);
+//   xx(DB1              ,1  ,%     ,"Status1            ",  PRINT);
+//   xx(DB2              ,1  ,%     ,"Status2            ",  PRINT);
+     checkOffset(14);
+     xx(reserved14       ,2  ,%     ,"reserved           ",NOPRINT);
+ ETRIPLET(VOL      );
+ fprintf(fHandle,"==============================\n");
+}

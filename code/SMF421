@@ -57,8 +57,8 @@ void dosmf42_1( char  * pSMF,long count){
   xs(sid         ,4 ,%    ,"SMF system id     ",NOPRINT);
   xs(ssid        ,4 ,%    ,"SMF subsystem_id  ",NOPRINT);
   xi(subtype     ,2 ,%    ,"SMFSubtype        ",NOPRINT);
-  xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
   xi(NT          ,2 ,%    ,"Number of triplets",NOPRINT);
+  xx(res1a       ,2 ,%    ,"reserverd         ",NOPRINT);
   xi(OPS         ,4 ,%    ,"offset to prod    ",NOPRINT);
   xi(LPS         ,2 ,%    ,"Length    prod    ",NOPRINT);
   xi(NPS         ,2 ,%    ,"Number    prod    ",NOPRINT);
